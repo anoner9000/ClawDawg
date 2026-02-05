@@ -1,0 +1,35 @@
+title: Gateway UI Exposed
+id: 9b1f2d4a-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+status: experimental
+description: Detects HTTP 200 responses on common Gateway UI paths indicating a potentially exposed control plane UI.
+author: Deiphobe
+date: 2026/02/04
+references: []
+logsource:
+  product: webserver
+  service: httpd
+detection:
+  selection:
+    http.request.uri.path:
+      - "/"
+      - "/gateway/ui"
+      - "/ui"
+      - "/admin"
+      - "/gateway"
+  condition: selection
+falsepositives:
+  - internal admin consoles legitimately exposed to management network
+level: high
+
+# Elastic query example (copy into Kibana Dev Tools or translate for your SIEM):
+# GET _search
+# {
+#   "query": {
+#     "bool": {
+#       "must": [
+#         { "terms": { "http.request.uri.path": ["/","/gateway/ui","/ui","/admin","/gateway"] } },
+#         { "term": { "http.response.status_code": 200 } }
+#       ]
+#     }
+#   }
+# }

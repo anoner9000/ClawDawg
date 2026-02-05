@@ -1,0 +1,32 @@
+title: Gateway WebSocket Activity
+id: a7c3e1b2-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+status: experimental
+description: Detects unusual WebSocket connections to Gateway endpoints or gatewayUrl overrides indicating possible token exfiltration attempts.
+author: Deiphobe
+date: 2026/02/04
+logsource:
+  product: browser
+  service: websocket
+detection:
+  selection:
+    websocket.request.uri.path:
+      - "/ws"
+      - "/gateway/ws"
+      - "/socket"
+  condition: selection
+falsepositives:
+  - legitimate management integrations
+level: critical
+
+# Elastic example (pseudo):
+# GET _search
+# {
+#   "query": {
+#     "bool": {
+#       "must": [
+#         { "terms": { "websocket.request.uri.path": ["/ws","/gateway/ws","/socket"] } },
+#         { "range": { "@timestamp": { "gte": "now-1d" } } }
+#       ]
+#     }
+#   }
+# }

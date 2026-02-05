@@ -1,0 +1,86 @@
+# Never commit secrets or runtime state
+.env
+**/.env
+# OpenClaw runtime (logs, queues, credentials, generated artifacts)
+runtime/
+**/runtime/
+# If you ever symlink or mirror ~/.openclaw into workspace, protect these too:
+**/credentials/
+**/sessions/
+**/logs/
+**/queues/
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Secrets
+.env
+*.key
+*.pem
+
+# Runtime outputs
+logs/
+queues/
+var/
+runtime/
+*.jsonl
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Misc
+.DS_Store
+
+# Secrets
+.env
+
+# Runtime outputs / state
+*.jsonl
+logs
+queues
+var
+briefings/briefings
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.tsbackup
+
+# Briefing corpus (local data)
+
+# --- Modular bot layout ignores ---
+# Secrets
+.env
+
+# Runtime outputs / state
+*.jsonl
+logs
+queues
+var
+
+# Briefing corpus (data), keep README tracked
+modules/briefings/texts/*.txt
+!modules/briefings/texts/README.md
+
+# Generated briefing outputs
+modules/briefings/outputs/
+
+# Editor/backup noise
+*.tsbackup
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Local-only: backups + corpora
+_backup_legacy_gmail_scripts/
+briefings/texts/

@@ -1,0 +1,25 @@
+Clawdex fetch + ClawHavoc scan report
+
+Fetched: https://clawdex.koi.security/skill.md (archived)
+
+Scans performed (2026-02-03 02:23 - 02:27 CT):
+- Content-scan for risky install instructions (curl | bash, glot.io, password-protected zip): No matches in local README/install docs.
+- Targeted README/install-docs scan: No risky install instructions found.
+- Retroactive IOC/name/hash/IP scan:
+  - Skill name/pattern matches: none found in ~/.openclaw, ~/.clawdbot, ~/.npm-global, workspace.
+  - IOC IP addresses: none found in scanned files or logs.
+  - SHA256 file hash matches: none found for supplied hashes.
+  - Active network connections to IOC IPs: none observed.
+  - Bash history: no suspicious download commands found.
+
+Actions taken:
+- Archived Clawdex docs to playbooks/secure/clawdex/skill.md
+- Saved scan results and notes to memory/2026-02-03.md
+- Prepared playbooks/token_rotation_playbook.md and backup scripts for next steps (dry-run capable)
+
+Notes/next steps:
+- Nightly ACE ingestion (dry-run) and weekly deep audits continue.
+- If you want, I can collect a forensic snapshot (process list, /tmp/ & home modtimes, recent logs) and store it under playbooks/secure/clawdex/artifacts.tar.gz
+- No destructive or quarantine actions were performed; further containment requires explicit approval.
+
+Saved by Deiphobe.

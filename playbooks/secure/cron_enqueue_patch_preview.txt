@@ -1,0 +1,24 @@
+Preview: suggested enqueue-replacement for LLM-producing scheduled jobs
+
+Goal: Replace scheduled agent systemEvent jobs that call LLMs directly with lightweight enqueue actions that append a JSONL entry to ~/queues/llm_queue.jsonl. Heartbeat aggregator (hourly) will batch and process the queue.
+
+Example replacement (Morning briefing job ID: b7cf4466-741f-48cf-83da-e34aa71d8df2)
+
+Current payload (systemEvent):
+{"kind":"systemEvent","text":"Run morning briefing template now."}
+
+Suggested replacement payload (systemEvent, enqueue only):
+{"kind":"systemEvent","text":"ENQUEUE_LLM: {\"id\":\"b7cf4466-741f-48cf-83da-e34aa71d8df2\",\"prompt\":\"Morning briefing template: produce concise morning briefing for Uther with top outcomes, priorities (3), blockers (2), and hydration reminder.\" }"}
+
+Operational notes:
+- The agent receives the systemEvent and runs a tiny handler that appends the JSON blob into ~/queues/llm_queue.jsonl (one entry per line). No LLM call happens at this time.
+- Heartbeat aggregator polls ~/queues/llm_queue.jsonl hourly, batches all queued entries up to a token threshold (e.g., 2,000 tokens), then calls the LLM once and distributes results back to logs and post-processing hooks.
+- Keep original job schedule; change payload text to ENQUEUE_LLM placeholder. Alternatively, change schedule to a single 'mark' and rely on a separate lightweight enqueue trigger from event sources.
+
+Jobs recommended for enqueue-replacement (preview list):
+- Morning briefing daily 08:00 CT — replace direct generation with enqueue payload
+- Tennessee weekly check-in draft — replace with enqueue payload
+
+Safety & rollback:
+- This change is reversible by restoring the original job payload from playbooks/secure/cron_audit_*.txt
+- No crons will be disabled in this preview. Apply only after you approve.

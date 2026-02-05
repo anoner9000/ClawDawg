@@ -1,0 +1,71 @@
+Cron/cron-like jobs audit (OpenClaw cron list) — 2026-02-03T09:29 CST
+
+Summary (raw counts)
+- Total scheduled jobs found: 7
+- Jobs I classify as LLM-invoking (direct or likely): 2
+- Jobs non-LLM (systemEvent static / local script / infra): 5
+
+Full enumeration & classification
+1) ID: 5e819208-204c-42b3-b16d-2c11579f265a
+   Name: Water reminder - gentle
+   Schedule: 09:00,12:00,15:00,18:00 CT daily
+   Payload: systemEvent - "Reminder: gentle water check — aim for 100oz today (log progress when convenient)."
+   Classification: Non-LLM (static system event, no generation required)
+   Action: Leave as-is (heartbeat aggregator may batch notification deliver, but not necessary)
+
+2) ID: 7123aeea-7cd5-4256-af46-b52459af6d09
+   Name: Reading reminder
+   Schedule: 19:00 CT daily
+   Payload: systemEvent - "Reminder: 30 minutes reading time — progress toward daily reading goal."
+   Classification: Non-LLM (static)
+   Action: Leave as-is
+
+3) ID: 3fe49c1a-cc9a-4371-9f94-40a1bf1fe1b3
+   Name: Nightly ACE ingestion (dry-run)
+   Schedule: 02:00 CT daily
+   Payload: systemEvent - "Run ACE ingestion in dry-run mode: ./scripts/ingest_ace.sh ..."
+   Classification: Non-LLM (script only; ingest_ace.sh does file ops and jq; no LLM calls)
+   Action: Keep scheduled; consider moving to system cron (non-agent) to reduce agent LLM exposure
+
+4) ID: b7cf4466-741f-48cf-83da-e34aa71d8df2
+   Name: Morning briefing daily 08:00 CT
+   Schedule: 08:00 CT daily
+   Payload: systemEvent - "Run morning briefing template now."
+   Classification: LLM-invoking (agent will generate briefings via LLM at wake)
+   Action: Mark as LLM-exact (produces generated text). Recommend: convert to enqueue->heartbeat (batch with other LLM work) and change schedule to enqueue only. Keep a thin systemEvent for urgent morning-signal only if needed.
+
+5) ID: 7498f02c-401c-4334-a876-e78a660b82f5
+   Name: Tennessee weekly check-in draft
+   Schedule: Wed 20:00 CT weekly
+   Payload: systemEvent - "Draft Tennessee check-in message for Uther approval: ..."
+   Classification: LLM-invoking (draft generation)
+   Action: Mark as LLM-batchable (can be batched in heartbeat aggregator; replace with enqueue)
+
+6) ID: 5cbbf7e4-f7d3-41bb-8724-285384cf40b2
+   Name: Weekly deep OpenClaw audit
+   Schedule: Sun 03:00 CT weekly
+   Payload: systemEvent - "Run openclaw security audit --deep and report if findings exceed INFO level."
+   Classification: Non-LLM (runs CLI tool; may produce structured output but not LLM calls)
+   Action: Keep as system event or move to system scheduler; ensure results stored to logs for later LLM summarization on-demand.
+
+7) ID: fa255e88-3fb8-47ee-9f8e-f2d24e8049ac
+   Name: Monthly permissions audit
+   Schedule: 1st 04:00 CT monthly
+   Payload: systemEvent - "Run permissions_audit.sh and report if changes detected."
+   Classification: Non-LLM (local script)
+   Action: Move to system cron (no LLM dependency)
+
+Notes & findings
+- Scripts inspected (scripts/ingest_ace.sh, scripts/permissions_audit.sh, scripts/token_rotation.sh): none contain direct LLM/API calls or embedding operations. They are safe to move off-agent to system cron/service if desired.
+- The agent-triggered systemEvent jobs that request text generation are the main LLM consumers: morning briefing and Tennessee draft. These are the highest-priority candidates for enqueue->heartbeat batching.
+- No explicit embedding/vector index jobs were found in scheduled cron entries. If embeddings exist, they may be run ad-hoc by agents or via manual scripts; we should scan workspace for common embedding keywords ("openai","embeddings","vector","pinecone","weaviate").
+
+Next recommended steps (short)
+1) Replace LLM cron jobs with an "enqueue" system: modify the scheduled job to emit a lightweight queue entry (append to ~/queues/llm_queue.jsonl) instead of calling the agent generation directly. Heartbeat aggregator will poll the queue hourly and run batched LLM calls.
+2) Move non-LLM scripts (ingest_ace.sh, permissions_audit.sh, openclaw security audit) to system crontab or systemd timers; keep the agent notified only of results via a short systemEvent when human/context needed.
+3) Implement rate_guard: track LLM 429s per-minute and pause non-critical jobs after N failures in M minutes; record events to ~/logs/heartbeat/ratelimit.log.
+4) Search workspace for any non-cron LLM calls (scripts or playbooks referencing provider libraries) and consolidate.
+
+Saved: playbooks/secure/cron_audit_2026-02-03T09-29-00CT.txt
+
+Prepared by: Deiphobe (automated audit run on user request)
