@@ -8,7 +8,7 @@ mkdir -p "$LOG_DIR"
 STAMP="$(date -u +'%Y-%m-%d_%H%M%S')"
 LOG_FILE="$LOG_DIR/cron_gmail_cleanup_${STAMP}.log"
 
-# Pick venv python if present (cron won't have your venv activated)
+# Cron won't have your venv activated, so pick an explicit python if present.
 PY=""
 if [[ -x "$WS/venv/bin/python3" ]]; then
   PY="$WS/venv/bin/python3"
@@ -29,12 +29,12 @@ cd "$WS"
   # 2) Quarantine ALL messages from the latest manifest
   MANIFEST="$(ls -1t "$HOME/.openclaw/runtime/logs"/mail_cleanup_manifest_*.jsonl | head -n 1)"
   echo "[nightly] manifest=$MANIFEST"
-  $PY modules/gmail/scripts/gmail_cleanup_quarantine.py --manifest "$MANIFEST" --max 99999999 --apply
+  $PY modules/gmail/scripts/gmail_cleanup_quarantine.py --manifest "$MANIFEST" --apply
 
-  # 3) Trash ALL quarantined messages from the latest quarantine log
+  # 3) Trash ALL quarantined messages from the quarantine log
   QLOG="${MANIFEST}.quarantine_log"
   echo "[nightly] quarantine_log=$QLOG"
-  $PY modules/gmail/scripts/gmail_cleanup_trash.py --quarantine-log "$QLOG" --confirm TrashApply --max 99999999 --apply
+  $PY modules/gmail/scripts/gmail_cleanup_trash.py --quarantine-log "$QLOG" --confirm TrashApply --apply
 
   echo "[nightly] done_utc=$(date -u --iso-8601=seconds)"
 } | tee -a "$LOG_FILE"
