@@ -1,0 +1,7 @@
+{
+  "default_days": 180,
+  "default_samples": 20,
+  "senders": [
+    { "email": "example@newsletter.com", "reason": "Example entry" }
+  ]
+}
