@@ -27,7 +27,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 RUN_STAMP = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d_%H%M")
 CREDS_PATH = os.path.join(RUNTIME, "config", "credentials.json")
-TOKEN_PATH = pathlib.Path(os.path.join(RUNTIME, "config", "token.json"))
+TOKEN_PATH = pathlib.Path(os.path.join(RUNTIME, "config", "token_readonly.json"))
 
 
 def auth():

@@ -24,7 +24,7 @@ from googleapiclient.discovery import build
 HOME = os.path.expanduser("~")
 RUNTIME = os.path.join(HOME, ".openclaw", "runtime")
 CREDS_PATH = os.path.join(RUNTIME, "config", "credentials.json")
-TOKEN_PATH = pathlib.Path(os.path.join(RUNTIME, "config", "token.json"))
+TOKEN_PATH = pathlib.Path(os.path.join(RUNTIME, "config", "token_modify.json"))
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 LABEL_NAME = "quarantine/cleanup"
