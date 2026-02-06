@@ -1,0 +1,33 @@
+title: Suspicious Network Fetch Followed by Execution
+id: 7a2c5f9e-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+status: experimental
+description: Detects patterns of downloading and executing remote payloads, common in staged malware delivery (e.g., curl/wget piped to bash or base64 decode). Observed in OpenClaw supply chain attacks.
+author: Grok (based on Claw bot IOCs)
+date: 2026-02-06
+references:
+  - https://x.com/daniellockyer/status/2019422410018267328
+logsource:
+  category: process_creation
+  product: linux
+  # Adapt for macOS/Windows if using sysmon equivalents
+detection:
+  selection_fetch:
+    Image|endswith:
+      - '/usr/bin/curl'
+      - '/usr/bin/wget'
+    CommandLine|re: '(?i)(curl|wget)\s+(https?://[^\s\'"\)]+)\s+.*(-o\s+[^\s]+|.*(bash|sh|python)|base64)'
+  selection_exec:
+    Image|endswith:
+      - '/bin/bash'
+      - '/bin/sh'
+      - '/usr/bin/python'
+    CommandLine|re: '(?i)(base64|openssl).*\|\s*(bash|sh|python)|chmod \+x .* && ./[^\s]+'
+  timeframe: 60s # Correlate within 1 minute
+  condition: selection_fetch and selection_exec
+falsepositives:
+  - Automated scripts or DevOps tools using curl/wget for legitimate downloads.
+  - Package managers like Homebrew or pip.
+level: medium
+tags:
+  - attack.execution
+  - attack.t1059

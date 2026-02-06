@@ -1,0 +1,18 @@
+{
+  "rule": {
+    "title": "Suspicious Network Fetch Followed by Execution - OpenClaw Related",
+    "description": "Detects curl/wget downloading remote content piped to execution (bash/sh/python/base64/openssl), common in staged malware delivery and observed in ClawHub/OpenClaw supply chain attacks.",
+    "severity": "medium",
+    "tags": ["attack.execution", "attack.t1059", "clawhub", "openclaw"],
+    "references": [
+      "https://x.com/daniellockyer/status/2019422410018267328",
+      "https://1password.com/blog/from-magic-to-malware-how-openclaws-agent-skills-become-an-attack-surface"
+    ],
+    "query": "process.name : (\"curl\" OR \"wget\") AND process.command_line : (*https* AND (*bash* OR *sh* OR *python* OR *-o* OR *base64* OR *openssl*)) AND process.parent.command_line : (*base64* OR *openssl* OR *\"chmod +x\" OR *exec*)",
+    "language": "kuery",
+    "kql_comment": "/* KQL example: process.name : (\"curl\" OR \"wget\") AND process.command_line : (*https* AND (*bash* OR *sh* OR *python* OR *-o* OR *base64* OR *openssl*)) AND process.parent.command_line : (*base64* OR *openssl* OR \"chmod +x\" OR *exec*)) */",
+    "index": ["logs-endpoint.events.process-*"],
+    "timestamp_override": "@timestamp"
+  },
+  "linked_sigma": "suspicious_fetch_then_exec.yml"
+}

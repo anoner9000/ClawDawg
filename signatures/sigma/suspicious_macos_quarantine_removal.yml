@@ -1,0 +1,26 @@
+title: Suspicious macOS Quarantine Attribute Removal
+id: 0f3d9b8a-7c2b-4d6f-9e2a-1b6f4a2c9e5d
+status: experimental
+description: Detects attempts to remove quarantine attributes on downloaded files or disable Gatekeeper, often used by malware to evade macOS protections. Linked to OpenClaw malware behaviors.
+author: Grok (based on Claw bot IOCs)
+date: 2026-02-06
+references:
+  - https://x.com/daniellockyer/status/2019422410018267328
+logsource:
+  product: macos
+  service: process_creation
+detection:
+  selection:
+    Image|endswith:
+      - '/usr/bin/xattr'
+      - '/usr/sbin/spctl'
+    CommandLine|contains:
+      - 'xattr -d com.apple.quarantine'
+      - 'spctl --master-disable'
+  condition: selection
+falsepositives:
+  - Legitimate admin actions during software installation or troubleshooting.
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1562.001

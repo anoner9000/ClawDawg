@@ -1,0 +1,48 @@
+name: OpenClaw_Malicious_Staged_Delivery_Hunt
+description: |
+  Velociraptor VQL artifact to hunt for staged delivery patterns and quarantine removal on endpoints.
+  Looks for suspicious command lines (curl/wget -> bash/sh/python, base64|openssl decode piped to shell), xattr/spctl usage, recently created executables, and common staging indicators.
+author: Deiphobe
+created: 2026-02-06
+
+queries:
+  - name: SuspiciousFetchExecCmds
+    query: |
+      SELECT
+        ts, host.os, artifacts.cmdline, artifacts.process_name, artifacts.pid
+      FROM scope(processes()) WHERE (
+        REGEXP_CONTAINS(artifacts.cmdline, r'(?i)(curl|wget)\s+https?://') AND
+        REGEXP_CONTAINS(artifacts.cmdline, r'(?i)(\|\s*(bash|sh|python)|-o\s+\S+|base64|openssl)')
+      )
+
+  - name: QuarantineRemovalMacOS
+    query: |
+      SELECT ts, host.os, artifacts.cmdline, artifacts.process_name, artifacts.pid
+      FROM scope(processes()) WHERE (
+        host.os == 'darwin' AND (
+          REGEXP_CONTAINS(artifacts.cmdline, r'xattr\s+-d\s+com\.apple\.quarantine') OR
+          REGEXP_CONTAINS(artifacts.cmdline, r'spct l\s*--master-disable') OR
+          REGEXP_CONTAINS(artifacts.cmdline, r'spctl\s+--master-disable')
+        )
+      )
+
+  - name: RecentExecutableCreation
+    query: |
+      SELECT ts, host.os, f.filename, f.uid, f.gid, f.mode, f.size
+      FROM scope(file_find()) WHERE (
+        (f.filename LIKE '/usr/local/bin/%' OR f.filename LIKE '/tmp/%' OR f.filename LIKE '/var/tmp/%') AND
+        f.mode & 0o111 != 0 AND
+        f.mtime > (NOW() - INTERVAL 48 HOURS)
+      )
+
+  - name: SuspiciousPipelinePatterns
+    query: |
+      SELECT ts, host.os, artifacts.cmdline, artifacts.process_name, artifacts.pid
+      FROM scope(processes()) WHERE (
+        REGEXP_CONTAINS(artifacts.cmdline, r'(?i)(base64\s+-d|openssl\s+enc\s+-d)\s*\|\s*(bash|sh|python)') OR
+        REGEXP_CONTAINS(artifacts.cmdline, r'(?i)chmod\s+\+x\s+\S+\s*&&\s*\./')
+      )
+
+notes: |
+  - Run these queries across endpoints showing potential compromise. Collect matching processes and files, snapshot affected hosts, and escalate to full forensic capture if positives found.
+  - Consider tuning regexes to reduce false positives from benign automation.
