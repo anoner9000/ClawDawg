@@ -1,3 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
-python3 "$(dirname "$0")/../modules/gmail/scripts/gmail_sender_manage.py" "$@"
+
+WORKSPACE="${HOME}/.openclaw/workspace"
+PY="${HOME}/.openclaw/venv/bin/python3"
+if [[ ! -x "$PY" ]]; then
+  PY="$(command -v python3)"
+fi
+
+exec "$PY" -u "$WORKSPACE/modules/gmail/scripts/gmail_cleanup_manage_senders.py" "$@"

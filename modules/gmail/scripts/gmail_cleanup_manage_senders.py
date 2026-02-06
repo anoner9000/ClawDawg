@@ -1,185 +1,264 @@
 #!/usr/bin/env python3
 """
-gmail_cleanup_manage_senders.py
-Manage the sender list for Gmail cleanup.
+gmail_cleanup_manage_senders.py (CANONICAL)
 
-Usage:
-  python3 gmail_cleanup_manage_senders.py list
-  python3 gmail_cleanup_manage_senders.py add "email@example.com" "Reason" [--added-by NAME]
-  python3 gmail_cleanup_manage_senders.py remove "email@example.com" [--added-by NAME]
+Supports BOTH schemas for cfg["senders"]:
+  A) legacy: list[str] emails
+  B) new: list[{"email":..., "reason":..., "added":..., "added_by":...}]
 
-Config: ~/.openclaw/runtime/config/gmail_cleanup_senders.json
-Audit log: ~/.openclaw/runtime/logs/gmail_sender_changes.jsonl
+Canonical artifacts:
+- Config: ~/.openclaw/runtime/config/gmail_cleanup_senders.json
+- Audit log (JSONL): ~/.openclaw/runtime/logs/gmail_sender_changes.log
+
+CLI:
+  list
+  add <email> --reason "..." --by "name"
+  remove <email> --by "name"
+  normalize --by "name"   # rewrites config to object schema (dedup + lowercase)
 """
+
 import argparse
+import datetime as dt
 import json
 import os
-import sys
-from datetime import datetime, timezone
-from typing import Any, Dict
+import re
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+RUNTIME = Path(os.path.expanduser("~/.openclaw/runtime"))
+CONFIG_PATH = RUNTIME / "config" / "gmail_cleanup_senders.json"
+AUDIT_PATH = RUNTIME / "logs" / "gmail_sender_changes.log"
+
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
-HOME = os.path.expanduser("~")
-CONFIG_PATH = os.path.join(HOME, ".openclaw", "runtime", "config", "gmail_cleanup_senders.json")
-AUDIT_LOG = os.path.join(HOME, ".openclaw", "runtime", "logs", "gmail_sender_changes.jsonl")
+def _norm_email(s: str) -> str:
+    return (s or "").strip().lower()
 
 
-DEFAULT_CONFIG = {"senders": [], "default_days": 180, "default_samples": 20}
+def _validate_email(s: str) -> None:
+    if not EMAIL_RE.match(s):
+        raise SystemExit(f"Invalid email: {s}")
 
 
-def now_utc_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def ensure_dirs() -> None:
-    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
-    os.makedirs(os.path.dirname(AUDIT_LOG), exist_ok=True)
-
-
-def atomic_write_json(path: str, data: Dict[str, Any]) -> None:
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-        f.write("\n")
-    os.chmod(tmp, 0o600)
-    os.replace(tmp, path)
-    os.chmod(path, 0o600)
-
-
-def load_config() -> Dict[str, Any]:
-    if not os.path.exists(CONFIG_PATH):
-        return dict(DEFAULT_CONFIG)
-
-    try:
-        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+def _load_cfg() -> Dict[str, Any]:
+    if CONFIG_PATH.exists():
+        with CONFIG_PATH.open("r", encoding="utf-8") as f:
             cfg = json.load(f)
-    except Exception:
-        # If corrupted, preserve by renaming and starting fresh
-        backup = CONFIG_PATH + ".corrupt." + datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        os.replace(CONFIG_PATH, backup)
-        print(f"Warning: config was invalid JSON. Moved to: {backup}", file=sys.stderr)
-        return dict(DEFAULT_CONFIG)
-
-    if not isinstance(cfg, dict):
-        return dict(DEFAULT_CONFIG)
-    cfg.setdefault("senders", [])
-    cfg.setdefault("default_days", 180)
-    cfg.setdefault("default_samples", 20)
-    if not isinstance(cfg["senders"], list):
-        cfg["senders"] = []
-    return cfg
+            if not isinstance(cfg, dict):
+                raise SystemExit(f"Config is not a JSON object: {CONFIG_PATH}")
+            return cfg
+    return {"senders": [], "default_days": 180, "default_samples": 20}
 
 
-def save_config(cfg: Dict[str, Any]) -> None:
-    ensure_dirs()
-    atomic_write_json(CONFIG_PATH, cfg)
+def _write_cfg(cfg: Dict[str, Any]) -> None:
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with CONFIG_PATH.open("w", encoding="utf-8") as f:
+        json.dump(cfg, f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
 
-def valid_email(email: str) -> bool:
-    email = (email or "").strip()
-    return bool(email) and "@" in email and " " not in email
-
-
-def audit(operator: str, action: str, target: str, reason: str = "") -> None:
-    ensure_dirs()
-    entry = {
-        "time": now_utc_iso(),
+def _audit(operator: str, action: str, target: str, extra: Dict[str, Any] | None = None) -> None:
+    AUDIT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    entry: Dict[str, Any] = {
         "operator": operator,
         "action": action,
         "target": target,
-        "reason": reason,
+        "time": dt.datetime.now().isoformat(),
     }
-    with open(AUDIT_LOG, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    if extra:
+        entry.update(extra)
+    with AUDIT_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
-def add_sender(email: str, reason: str, operator: str) -> bool:
-    if not valid_email(email):
-        print(f"Invalid email: {email}", file=sys.stderr)
-        return False
+def _coerce_senders(raw: Any) -> Tuple[List[Dict[str, Any]], bool]:
+    """
+    Returns: (senders_as_objects, was_legacy_or_messy)
+    """
+    if raw is None:
+        return ([], False)
 
-    cfg = load_config()
-    existing = { (s.get("email") or "").lower() for s in cfg["senders"] if isinstance(s, dict) }
-    if email.lower() in existing:
-        print(f"Sender already exists: {email}")
-        return False
+    if not isinstance(raw, list):
+        # if totally wrong type, treat as empty but mark messy
+        return ([], True)
 
-    cfg["senders"].append(
+    out: List[Dict[str, Any]] = []
+    messy = False
+
+    for item in raw:
+        if isinstance(item, str):
+            email = _norm_email(item)
+            if not email:
+                messy = True
+                continue
+            out.append({"email": email})
+            messy = True  # legacy schema
+        elif isinstance(item, dict):
+            email = _norm_email(item.get("email", ""))
+            if not email:
+                messy = True
+                continue
+            obj = dict(item)
+            obj["email"] = email
+            out.append(obj)
+        else:
+            messy = True
+
+    return (out, messy)
+
+
+def _dedup_objects(objs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], bool]:
+    seen = set()
+    out: List[Dict[str, Any]] = []
+    changed = False
+    for o in objs:
+        email = _norm_email(o.get("email", ""))
+        if not email:
+            changed = True
+            continue
+        if email in seen:
+            changed = True
+            continue
+        seen.add(email)
+        if o.get("email") != email:
+            changed = True
+            o = dict(o)
+            o["email"] = email
+        out.append(o)
+    return (out, changed)
+
+
+def _get_sender_objects(cfg: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], bool]:
+    objs, messy = _coerce_senders(cfg.get("senders"))
+    objs, dedup_changed = _dedup_objects(objs)
+    return (objs, messy or dedup_changed)
+
+
+def cmd_list(cfg: Dict[str, Any]) -> int:
+    senders, _ = _get_sender_objects(cfg)
+    if not senders:
+        print("(no senders configured)")
+        return 0
+
+    def k(x: Dict[str, Any]) -> str:
+        return _norm_email(x.get("email", ""))
+
+    for s in sorted(senders, key=k):
+        email = s.get("email", "")
+        reason = s.get("reason", "")
+        added = s.get("added", "")
+        added_by = s.get("added_by", "")
+        line = email
+        if reason:
+            line += f" — {reason}"
+        if added or added_by:
+            line += f" (added {added or '?'} by {added_by or '?'})"
+        print(line)
+    return 0
+
+
+def cmd_add(cfg: Dict[str, Any], email: str, reason: str, by: str) -> int:
+    email_n = _norm_email(email)
+    _validate_email(email_n)
+
+    senders, _ = _get_sender_objects(cfg)
+    if any(_norm_email(s.get("email", "")) == email_n for s in senders):
+        print(f"already_present: {email_n}")
+        return 0
+
+    senders.append(
         {
-            "email": email.strip(),
-            "reason": reason or "No reason provided",
-            "added": datetime.now().strftime("%Y-%m-%d"),
-            "added_by": operator,
+            "email": email_n,
+            "reason": reason,
+            "added": dt.date.today().isoformat(),
+            "added_by": by,
         }
     )
-    save_config(cfg)
-    audit(operator, "add", email.strip(), reason or "")
-    print(f"Added: {email}")
-    return True
+
+    # auto-normalize on write (object schema)
+    senders, _ = _dedup_objects(senders)
+    cfg["senders"] = senders
+    _write_cfg(cfg)
+    _audit(by, "add", email_n, {"reason": reason})
+    print(f"added: {email_n}")
+    return 0
 
 
-def remove_sender(email: str, operator: str) -> bool:
-    if not valid_email(email):
-        print(f"Invalid email: {email}", file=sys.stderr)
-        return False
+def cmd_remove(cfg: Dict[str, Any], email: str, by: str) -> int:
+    email_n = _norm_email(email)
+    _validate_email(email_n)
 
-    cfg = load_config()
-    before = len(cfg["senders"])
-    cfg["senders"] = [
-        s for s in cfg["senders"]
-        if not (isinstance(s, dict) and (s.get("email") or "").lower() == email.lower())
-    ]
-    if len(cfg["senders"]) == before:
-        print(f"Sender not found: {email}")
-        return False
+    senders, _ = _get_sender_objects(cfg)
+    before = len(senders)
+    senders = [s for s in senders if _norm_email(s.get("email", "")) != email_n]
+    after = len(senders)
 
-    save_config(cfg)
-    audit(operator, "remove", email.strip(), "")
-    print(f"Removed: {email}")
-    return True
+    if after == before:
+        print(f"not_found: {email_n}")
+        return 0
+
+    cfg["senders"] = senders
+    _write_cfg(cfg)
+    _audit(by, "remove", email_n)
+    print(f"removed: {email_n}")
+    return 0
 
 
-def list_senders() -> None:
-    cfg = load_config()
-    senders = [s for s in cfg.get("senders", []) if isinstance(s, dict)]
-    if not senders:
-        print("No senders configured")
-        return
-
-    print(f"Gmail Cleanup Senders ({len(senders)} total):")
+def cmd_normalize(cfg: Dict[str, Any], by: str) -> int:
+    senders, changed = _get_sender_objects(cfg)
+    # force object schema + known keys
+    normalized: List[Dict[str, Any]] = []
     for s in senders:
-        print(f"  • {s.get('email','')}")
-        print(f"    Reason: {s.get('reason', 'N/A')}")
-        print(f"    Added: {s.get('added', 'N/A')} by {s.get('added_by', 'N/A')}")
+        email = _norm_email(s.get("email", ""))
+        if not email:
+            continue
+        out = {"email": email}
+        # keep optional fields if present
+        for k in ("reason", "added", "added_by"):
+            if k in s and s[k]:
+                out[k] = s[k]
+        normalized.append(out)
+
+    cfg["senders"] = normalized
+    _write_cfg(cfg)
+    _audit(by, "normalize", "senders")
+    print(f"normalized: {len(normalized)} senders")
+    return 0
 
 
-def main() -> None:
+def main() -> int:
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    p_list = sub.add_parser("list", help="List configured senders")
+    sub.add_parser("list")
 
-    p_add = sub.add_parser("add", help="Add a sender")
+    p_add = sub.add_parser("add")
     p_add.add_argument("email")
-    p_add.add_argument("reason", nargs="?", default="No reason provided")
-    p_add.add_argument("--added-by", dest="operator", default=os.environ.get("USER", "unknown"))
+    p_add.add_argument("--reason", default="manual quarantine")
+    p_add.add_argument("--by", default="Uther")
 
-    p_rm = sub.add_parser("remove", help="Remove a sender")
+    p_rm = sub.add_parser("remove")
     p_rm.add_argument("email")
-    p_rm.add_argument("--added-by", dest="operator", default=os.environ.get("USER", "unknown"))
+    p_rm.add_argument("--by", default="Uther")
+
+    p_norm = sub.add_parser("normalize")
+    p_norm.add_argument("--by", default="Uther")
 
     args = p.parse_args()
+    cfg = _load_cfg()
 
     if args.cmd == "list":
-        list_senders()
-    elif args.cmd == "add":
-        add_sender(args.email, args.reason, args.operator)
-    elif args.cmd == "remove":
-        remove_sender(args.email, args.operator)
-    else:
-        p.print_help()
-        raise SystemExit(1)
+        return cmd_list(cfg)
+    if args.cmd == "add":
+        return cmd_add(cfg, args.email, args.reason, args.by)
+    if args.cmd == "remove":
+        return cmd_remove(cfg, args.email, args.by)
+    if args.cmd == "normalize":
+        return cmd_normalize(cfg, args.by)
+
+    raise SystemExit("unhandled command")
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
