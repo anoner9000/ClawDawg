@@ -18,6 +18,9 @@ LOG_DIR="$RUNTIME_DIR/logs/heartbeat"
 BRIEFINGS_DIR="$HOME/.openclaw/workspace/briefings"
 TEMPLATE="$BRIEFINGS_DIR/morning_8am_template.md"
 
+# Gmail cleanup summary (written by gmail_nightly_cleanup.sh)
+GMAIL_SUMMARY_JSON="$RUNTIME_DIR/logs/gmail_cleanup_last_summary.json"
+
 mkdir -p "$QUEUE_DIR" "$LOG_DIR"
 touch "$QUEUE_FILE"
 
@@ -31,6 +34,38 @@ else
   PROMPT="Write my morning briefing. Include: priorities for today, reminders, and a short motivational note."
 fi
 
+# Build a REQUIRED Gmail cleanup line from last summary (or a clear fallback)
+GMAIL_LINE="$(python3 - <<PY
+import json, os
+p = os.path.expanduser("$GMAIL_SUMMARY_JSON")
+if not os.path.exists(p):
+    print("Gmail cleanup (last run): no data yet.")
+    raise SystemExit(0)
+
+try:
+    obj = json.load(open(p, "r", encoding="utf-8"))
+except Exception:
+    print("Gmail cleanup (last run): summary unreadable.")
+    raise SystemExit(0)
+
+q = obj.get("quarantined_count", 0)
+t = obj.get("trashed_count", 0)
+ts = obj.get("ts_utc") or ""
+if ts:
+    print(f"Gmail cleanup (last run {ts} UTC): quarantined {q}, trashed {t}.")
+else:
+    print(f"Gmail cleanup (last run): quarantined {q}, trashed {t}.")
+PY
+)"
+
+# Append hard requirement so it shows up every day
+PROMPT="$PROMPT
+
+---
+REQUIRED: Include this exact line in the briefing (verbatim):
+$GMAIL_LINE
+---"
+
 # Guard: don’t enqueue duplicates for same day (by id)
 if grep -q "\"id\":\"$JOB_ID\"" "$QUEUE_FILE" 2>/dev/null; then
   echo "$STAMP already queued: $JOB_ID" >> "$LOG_DIR/morning_enqueue.log"
@@ -39,7 +74,7 @@ fi
 
 # Append JSONL job
 python3 - <<PY >> "$QUEUE_FILE"
-import json, time
+import json
 job = {
   "id": "$JOB_ID",
   "prompt": """$PROMPT"""
