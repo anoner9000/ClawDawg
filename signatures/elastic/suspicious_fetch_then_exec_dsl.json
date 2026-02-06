@@ -1,0 +1,44 @@
+{
+  "rule": {
+    "title": "Suspicious Network Fetch Followed by Execution - Elastic DSL",
+    "description": "Detects curl/wget fetching remote content followed by execution patterns (bash/sh/python/base64/openssl) within a short time window. Enriched with ClawHavoc IOCs (C2 IPs, domains, hashes, skill names).",
+    "severity": "medium",
+    "tags": ["attack.execution","attack.t1059","clawhub","openclaw"],
+    "dsl": {
+      "query": {
+        "bool": {
+          "must": [
+            {"bool": {"should": [{"match": {"process.name": "curl"}}, {"match": {"process.name": "wget"}}], "minimum_should_match": 1}},
+            {"bool": {"should": [{"wildcard": {"process.command_line": "*https*"}}, {"wildcard": {"process.command_line": "*http*"}}], "minimum_should_match": 1}},
+            {"bool": {"should": [
+              {"wildcard": {"process.command_line": "*bash*"}},
+              {"wildcard": {"process.command_line": "*sh*"}},
+              {"wildcard": {"process.command_line": "*python*"}},
+              {"wildcard": {"process.command_line": "*-o*"}},
+              {"wildcard": {"process.command_line": "*base64*"}},
+              {"wildcard": {"process.command_line": "*openssl*"}}
+            ], "minimum_should_match": 1}},
+            {"bool": {"should": [
+              {"wildcard": {"process.parent.command_line": "*base64*"}},
+              {"wildcard": {"process.parent.command_line": "*openssl*"}},
+              {"wildcard": {"process.parent.command_line": "*chmod +x*"}},
+              {"wildcard": {"process.parent.command_line": "*exec*"}}
+            ], "minimum_should_match": 1}},
+            {"bool": {"should": [
+              {"match": {"process.command_line": "91.92.242.30"}},
+              {"wildcard": {"process.command_line": "*glot.io*"}},
+              {"wildcard": {"process.command_line": "*rentry.co*"}},
+              {"wildcard": {"process.command_line": "*openclaw-core*"}},
+              {"wildcard": {"process.command_line": "*openclaw-agent*"}}
+            ], "minimum_should_match": 0}}
+          ],
+          "filter": [{"range": {"@timestamp": {"gte": "now-1h", "lte": "now"}}}]
+        }
+      },
+      "size": 100
+    },
+    "kql_comment": "process.name : (\"curl\" OR \"wget\") AND process.command_line : (https AND (bash OR sh OR python OR -o OR base64 OR openssl)) AND process.parent.command_line : (base64 OR openssl OR \"chmod +x\" OR exec)\n// Enriched IOCs: 91.92.242.30, glot.io, rentry.co, openclaw-core, openclaw-agent",
+    "references": ["https://x.com/daniellockyer/status/2019422410018267328","https://1password.com/blog/from-magic-to-malware-how-openclaws-agent-skills-become-an-attack-surface"],
+    "linked_sigma": "suspicious_fetch_then_exec.yml"
+  }
+}

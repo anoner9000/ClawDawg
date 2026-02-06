@@ -1,11 +1,12 @@
 title: Suspicious Network Fetch Followed by Execution
 id: 7a2c5f9e-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 status: experimental
-description: Detects patterns of downloading and executing remote payloads, common in staged malware delivery (e.g., curl/wget piped to bash or base64 decode). Observed in OpenClaw supply chain attacks.
+description: Detects patterns of downloading and executing remote payloads, common in staged malware delivery (e.g., curl/wget piped to bash or base64 decode). Observed in OpenClaw supply chain attacks. Enriched with ClawHavoc IOCs (C2 IPs, staging domains, known hashes, skill name artifacts).
 author: Grok (based on Claw bot IOCs)
 date: 2026-02-06
 references:
   - https://x.com/daniellockyer/status/2019422410018267328
+  - https://1password.com/blog/from-magic-to-malware-how-openclaws-agent-skills-become-an-attack-surface
 logsource:
   category: process_creation
   product: linux
@@ -22,8 +23,17 @@ detection:
       - '/bin/sh'
       - '/usr/bin/python'
     CommandLine|re: '(?i)(base64|openssl).*\|\s*(bash|sh|python)|chmod \+x .* && ./[^\s]+'
+  selection_ioc:
+    CommandLine|re: '(?i)91\.92\.242\.30|glot\.io|rentry\.co|openclaw-core|openclaw-agent|amir|auto-updater|pdf-summarizer|aws-cost-optimizer'
+    FilePath|contains:
+      - '/tmp/'
+      - '/usr/local/bin/'
+      - 'Library/Application Support/Atomic'
+    FileHash|sha256:
+      - '30f97ae88f8861eeadeb54854d47078724e52e2ef36dd847180663b7f5763168'
+      - '17703b3d5e8e1fe69d6a6c78a240d8c84b32465fe62bed5610fb29335fe42283'
   timeframe: 60s # Correlate within 1 minute
-  condition: selection_fetch and selection_exec
+  condition: (selection_fetch and selection_exec) or selection_ioc
 falsepositives:
   - Automated scripts or DevOps tools using curl/wget for legitimate downloads.
   - Package managers like Homebrew or pip.
@@ -31,3 +41,4 @@ level: medium
 tags:
   - attack.execution
   - attack.t1059
+  - clawhub
