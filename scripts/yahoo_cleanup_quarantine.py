@@ -4,6 +4,14 @@ import imaplib
 from pathlib import Path
 import datetime
 
+def imap_set_timeout(M, seconds: int = 30):
+    sock = getattr(M, "sock", None)
+    if sock:
+        try:
+            sock.settimeout(seconds)
+        except Exception:
+            pass
+
 def read_one_line(p: Path) -> str:
     s = p.read_text(encoding="utf-8", errors="replace").strip()
     if not s:
@@ -36,6 +44,7 @@ def main():
     app  = read_one_line(runtime/"credentials/yahoo_app_password")
 
     M = imaplib.IMAP4_SSL("imap.mail.yahoo.com", 993, ssl_context=ssl.create_default_context())
+    imap_set_timeout(M, 30)
     M.login(email, app)
     try:
         ensure_mailbox(M, qbox)
@@ -50,6 +59,8 @@ def main():
                 if not line:
                     continue
                 rec = json.loads(line)
+                if rec.get("action") == "skip":
+                    continue
                 mid = rec["msg_id"].encode()
 
                 if not args.apply:

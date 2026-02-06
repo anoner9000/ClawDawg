@@ -38,7 +38,11 @@ cd "$WORKSPACE"
   MANIFEST_OUT="${TMPDIR}/yahoo_cleanup_manifest_${TS}.jsonl"
 
   # 1) DRYRUN -> manifest jsonl
-  "$PY" -u scripts/yahoo_cleanup_dryrun.py --config "$CONFIG" --manifest "$MANIFEST_OUT" | tee "${MANIFEST_OUT}.stdout"
+  timeout 180 "$PY" -u scripts/yahoo_cleanup_dryrun.py \
+    --config "$CONFIG" \
+    --manifest "$MANIFEST_OUT" \
+    --max-messages 250 \
+    --batch 50 | tee "${MANIFEST_OUT}.stdout"
 
   if [[ ! -s "$MANIFEST_OUT" ]]; then
     echo
@@ -52,7 +56,7 @@ cd "$WORKSPACE"
   echo
 
   # 2) QUARANTINE APPLY (safe)
-  "$PY" -u scripts/yahoo_cleanup_quarantine.py --manifest "$MANIFEST_OUT" --apply
+  timeout 180 "$PY" -u scripts/yahoo_cleanup_quarantine.py --manifest "$MANIFEST_OUT" --apply
 
   QUAR_LOG="${MANIFEST_OUT}.quarantine_log"
   if [[ ! -f "$QUAR_LOG" ]]; then
@@ -62,7 +66,7 @@ cd "$WORKSPACE"
   fi
 
   # 3) TRASH APPLY (guarded) - optional; comment out if you want quarantine-only
-  "$PY" -u scripts/yahoo_cleanup_trash.py \
+  timeout 180 "$PY" -u scripts/yahoo_cleanup_trash.py \
     --quarantine-log "$QUAR_LOG" \
     --confirm "TrashApply" \
     --apply
