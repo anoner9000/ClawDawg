@@ -52,9 +52,48 @@ if [ "${#entries[@]}" -eq 0 ]; then
   exit 0
 fi
 
+# ------------------------------------------------------------------
+# CONTEXT INJECTION: Gmail cleanup last run (quarantine/trash counts)
+# ------------------------------------------------------------------
+GMAIL_SUMMARY_FILE="$RUNTIME_DIR/logs/gmail_cleanup_last_summary.json"
+GMAIL_CONTEXT="$(
+python3 - <<PY
+import json, os
+path = os.path.expanduser("$GMAIL_SUMMARY_FILE")
+if not os.path.exists(path):
+    print("")  # no context if not present
+    raise SystemExit(0)
+
+try:
+    obj = json.load(open(path, "r", encoding="utf-8"))
+except Exception:
+    print("")
+    raise SystemExit(0)
+
+q = obj.get("quarantined_count", 0)
+t = obj.get("trashed_count", 0)
+ts = obj.get("ts_utc") or obj.get("date") or ""
+line = f"Gmail cleanup (last run): quarantined {q}, trashed {t}"
+if ts:
+    line += f" | {ts}"
+print("---- CONTEXT ----\\n" + line + "\\n")
+PY
+)"
+if [ -n "$GMAIL_CONTEXT" ]; then
+  echo "Included Gmail cleanup context from: $GMAIL_SUMMARY_FILE" >> "$LOG"
+else
+  echo "No Gmail cleanup context (missing/unreadable): $GMAIL_SUMMARY_FILE" >> "$LOG"
+fi
+
 # Batch prompts
 batch_prompt=""
 ids=()
+
+# Prepend context so every briefing job can reference it
+if [ -n "$GMAIL_CONTEXT" ]; then
+  batch_prompt+="$GMAIL_CONTEXT"$'\n'
+fi
+
 for e in "${entries[@]}"; do
   id=$(printf '%s' "$e" | python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["id"])')
   prompt=$(printf '%s' "$e" | python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["prompt"])')
