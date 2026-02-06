@@ -116,11 +116,6 @@ fi
   "$PY" -u - <<'PY'
 import os, re, json, ssl, smtplib, hashlib, datetime
 import imaplib
-import socket, faulthandler, signal
-faulthandler.enable()
-faulthandler.register(signal.SIGUSR1)
-socket.setdefaulttimeout(30)
-print("PY: bootstrap ok", flush=True)
 from pathlib import Path
 from email import message_from_bytes
 from email.utils import parseaddr
@@ -440,7 +435,7 @@ def ics_uid(seed: str) -> str:
     return f"{sha(seed)[:24]}@deiphobe"
 
 def make_ics(event: dict, tzid: str) -> str:
-    dtstamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%dT%H%M%SZ")
+    dtstamp = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
     uid = ics_uid(event["hash"])
 
     def esc(x: str) -> str:
@@ -567,43 +562,6 @@ def read_eml_bytes_from_stdin() -> list[bytes]:
     return [data] if data else []
 
 # ---------------------------
-# IMAP safe fetch helpers (live mode)
-# ---------------------------
-def imap_set_timeout(M, timeout: int):
-    # imaplib uses a socket under the hood; settimeout prevents indefinite hangs
-    for attr in ("sock", "socket"):
-        s = getattr(M, attr, None)
-        try:
-            if callable(s):
-                s = s()
-            if s:
-                s.settimeout(timeout)
-                return
-        except Exception:
-            pass
-
-def imap_fetch_payload(M, msg_id: bytes, what: str, *, timeout=30, retries=2) -> bytes:
-    imap_set_timeout(M, timeout)
-    last = None
-    for _ in range(retries + 1):
-        try:
-            typ, dat = M.fetch(msg_id, what)
-            if typ != "OK" or not dat:
-                raise RuntimeError(f"fetch {what} failed: {typ}")
-            for item in dat:
-                if isinstance(item, tuple) and len(item) == 2 and isinstance(item[1], (bytes, bytearray)):
-                    return bytes(item[1])
-            raise RuntimeError(f"fetch {what} returned no payload")
-        except Exception as e:
-            last = e
-            continue
-    raise last
-
-def build_min_rfc822(header_bytes: bytes, body_bytes: bytes) -> bytes:
-    # Minimal RFC822 bytes for message_from_bytes
-    return header_bytes + b"\r\n\r\n" + body_bytes
-
-# ---------------------------
 # Main
 # ---------------------------
 def main():
@@ -663,36 +621,13 @@ def main():
             die("IMAP search failed")
 
         msg_ids = data[0].split()
-        MAX_LIVE = 80  # safe default; adjust as you like
-        if len(msg_ids) > MAX_LIVE:
-            msg_ids = msg_ids[-MAX_LIVE:]
-            print(f"IMAP: limiting to newest {MAX_LIVE} messages", flush=True)
         for mid in msg_ids:
-            # Log progress so we can identify any problematic msg quickly
-            try:
-                mid_print = mid.decode(errors="ignore")
-            except Exception:
-                mid_print = str(mid)
-            print(f"IMAP: fetching msg_id={mid_print}", flush=True)
-
-            # Fast path: header + text (avoids huge attachments)
-            try:
-                hdr = imap_fetch_payload(M, mid, "(BODY.PEEK[HEADER])", timeout=20)
-                txt = imap_fetch_payload(M, mid, "(BODY.PEEK[TEXT])", timeout=30)
-                raw = build_min_rfc822(hdr, txt)
-                msg = message_from_bytes(raw)
-
-                # Fallback: if TEXT is empty or extract_text() returns nothing,
-                # fetch full message as last resort (still with timeout + limited retries)
-                if (not txt) or (not extract_text(msg)):
-                    print(f"IMAP: fallback RFC822 msg_id={mid_print}", flush=True)
-                    full = imap_fetch_payload(M, mid, "(RFC822)", timeout=45, retries=1)
-                    msg = message_from_bytes(full)
-
-                raw_msgs.append(msg.as_bytes())
-            except Exception as e:
-                print(f"IMAP: fetch failed msg_id={mid_print}: {e}", flush=True)
+            typ, msg_data = M.fetch(mid, "(RFC822)")
+            if typ != "OK" or not msg_data or not msg_data[0]:
                 continue
+            raw = msg_data[0][1]
+            if raw:
+                raw_msgs.append(raw)
 
         M.close()
         M.logout()
@@ -741,21 +676,21 @@ def main():
 
             # Naming convention: MM-DD-YYYY_<short-title>.ics (no time in filename)
             mmddyyyy = fmt_mmddyyyy(date_iso)
-            safe_title = re.sub(r'[^A-Za-z0-9 _.-]+', '', title).strip() or "Event"
-            filename = f"{mmddyyyy}_{safe_title}.ics"
-            out_path = ICSDIR / filename
+            base_name = f"{mmddyyyy}_{title}.ics"
+            planned_path = ICSDIR / base_name
 
             if DRY_RUN:
-                print(f"- {mmddyyyy} | {title} | {grade} -> {child} | {e['time_note']} | file: {filename}")
+                print(f"- {mmddyyyy} | {title} | {grade} -> {child} | {e['time_note']} | file: {base_name}")
                 continue
 
             # Ensure uniqueness if same filename exists
-            if out_path.exists():
+            path = planned_path
+            if path.exists():
                 i = 2
                 while True:
-                    filename = f"{mmddyyyy}_{safe_title}_{i}.ics"
-                    out_path = ICSDIR / filename
-                    if not out_path.exists():
+                    alt = ICSDIR / f"{mmddyyyy}_{title}_{i}.ics"
+                    if not alt.exists():
+                        path = alt
                         break
                     i += 1
 
@@ -774,19 +709,19 @@ def main():
             }
 
             ics = make_ics(event_obj, tzid)
-            out_path.write_text(ics, encoding="utf-8")
-            new_ics_paths.append(out_path)
+            path.write_text(ics, encoding="utf-8")
+            new_ics_paths.append(path)
 
             created_events += 1
             emitted_hashes.add(h)
 
             append_emitted({
                 "event_hash": h,
-                "created_at": datetime.datetime.now(datetime.UTC).isoformat() + "Z",
+                "created_at": datetime.datetime.utcnow().isoformat() + "Z",
                 "sender": from_email,
                 "subject": subject,
                 "event_date": date_iso,
-                "filename": filename,
+                "filename": path.name,
                 "grade": grade,
                 "child": child,
             })
