@@ -100,7 +100,20 @@ fi
   echo "max_msgs:   ${MAX_MESSAGES:-<none>}"
   echo
 
-  "$PY" -u - <<PY
+  YC_RUNTIME="$RUNTIME" \
+  YC_CFG="$CFG" \
+  YC_BASE="$BASE" \
+  YC_LOGDIR="$LOGDIR" \
+  YC_STATEDIR="$STATEDIR" \
+  YC_OUTDIR="$OUTDIR" \
+  YC_ICSDIR="$ICSDIR" \
+  YC_DRY_RUN="$DRY_RUN" \
+  YC_INPUT_DIR="$INPUT_DIR" \
+  YC_INPUT_FILE="$INPUT_FILE" \
+  YC_INPUT_STDIN="$INPUT_STDIN" \
+  YC_MAX_MESSAGES="$MAX_MESSAGES" \
+  YC_DRY_LOG="$DRY_LOG" \
+  "$PY" -u - <<'PY'
 import os, re, json, ssl, smtplib, hashlib, datetime
 import imaplib
 from pathlib import Path
@@ -115,22 +128,22 @@ from email import encoders
 # ---------------------------
 # Paths / settings
 # ---------------------------
-RUNTIME = Path(os.path.expanduser("${RUNTIME}"))
-CFG = Path(os.path.expanduser("${CFG}"))
+RUNTIME = Path(os.path.expanduser(os.environ["YC_RUNTIME"]))
+CFG = Path(os.path.expanduser(os.environ["YC_CFG"]))
 
-BASE = Path(os.path.expanduser("${BASE}"))
-LOGDIR = Path(os.path.expanduser("${LOGDIR}"))
-STATEDIR = Path(os.path.expanduser("${STATEDIR}"))
-OUTDIR = Path(os.path.expanduser("${OUTDIR}"))
-ICSDIR = Path(os.path.expanduser("${ICSDIR}"))
+BASE = Path(os.path.expanduser(os.environ["YC_BASE"]))
+LOGDIR = Path(os.path.expanduser(os.environ["YC_LOGDIR"]))
+STATEDIR = Path(os.path.expanduser(os.environ["YC_STATEDIR"]))
+OUTDIR = Path(os.path.expanduser(os.environ["YC_OUTDIR"]))
+ICSDIR = Path(os.path.expanduser(os.environ["YC_ICSDIR"]))
 
-DRY_RUN = bool(int("${DRY_RUN}"))
-INPUT_DIR = "${INPUT_DIR}"
-INPUT_FILE = "${INPUT_FILE}"
-INPUT_STDIN = bool(int("${INPUT_STDIN}"))
-MAX_MESSAGES = "${MAX_MESSAGES}".strip()
+DRY_RUN = bool(int(os.environ.get("YC_DRY_RUN", "0")))
+INPUT_DIR = os.environ.get("YC_INPUT_DIR", "")
+INPUT_FILE = os.environ.get("YC_INPUT_FILE", "")
+INPUT_STDIN = bool(int(os.environ.get("YC_INPUT_STDIN", "0")))
+MAX_MESSAGES = os.environ.get("YC_MAX_MESSAGES", "").strip()
 
-DRY_LOG = Path(os.path.expanduser("${DRY_LOG}"))
+DRY_LOG = Path(os.path.expanduser(os.environ["YC_DRY_LOG"]))
 
 CRED_EMAIL = RUNTIME / "credentials" / "yahoo_email"
 CRED_APP_PASS = RUNTIME / "credentials" / "yahoo_app_password"
@@ -426,8 +439,10 @@ def make_ics(event: dict, tzid: str) -> str:
     uid = ics_uid(event["hash"])
 
     def esc(x: str) -> str:
+        # RFC5545 escaping for TEXT values
         x = x or ""
         return (x.replace("\\", "\\\\")
+                 .replace("\r\n", "\n")
                  .replace("\n", "\\n")
                  .replace(",", "\\,")
                  .replace(";", "\\;"))
