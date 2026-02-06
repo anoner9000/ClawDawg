@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # rate_guard.sh - simple rate-guard circuit breaker for heartbeat LLM runner
-# Usage: ./rate_guard.sh --record 429  (records a 429 event)
+# Usage: ./rate_guard.sh --record --code 429  (records an event with HTTP code)
 #        ./rate_guard.sh --check         (returns nonzero if circuit open)
 #        ./rate_guard.sh --reset         (clear counters)
 
@@ -20,15 +20,28 @@ mkdir -p "$LOG_DIR" "$(dirname "$PAUSE_FLAG")"
 cmd=${1:---check}
 
 record_event(){
+  code=${1:-0}
   ts=$(date +%s)
-  jq --arg time "$ts" '.events += [$time|tonumber]' "$COUNTER_FILE" 2>/dev/null || echo '{"events":['$ts']}' > "$COUNTER_FILE"
-  # prune old
-  jq --arg now "$ts" --argjson w $WINDOW '.events = (.events|map(select((($now|tonumber)-.|tonumber) < $w)))' "$COUNTER_FILE" > "$COUNTER_FILE.tmp" && mv "$COUNTER_FILE.tmp" "$COUNTER_FILE"
-  count=$(jq '.events|length' "$COUNTER_FILE")
+  # Ensure COUNTER_FILE exists and is valid JSON
+  if [ -f "$COUNTER_FILE" ]; then
+    tmp=$(mktemp)
+    jq --argjson ts "$ts" --argjson code "$code" '.events += [{"ts": $ts, "code": $code}]' "$COUNTER_FILE" > "$tmp" 2>/dev/null || echo '{"events": [{"ts": '"$ts"', "code": '"$code"'}]}' > "$tmp"
+    mv "$tmp" "$COUNTER_FILE"
+  else
+    echo "{\"events\":[{\"ts\":$ts,\"code\":$code}]}" > "$COUNTER_FILE" || true
+  fi
+
+  # prune old events outside WINDOW
+  now=$(date +%s)
+  tmp=$(mktemp)
+  jq --argjson now "$now" --argjson w $WINDOW '.events = (.events | map(select((($now) - .ts) < $w)))' "$COUNTER_FILE" > "$tmp" 2>/dev/null || true
+  mv "$tmp" "$COUNTER_FILE" 2>/dev/null || true
+
+  count=$(jq '.events|length' "$COUNTER_FILE" 2>/dev/null || echo 0)
   echo "Recorded event. Count in window: $count" >> "$LOG_DIR/ratelimit.log"
   if [ "$count" -ge $THRESHOLD ]; then
     touch "$PAUSE_FLAG"
-    echo "Circuit opened at $(date -Is) due to $count 429s." >> "$LOG_DIR/ratelimit.log"
+    echo "Circuit opened at $(date -Is) due to $count events." >> "$LOG_DIR/ratelimit.log"
   fi
 }
 
@@ -48,7 +61,12 @@ reset(){
 
 case "$cmd" in
   --record)
-    record_event
+    # usage: rate_guard.sh --record --code 429
+    if [ "${2:-}" = "--code" ] && [ -n "${3:-}" ]; then
+      record_event "${3}"
+    else
+      record_event 0
+    fi
     ;;
   --check)
     check_circuit
@@ -57,7 +75,7 @@ case "$cmd" in
     reset
     ;;
   *)
-    echo "Usage: $0 [--record | --check | --reset]"
+    echo "Usage: $0 [--record --code <http_code> | --check | --reset]"
     exit 2
     ;;
 esac

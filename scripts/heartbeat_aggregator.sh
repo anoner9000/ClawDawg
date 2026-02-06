@@ -199,6 +199,9 @@ echo "HTTP status: $HTTP_CODE" >> "$LOG"
 echo "Response saved: $RESP_FILE" >> "$LOG"
 
 if ! [[ "$HTTP_CODE" =~ ^2 ]]; then
+  if [ "$HTTP_CODE" = "429" ]; then
+    "$SCRIPT_DIR/rate_guard.sh" --record --code 429 >/dev/null 2>&1 || true
+  fi
   echo "ERROR: Non-2xx response. Queue NOT cleared." | tee -a "$LOG"
   python3 - <<PY >> "$LOG"
 print(open("$RESP_FILE","r",errors="replace").read()[:2000])
@@ -208,7 +211,23 @@ fi
 
 # Append usage if available
 if [ -x "$SCRIPT_DIR/usage_append_from_latest_response.sh" ]; then
-  "$SCRIPT_DIR/usage_append_from_latest_response.sh" "$RESP_FILE" || true
+  APPEND_ERR_FILE="$(mktemp)"
+  if "$SCRIPT_DIR/usage_append_from_latest_response.sh" "$RESP_FILE" 2>"$APPEND_ERR_FILE"; then
+    :
+  else
+    APPEND_RC=$?
+    echo "!!! WARNING: usage append failed (exit $APPEND_RC). API delivery succeeded, accounting incomplete." | tee -a "$LOG"
+    sed 's/^/usage_append_stderr: /' "$APPEND_ERR_FILE" >> "$LOG"
+    {
+      echo "response_path=$RESP_FILE"
+      sed 's/^/stderr: /' "$APPEND_ERR_FILE"
+      echo "---"
+    } >> "$LOG_DIR/usage_append_failures.log"
+    FLAG_TS="$(date +%s)"
+    touch "$LOG_DIR/accounting_incomplete_${FLAG_TS}.flag"
+    echo "Repair command: $SCRIPT_DIR/usage_append_from_latest_response.sh $RESP_FILE" >> "$LOG"
+  fi
+  rm -f "$APPEND_ERR_FILE"
 fi
 
 # Mark delivered
