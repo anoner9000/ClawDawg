@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os, json, argparse, datetime
 HOME=os.path.expanduser('~')
-CFG=os.path.join(HOME,'.openclaw','runtime','config','cleanup_senders.json')
+CFG=os.path.join(HOME,'.openclaw','runtime','config','gmail_cleanup_senders.json')
 LOG=os.path.join(HOME,'.openclaw','runtime','logs','gmail_sender_changes.log')
 os.makedirs(os.path.dirname(CFG),exist_ok=True)
 os.makedirs(os.path.dirname(LOG),exist_ok=True)
