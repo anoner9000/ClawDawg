@@ -11,7 +11,7 @@ Key invariants (must hold)
 - Spend safety: Aggregator enforces a hard estimated cost cap (default $0.50) and aborts before API call if exceeded.
 
 Operational policies
-- Production config files must have a known-good backup before tests modify anything. Known-good copies live under ~/.openclaw/runtime/config.known-good/ and are the source of truth for restores.
+- Production config files must have a known-good backup before tests modify anything. Known-good copies live under ~/.openclaw/runtime/config.known-good/ and are the source of truth for restoring production configs after tests.
 - Rate guard: record only on HTTP 429; events stored with {ts, code} and pruned by window. Circuit opens when threshold exceeded.
 - Failure handling: If usage append fails after a successful API call, the aggregator MUST write an accounting_incomplete_<ts>.flag with response_path, stderr output, and a repair_command; queue may be cleared per operator policy but a repair path must exist.
 
