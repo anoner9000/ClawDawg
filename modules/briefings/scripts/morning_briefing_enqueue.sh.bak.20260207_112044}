@@ -21,9 +21,6 @@ TEMPLATE="$BRIEFINGS_DIR/morning_8am_template.md"
 # Gmail cleanup summary (written by gmail_nightly_cleanup.sh)
 GMAIL_SUMMARY_JSON="$RUNTIME_DIR/logs/gmail_cleanup_last_summary.json"
 
-# Ledger accounting report (written by ledger_render_report_accounting.py)
-LEDGER_REPORT_TXT="$RUNTIME_DIR/logs/heartbeat/ledger_report_accounting_latest.txt"
-
 mkdir -p "$QUEUE_DIR" "$LOG_DIR"
 touch "$QUEUE_FILE"
 
@@ -67,25 +64,6 @@ PROMPT="$PROMPT
 ---
 REQUIRED: Include this exact line in the briefing (verbatim):
 $GMAIL_LINE
----"
-
-# Build a REQUIRED Ledger section from latest accounting report (or fallback)
-LEDGER_BLOCK="$(
-python3 -c 'import os,sys
-p=os.path.expanduser("'"$LEDGER_REPORT_TXT"'")
-if not os.path.exists(p):
-    print("(Ledger report not found yet: ledger_report_accounting_latest.txt)")
-    raise SystemExit(0)
-lines=open(p,"r",encoding="utf-8",errors="replace").read().splitlines()
-chunk="\n".join(lines[:60]).strip() or "\n".join(lines[-80:]).strip()
-print(chunk)'
-)"
-
-PROMPT="$PROMPT
-
----
-REQUIRED: Include this ledger section in the briefing (verbatim):
-$LEDGER_BLOCK
 ---"
 
 # Guard: don’t enqueue duplicates for same day (by id)
