@@ -1,118 +1,93 @@
 #!/usr/bin/env bash
-# usage_append_from_latest_response.sh
-# Appends usage stats from a given OpenAI Responses API JSON file to an append-only usage log.
-# Idempotency: checks for existing 'source' (response file path) in ledger before appending.
-#
-# Usage:
-#   scripts/usage_append_from_latest_response.sh /path/to/llm_response.json
-#
 set -euo pipefail
 
-RUNTIME_DIR="${OPENCLAW_RUNTIME_DIR:-$HOME/.openclaw/runtime}"
-HB_DIR="$RUNTIME_DIR/logs/heartbeat"
-OUT="$HB_DIR/llm_usage.jsonl"
-RATES_FILE="$RUNTIME_DIR/config/model_rates.json"
-FAIL_LOG="$HB_DIR/usage_append_failures.log"
-
-if [ "${1:-}" = "" ]; then
-  echo "Usage: $0 /path/to/llm_response.json" >&2
+RESP="${1:-}"
+if [[ -z "$RESP" || ! -f "$RESP" ]]; then
+  echo "Usage: $0 /path/to/llm_response_*.json" >&2
   exit 2
 fi
 
-SRC="$1"
+RUNTIME_DIR="${OPENCLAW_RUNTIME_DIR:-$HOME/.openclaw/runtime}"
+OUT_JSONL="$RUNTIME_DIR/logs/heartbeat/llm_usage.jsonl"
+RATES_FILE="$RUNTIME_DIR/config.known-good/model_rates.json"
 
-mkdir -p "$HB_DIR"
+mkdir -p "$(dirname "$OUT_JSONL")"
+touch "$OUT_JSONL"
 
-python3 - <<PY
-import json, os, datetime, sys
+python3 - "$RESP" "$OUT_JSONL" "$RATES_FILE" <<'PY'
+import json, sys, os, time, datetime
 
-src = os.path.expanduser("$SRC")
-out = os.path.expanduser("$OUT")
-rates_file = os.path.expanduser("$RATES_FILE")
+resp_path, out_jsonl, rates_path = sys.argv[1], sys.argv[2], sys.argv[3]
+obj = json.load(open(resp_path, "r", encoding="utf-8"))
 
-# Basic existence checks
-if not os.path.exists(src):
-    print(f"Missing response file: {src}", file=sys.stderr)
-    sys.exit(2)
+resp_id = obj.get("id") or os.path.abspath(resp_path)
 
-if not os.path.exists(rates_file):
-    print(f"Missing rates file: {rates_file}", file=sys.stderr)
-    sys.exit(2)
-
-# Idempotency check: exact source-match scan in ledger before any append work.
-if os.path.exists(out):
-    try:
-        needle = f'"source": {json.dumps(src)}'
-        with open(out,'r',encoding='utf-8') as fh:
-            for line in fh:
-                if needle in line:
-                    print('usage_already_recorded')
-                    sys.exit(0)
-    except Exception as e:
-        # If ledger unreadable, fail loudly
-        print(f"Unable to read ledger for idempotency check: {e}", file=sys.stderr)
-        sys.exit(2)
-
-# Load response and rates
+# Idempotency: skip if already recorded (by response_id or by source path)
+needle_src = f'"source":"{os.path.abspath(resp_path)}"'
+needle_id  = f'"response_id":"{resp_id}"'
 try:
-    with open(src, "r", encoding="utf-8") as sf:
-        obj = json.load(sf)
-except Exception as e:
-    print(f"Failed to parse response JSON: {e}", file=sys.stderr)
-    sys.exit(2)
+    with open(out_jsonl, "r", encoding="utf-8", errors="ignore") as f:
+        data = f.read()
+        if needle_src in data or needle_id in data:
+            print("usage_already_recorded")
+            raise SystemExit(0)
+except FileNotFoundError:
+    pass
 
-try:
-    with open(rates_file, "r", encoding="utf-8") as rf:
-        rates = json.load(rf)
-except Exception as e:
-    print(f"Failed to parse rates JSON: {e}", file=sys.stderr)
-    sys.exit(2)
+usage = obj.get("usage") or {}
+it = usage.get("input_tokens")
+ot = usage.get("output_tokens")
+tt = usage.get("total_tokens")
 
-# Build record
-ts = obj.get("created_at") or obj.get("created")
-if not ts:
-    print("No created_at/created in response JSON", file=sys.stderr)
-    sys.exit(2)
+if it is None or ot is None:
+    print("ERROR: usage missing input_tokens/output_tokens", file=sys.stderr)
+    raise SystemExit(3)
 
-dt = datetime.datetime.fromtimestamp(ts)
-day = dt.date().isoformat()
+it = int(it); ot = int(ot)
+if tt is None:
+    tt = it + ot
+else:
+    tt = int(tt)
 
-usage = obj.get("usage", {}) or {}
-inp = int(usage.get("input_tokens", 0) or 0)
-outp = int(usage.get("output_tokens", 0) or 0)
-total = int(usage.get("total_tokens", inp + outp) or (inp + outp))
 model = obj.get("model") or "unknown"
 
-rate = rates.get(model) or rates.get("gpt-5-mini") or {}
-in_rate = float(rate.get("input_per_1m", 0) or 0)
-out_rate = float(rate.get("output_per_1m", 0) or 0)
+created_at = obj.get("created_at")
+if not isinstance(created_at, int):
+    created_at = int(time.time())
 
-cost = (inp/1_000_000.0)*in_rate + (outp/1_000_000.0)*out_rate
+date_str = datetime.datetime.fromtimestamp(created_at).strftime("%Y-%m-%d")
+
+# ---- cost calc using pinned rates file (your file uses per-1m keys) ----
+cost = None
+rate_res = "missing"
+try:
+    rates = json.load(open(rates_path, "r", encoding="utf-8"))
+    r = rates.get(model) if isinstance(rates, dict) else None
+    if isinstance(r, dict):
+        in1m = r.get("input_per_1m")
+        out1m = r.get("output_per_1m")
+        if in1m is not None and out1m is not None:
+            cost = (it/1_000_000.0)*float(in1m) + (ot/1_000_000.0)*float(out1m)
+            cost = round(cost, 6)
+            rate_res = "exact"
+except Exception:
+    pass
 
 rec = {
-    "created_at": int(ts),
-    "date": day,
+    "created_at": created_at,
+    "date": date_str,
     "model": model,
-    "input_tokens": inp,
-    "output_tokens": outp,
-    "total_tokens": total,
-    "cost_usd": round(cost, 6),
-    "source": src
+    "input_tokens": it,
+    "output_tokens": ot,
+    "total_tokens": tt,
+    "cost_usd": cost,
+    "rate_res": rate_res,
+    "response_id": resp_id,
+    "source": os.path.abspath(resp_path),
 }
 
-# Append (write) with simple error handling
-try:
-    with open(out, "a", encoding='utf-8') as f:
-        f.write(json.dumps(rec) + "\n")
-    print("usage_appended")
-    sys.exit(0)
-except Exception as e:
-    # Write failure details for repair
-    try:
-        with open(os.path.expanduser("$FAIL_LOG"), "a", encoding='utf-8') as lf:
-            lf.write(json.dumps({"time": int(datetime.datetime.utcnow().timestamp()), "source": src, "error": str(e)}) + "\n")
-    except Exception:
-        pass
-    print(f"usage_append_failed: {e}", file=sys.stderr)
-    sys.exit(3)
+with open(out_jsonl, "a", encoding="utf-8") as f:
+    f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+print("usage_appended")
 PY

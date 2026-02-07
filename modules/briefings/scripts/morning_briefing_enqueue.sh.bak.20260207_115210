@@ -40,7 +40,7 @@ fi
 # Build a REQUIRED Gmail cleanup line from last summary (or a clear fallback)
 GMAIL_LINE="$(python3 - <<PY_GMAIL
 import json, os
-from datetime import datetime
+from datetime import datetime, timezone
 
 p = os.path.expanduser("$GMAIL_SUMMARY_JSON")
 if not os.path.exists(p):
@@ -58,40 +58,22 @@ t = obj.get("trashed_count", 0)
 ts = (obj.get("ts_utc") or "").strip()
 
 def ordinal(n: int) -> str:
-    if 11 <= (n % 100) <= 13:
+    if 11 <= n % 100 <= 13:
         return f"{n}th"
-    last = n % 10
-    if last == 1:
-        return f"{n}st"
-    if last == 2:
-        return f"{n}nd"
-    if last == 3:
-        return f"{n}rd"
-    return f"{n}th"
+    return f"{n}{ {1:'st',2:'nd',3:'rd'}.get(n % 10, 'th') }"
 
 pretty = ""
 if ts:
     try:
-        # parse ISO; treat Z as UTC offset
-        dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-        # try to convert to America/Chicago for human-friendly time
-        try:
-            from zoneinfo import ZoneInfo
-            dt = dt.astimezone(ZoneInfo("America/Chicago"))
-            tz_label = " CT"
-        except Exception:
-            tz_label = ""
-
+        dt = datetime.fromisoformat(ts.replace("Z", "+00:00")).astimezone(timezone.utc)
         month = dt.strftime("%B")
         day = ordinal(dt.day)
         year = dt.year
-        # 5:09AM style (no space)
         try:
-            tstr = dt.strftime("%-I:%M%p")
+            time_s = dt.strftime("%-I:%M %p")
         except Exception:
-            tstr = dt.strftime("%I:%M%p").lstrip("0")
-
-        pretty = f"{month} {day}, {year} ({tstr}{tz_label})"
+            time_s = dt.strftime("%I:%M %p").lstrip("0")
+        pretty = f"{month} {day}, {year} ({time_s})"
     except Exception:
         pretty = ts
 
@@ -114,7 +96,7 @@ $GMAIL_LINE
 LEDGER_BLOCK="$(python3 - <<PY_LEDGER
 import os
 
-p = os.path.expanduser("$LEDGER_REPORT_TXT")
+p = os.path.expanduser(""$LEDGER_REPORT_TXT"")
 if not os.path.exists(p):
     print("OPENCLAW HEARTBEAT LEDGER: report missing.")
     raise SystemExit(0)
@@ -125,20 +107,20 @@ except Exception:
     print("OPENCLAW HEARTBEAT LEDGER: report unreadable.")
     raise SystemExit(0)
 
-rows = txt.splitlines()
+lines = txt.splitlines()
 cut = None
-for i, line in enumerate(rows):
+for i, line in enumerate(lines):
     if line.strip().startswith("ENTRIES (audit fields)"):
         cut = i
         break
 
 if cut is not None:
-    rows = rows[:cut]
+    lines = lines[:cut]
 
-while rows and not rows[-1].strip():
-    rows.pop()
+while lines and not lines[-1].strip():
+    lines.pop()
 
-print("\n".join(rows).rstrip())
+print("\n".join(lines).rstrip())
 PY_LEDGER
 )"
 PROMPT="$PROMPT

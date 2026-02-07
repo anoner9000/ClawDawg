@@ -96,46 +96,56 @@ if [ -f "$SENT_MARKER" ] && [ "$(cat "$SENT_MARKER")" = "$resp_id" ]; then
   exit 0
 fi
 
-# Telegram send function (captures response JSON)
-send_chunk() {
-  local chunk="$1"
-  curl -sS "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-    -d "chat_id=${TELEGRAM_CHAT_ID}" \
-    --data-urlencode "text=${chunk}" \
-    -d "disable_web_page_preview=true" \
-    -d "disable_notification=false"
-}
-
-# Telegram max text is ~4096 chars; chunk at 3500 for safety
-max=3500
-len=${#text}
-
 echo "Sending response id: $resp_id"
 echo "From file: $latest"
 
-if [ "$len" -le "$max" ]; then
-  telegram_json="$(send_chunk "$text")"
-  echo "$telegram_json" | python3 - <<'PY'
-import json,sys
-obj=json.loads(sys.stdin.read())
-assert obj.get("ok") is True, obj
-print("telegram_ok")
+TEXT_FILE="$(mktemp)"
+printf '%s' "$text" > "$TEXT_FILE"
+
+python3 - <<PY
+import json
+import urllib.request
+
+bot_token = """$TELEGRAM_BOT_TOKEN"""
+chat_id = """$TELEGRAM_CHAT_ID"""
+text = open("$TEXT_FILE", "r", encoding="utf-8", errors="replace").read()
+
+# Telegram message limit ~4096 chars; keep margin.
+# Instead of truncating, send in chunks so ledger always makes it through.
+MAX = 3800
+
+def send(msg: str):
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = {"chat_id": chat_id, "text": msg}
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        body = r.read().decode("utf-8", "replace")
+        if r.status < 200 or r.status >= 300:
+            raise RuntimeError(f"Telegram HTTP {r.status}: {body[:2000]}")
+
+if len(text) <= MAX:
+    send(text)
+else:
+    parts = []
+    s = text
+    while len(s) > MAX:
+        cut = s.rfind("\\n\\n", 0, MAX)
+        if cut < 800:  # fallback if no good paragraph break
+            cut = s.rfind("\\n", 0, MAX)
+        if cut < 800:
+            cut = MAX
+        parts.append(s[:cut].rstrip())
+        s = s[cut:].lstrip()
+    if s.strip():
+        parts.append(s.strip())
+
+    for i, p in enumerate(parts, 1):
+        header = f"[Part {i}/{len(parts)}]\\n" if len(parts) > 1 else ""
+        send(header + p)
 PY
-else
-  i=0
-  first_json=""
-  while [ $i -lt $len ]; do
-    chunk="${text:$i:$max}"
-    telegram_json="$(send_chunk "$chunk")"
-    echo "$telegram_json" | python3 - <<'PY'
-import json,sys
-obj=json.loads(sys.stdin.read())
-assert obj.get("ok") is True, obj
-print("telegram_ok")
-PY
-    i=$((i+max))
-  done
-fi
+
+rm -f "$TEXT_FILE"
 
 # Mark sent
 printf '%s' "$resp_id" > "$SENT_MARKER"

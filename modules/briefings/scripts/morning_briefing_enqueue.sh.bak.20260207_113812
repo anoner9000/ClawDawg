@@ -38,10 +38,8 @@ else
 fi
 
 # Build a REQUIRED Gmail cleanup line from last summary (or a clear fallback)
-GMAIL_LINE="$(python3 - <<PY_GMAIL
+GMAIL_LINE="$(python3 - <<PY
 import json, os
-from datetime import datetime
-
 p = os.path.expanduser("$GMAIL_SUMMARY_JSON")
 if not os.path.exists(p):
     print("Gmail cleanup (last run): no data yet.")
@@ -55,51 +53,12 @@ except Exception:
 
 q = obj.get("quarantined_count", 0)
 t = obj.get("trashed_count", 0)
-ts = (obj.get("ts_utc") or "").strip()
-
-def ordinal(n: int) -> str:
-    if 11 <= (n % 100) <= 13:
-        return f"{n}th"
-    last = n % 10
-    if last == 1:
-        return f"{n}st"
-    if last == 2:
-        return f"{n}nd"
-    if last == 3:
-        return f"{n}rd"
-    return f"{n}th"
-
-pretty = ""
+ts = obj.get("ts_utc") or ""
 if ts:
-    try:
-        # parse ISO; treat Z as UTC offset
-        dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-        # try to convert to America/Chicago for human-friendly time
-        try:
-            from zoneinfo import ZoneInfo
-            dt = dt.astimezone(ZoneInfo("America/Chicago"))
-            tz_label = " CT"
-        except Exception:
-            tz_label = ""
-
-        month = dt.strftime("%B")
-        day = ordinal(dt.day)
-        year = dt.year
-        # 5:09AM style (no space)
-        try:
-            tstr = dt.strftime("%-I:%M%p")
-        except Exception:
-            tstr = dt.strftime("%I:%M%p").lstrip("0")
-
-        pretty = f"{month} {day}, {year} ({tstr}{tz_label})"
-    except Exception:
-        pretty = ts
-
-if pretty:
-    print(f"Gmail cleanup (last run {pretty}): quarantined {q}, trashed {t}.")
+    print(f"Gmail cleanup (last run {ts} UTC): quarantined {q}, trashed {t}.")
 else:
     print(f"Gmail cleanup (last run): quarantined {q}, trashed {t}.")
-PY_GMAIL
+PY
 )"
 
 # Append hard requirement so it shows up every day
@@ -111,36 +70,17 @@ $GMAIL_LINE
 ---"
 
 # Build a REQUIRED Ledger section from latest accounting report (or fallback)
-LEDGER_BLOCK="$(python3 - <<PY_LEDGER
-import os
-
-p = os.path.expanduser("$LEDGER_REPORT_TXT")
+LEDGER_BLOCK="$(
+python3 -c 'import os,sys
+p=os.path.expanduser("'"$LEDGER_REPORT_TXT"'")
 if not os.path.exists(p):
-    print("OPENCLAW HEARTBEAT LEDGER: report missing.")
+    print("(Ledger report not found yet: ledger_report_accounting_latest.txt)")
     raise SystemExit(0)
-
-try:
-    txt = open(p, "r", encoding="utf-8", errors="replace").read()
-except Exception:
-    print("OPENCLAW HEARTBEAT LEDGER: report unreadable.")
-    raise SystemExit(0)
-
-rows = txt.splitlines()
-cut = None
-for i, line in enumerate(rows):
-    if line.strip().startswith("ENTRIES (audit fields)"):
-        cut = i
-        break
-
-if cut is not None:
-    rows = rows[:cut]
-
-while rows and not rows[-1].strip():
-    rows.pop()
-
-print("\n".join(rows).rstrip())
-PY_LEDGER
+lines=open(p,"r",encoding="utf-8",errors="replace").read().splitlines()
+chunk="\n".join(lines[:60]).strip() or "\n".join(lines[-80:]).strip()
+print(chunk)'
 )"
+
 PROMPT="$PROMPT
 
 ---
