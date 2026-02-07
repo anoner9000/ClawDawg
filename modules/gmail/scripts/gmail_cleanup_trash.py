@@ -18,6 +18,7 @@ Uses MODIFY token only:
 import os
 import json
 import argparse
+from pathlib import Path
 import datetime
 import pathlib
 
@@ -118,7 +119,10 @@ def main():
     eligible = [e for e in eligible if e.get("id") and e.get("id") not in already_trashed]
 
     if not eligible:
-        print("No eligible entries found in quarantine log; nothing to trash")
+        if already_trashed:
+            print("Nothing to do: all eligible messages are already recorded as trashed in trash_log")
+        else:
+            print("No eligible entries found in quarantine log; nothing to trash")
         return
 
     os.makedirs(os.path.dirname(trash_log_path) or ".", exist_ok=True)

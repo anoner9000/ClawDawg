@@ -53,6 +53,11 @@ print(int(cfg.get("default_days", 180)))
 PY
 )"
 
+  # Optional hard override from environment (cron-friendly)
+  if [[ -n "${GMAIL_CLEANUP_DAYS:-}" ]]; then
+    DAYS="$GMAIL_CLEANUP_DAYS"
+  fi
+
   if [[ -z "$SENDERS_CSV" ]]; then
     echo "No senders configured. Exiting."
     echo "=== $(date -Iseconds) END gmail nightly cleanup ==="
