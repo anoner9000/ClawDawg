@@ -4,6 +4,13 @@
 
 set -euo pipefail
 
+# Runtime/log paths (initialized early so LOG is always defined)
+RUNTIME_DIR="${OPENCLAW_RUNTIME_DIR:-$HOME/.openclaw/runtime}"
+LOG_DIR="$RUNTIME_DIR/logs/heartbeat"
+mkdir -p "$LOG_DIR"
+STAMP="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+LOG="$LOG_DIR/heartbeat_aggregator_${STAMP}.log"
+
 # Resolve script directory (cron-safe)
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -19,15 +26,11 @@ if [ "${1:-}" = "--dry-run" ]; then
 fi
 
 # Runtime paths
-RUNTIME_DIR="${OPENCLAW_RUNTIME_DIR:-$HOME/.openclaw/runtime}"
 QUEUE_DIR="$RUNTIME_DIR/queues"
 QUEUE_FILE="$QUEUE_DIR/llm_queue.jsonl"
-LOG_DIR="$RUNTIME_DIR/logs/heartbeat"
 
 mkdir -p "$QUEUE_DIR" "$LOG_DIR"
 touch "$QUEUE_FILE"
-
-LOG="$LOG_DIR/heartbeat_run_$(date -Iseconds).log"
 
 # Load OpenAI API key from runtime secrets
 SECRET_KEY_FILE="$RUNTIME_DIR/credentials/openai_api_key"
@@ -212,6 +215,7 @@ fi
 # Append usage if available
 if [ -x "$SCRIPT_DIR/usage_append_from_latest_response.sh" ]; then
   APPEND_ERR_FILE="$(mktemp)"
+  echo "runner: uid=$(id -u) gid=$(id -g) user=$(id -un) group=$(id -gn) umask=$(umask) pwd=$(pwd)"
   if "$SCRIPT_DIR/usage_append_from_latest_response.sh" "$RESP_FILE" 2>"$APPEND_ERR_FILE"; then
     :
   else

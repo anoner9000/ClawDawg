@@ -9,7 +9,7 @@ fi
 
 RUNTIME_DIR="${OPENCLAW_RUNTIME_DIR:-$HOME/.openclaw/runtime}"
 OUT_JSONL="$RUNTIME_DIR/logs/heartbeat/llm_usage.jsonl"
-RATES_FILE="$RUNTIME_DIR/config.known-good/model_rates.json"
+RATES_FILE="${OPENCLAW_RATES_FILE:-$RUNTIME_DIR/config.known-good/model_rates.json}"
 
 mkdir -p "$(dirname "$OUT_JSONL")"
 touch "$OUT_JSONL"
@@ -20,17 +20,23 @@ import json, sys, os, time, datetime
 resp_path, out_jsonl, rates_path = sys.argv[1], sys.argv[2], sys.argv[3]
 obj = json.load(open(resp_path, "r", encoding="utf-8"))
 
-resp_id = obj.get("id") or os.path.abspath(resp_path)
-
 # Idempotency: skip if already recorded (by response_id or by source path)
-needle_src = f'"source":"{os.path.abspath(resp_path)}"'
-needle_id  = f'"response_id":"{resp_id}"'
+src_abs = os.path.abspath(resp_path)
+resp_id = obj.get("id") or src_abs
+
 try:
     with open(out_jsonl, "r", encoding="utf-8", errors="ignore") as f:
-        data = f.read()
-        if needle_src in data or needle_id in data:
-            print("usage_already_recorded")
-            raise SystemExit(0)
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except Exception:
+                continue
+            if rec.get("source") == src_abs or rec.get("response_id") == resp_id:
+                print("usage_already_recorded")
+                raise SystemExit(0)
 except FileNotFoundError:
     pass
 
