@@ -83,12 +83,6 @@ PY
     exit 1
   fi
 
-  if [[ ! -s "$MANIFEST" ]]; then
-    echo "Manifest empty; skipping quarantine+trash."
-    echo "=== $(date -Iseconds) END gmail nightly cleanup ==="
-    exit 0
-  fi
-
   echo
   echo "manifest: $MANIFEST"
   echo
@@ -102,17 +96,10 @@ PY
     exit 1
   fi
 
-  : "${GMAIL_TRASH_CONFIRM:=}"
-  if [[ "${GMAIL_TRASH_APPLY:-0}" != "1" ]]; then
-    echo "Skipping trash step (set GMAIL_TRASH_APPLY=1 to enable)."
-  elif [[ "$GMAIL_TRASH_CONFIRM" != "TrashApply" ]]; then
-    echo "Refusing trash: set GMAIL_TRASH_CONFIRM=TrashApply"
-  else
-    "$PY" -u modules/gmail/scripts/gmail_cleanup_trash.py \
-      --quarantine-log "$QUAR_LOG" \
-      --confirm "$GMAIL_TRASH_CONFIRM" \
-      --apply
-  fi
+  "$PY" -u modules/gmail/scripts/gmail_cleanup_trash.py \
+    --quarantine-log "$QUAR_LOG" \
+    --confirm "TrashApply" \
+    --apply
 
   SUMMARY_JSON="${LOGDIR}/gmail_cleanup_last_summary.json"
   HEARTBEAT_JSONL="${HEARTBEAT_DIR}/gmail_cleanup.jsonl"

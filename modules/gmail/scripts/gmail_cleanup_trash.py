@@ -72,6 +72,28 @@ def iter_quarantine_log(path):
             yield json.loads(line)
 
 
+def load_trashed_ids(trash_log_path):
+    """Return message IDs already recorded as trashed in trash_log."""
+    ids = set()
+    p = pathlib.Path(trash_log_path)
+    if (not p.exists()) or p.stat().st_size == 0:
+        return ids
+    with p.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+                if obj.get("action") == "trashed":
+                    mid = obj.get("id")
+                    if mid:
+                        ids.add(mid)
+            except Exception:
+                continue
+    return ids
+
+
 def is_eligible(entry):
     # Only trash things we actually labeled (or were already labeled).
     return entry.get("action") in ("quarantined", "already_quarantined")
@@ -90,13 +112,15 @@ def main():
     if not os.path.exists(CREDS_PATH):
         raise SystemExit(f"credentials.json not found at {CREDS_PATH}")
 
+    trash_log_path = args.quarantine_log + ".trash_log"
+    already_trashed = load_trashed_ids(trash_log_path)
     eligible = [e for e in iter_quarantine_log(args.quarantine_log) if is_eligible(e)]
+    eligible = [e for e in eligible if e.get("id") and e.get("id") not in already_trashed]
 
     if not eligible:
         print("No eligible entries found in quarantine log; nothing to trash")
         return
 
-    trash_log_path = args.quarantine_log + ".trash_log"
     os.makedirs(os.path.dirname(trash_log_path) or ".", exist_ok=True)
 
     if not args.apply:
