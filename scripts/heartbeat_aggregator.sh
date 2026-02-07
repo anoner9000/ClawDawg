@@ -7,9 +7,17 @@ set -euo pipefail
 # Runtime/log paths (initialized early so LOG is always defined)
 RUNTIME_DIR="${OPENCLAW_RUNTIME_DIR:-$HOME/.openclaw/runtime}"
 LOG_DIR="$RUNTIME_DIR/logs/heartbeat"
-mkdir -p "$LOG_DIR"
+mkdir -p "$LOG_DIR" 2>/dev/null || true
 STAMP="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 LOG="$LOG_DIR/heartbeat_aggregator_${STAMP}.log"
+
+# Probe log writability without triggering noisy redirect errors
+if ! touch "$LOG" 2>/dev/null; then
+  LOG="/tmp/openclaw_heartbeat_aggregator_${STAMP}.log"
+  mkdir -p /tmp 2>/dev/null || true
+  touch "$LOG"
+  echo "WARN: using fallback log path: $LOG" >&2
+fi
 
 # Resolve script directory (cron-safe)
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
