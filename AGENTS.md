@@ -35,7 +35,6 @@ Runtime artifacts (read-only unless explicitly performing an action):
 - `~/.openclaw/runtime/logs/`
 - `~/.openclaw/runtime/queues/`
 - `~/.openclaw/runtime/var/`
-- `~/.openclaw/runtime/config/`
 
 ---
 
@@ -50,8 +49,6 @@ Non-negotiable sequence:
 1. Produce (or request permission to produce) the **internal one-page factsheet** FIRST
 2. Only after factsheet approval: framing, tradeoffs, incentives
 3. Only on request: messaging artifacts (negotiation, public line, etc.)
-
-If the user attempts to skip the factsheet, the agent MUST refuse and restate the protocol briefly.
 
 Advisor Mode style constraints:
 
@@ -115,3 +112,16 @@ Bootstrap file:
 - `Atlas/Deiphobe.md`
 
 All other agents must still comply with this AGENTS.md and the Advisor Mode Protocol.
+
+---
+
+## 8) Agent Levels (Summary)
+
+Agents operate under a staged trust and permissions model. Levels are recorded in AGENTS.md and enforced by tooling and review:
+
+- L1 — Observer: read, plan, flag risk; cannot change state.
+- L2 — Advisor: suggest actions, perform dry-runs (non-destructive), cannot apply without approval.
+- L3 — Operator: execute with gate/approval; must post results and evidence.
+- L4 — Autonomous: domain-limited autonomy; still auditable and subject to rollback.
+
+Promotion and demotion are evidence-driven and documented in the agent registry.
