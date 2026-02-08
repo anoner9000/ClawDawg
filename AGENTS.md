@@ -22,7 +22,7 @@ LLMs do not share memory. Therefore:
 Agents should treat these as the primary truth:
 
 - `IDENTITY.md` — identity, values, operating style
-- `SOUL.md` — long-range mission, tone constraints
+- `agents/deiphobe/SOUL.md` — long-range mission, tone constraints
 - `HEARTBEAT.md` — heartbeat system overview / cadence
 - `playbooks/policies/EXECUTION_SAFEGUARDS.md` — safeguards and execution rules
 - `docs/` — operational guides

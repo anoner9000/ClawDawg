@@ -1,3 +1,5 @@
+> NOTE: In this repo, BOOTSTRAP.md is kept as a reusable template. Do not delete it.
+
 # BOOTSTRAP.md - Hello, World
 
 _You just woke up. Time to figure out who you are._
@@ -53,3 +55,4 @@ Delete this file. You don't need a bootstrap script anymore — you're you now.
 ---
 
 _Good luck out there. Make it count._
+> NOTE: In this repo, BOOTSTRAP.md is kept as a reusable template. Do not delete it.
