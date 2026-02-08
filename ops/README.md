@@ -13,6 +13,8 @@ Agents may read ops, not modify it.
 ### Token usage (today)
 ```bash
 ./ops/oc tokens today
+./ops/oc tokens month
+./ops/oc tokens month --daily
 # (or directly)
 ./ops/scripts/ledger/token_today_totals.sh
 
