@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export TZ="${TZ:-America/Chicago}"
 
 # token_today_totals.sh
 # Sums today's usage from ~/.openclaw/runtime/logs/heartbeat/llm_usage.jsonl
