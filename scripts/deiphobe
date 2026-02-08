@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""
+deiphobe
+
+Unified authority emitter for the OpenClaw agent team bus.
+
+Usage:
+  deiphobe approve   --task-id TASK --summary "..." --expires-minutes N [--detail k=v ...]
+  deiphobe unblock   --task-id TASK --summary "..." [--detail k=v ...]
+
+This is the ONLY supported way to emit APPROVAL or UNBLOCKED events.
+"""
+
+import argparse, json, sys
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+
+
+BUS_DEFAULT = "~/.openclaw/runtime/logs/team_bus.jsonl"
+SCHEMA_VERSION = "team_bus.v1.1"
+
+
+def ts(dt: datetime) -> str:
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def expand(path: str) -> str:
+    return str(Path(path).expanduser())
+
+
+def parse_details(pairs):
+    out = {}
+    for kv in pairs:
+        if "=" not in kv:
+            raise SystemExit(f"Invalid --detail '{kv}', expected key=value")
+        k, v = kv.split("=", 1)
+        out[k] = v
+    return out
+
+
+def write_event(bus: str, event: dict):
+    with open(bus, "a", encoding="utf-8") as f:
+        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+
+
+def approve(args):
+    now = datetime.now(timezone.utc)
+
+    event = {
+        "schema_version": SCHEMA_VERSION,
+        "ts": ts(now),
+        "task_id": args.task_id,
+        "agent": "deiphobe",
+        "type": "APPROVAL",
+        "summary": args.summary,
+        "details": parse_details(args.detail),
+        "expires_at": ts(now + timedelta(minutes=args.expires_minutes)),
+        "next": "Executor may proceed before approval expiry"
+    }
+
+    write_event(args.bus, event)
+    print(f"APPROVED (expires in {args.expires_minutes} minutes)")
+
+
+def unblock(args):
+    event = {
+        "schema_version": SCHEMA_VERSION,
+        "ts": ts(datetime.now(timezone.utc)),
+        "task_id": args.task_id,
+        "agent": "deiphobe",
+        "type": "UNBLOCKED",
+        "summary": args.summary,
+        "details": parse_details(args.detail),
+        "next": "New approval required before execution"
+    }
+
+    write_event(args.bus, event)
+    print("UNBLOCKED")
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="deiphobe")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    # approve
+    ap_approve = sub.add_parser("approve", help="Emit APPROVAL with expiry")
+    ap_approve.add_argument("--task-id", required=True)
+    ap_approve.add_argument("--summary", required=True)
+    ap_approve.add_argument("--expires-minutes", type=int, required=True)
+    ap_approve.add_argument("--detail", action="append", default=[])
+    ap_approve.add_argument("--bus", default=BUS_DEFAULT)
+    ap_approve.set_defaults(func=approve)
+
+    # unblock
+    ap_unblock = sub.add_parser("unblock", help="Emit UNBLOCKED")
+    ap_unblock.add_argument("--task-id", required=True)
+    ap_unblock.add_argument("--summary", required=True)
+    ap_unblock.add_argument("--detail", action="append", default=[])
+    ap_unblock.add_argument("--bus", default=BUS_DEFAULT)
+    ap_unblock.set_defaults(func=unblock)
+
+    args = ap.parse_args()
+    args.bus = expand(args.bus)
+
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
