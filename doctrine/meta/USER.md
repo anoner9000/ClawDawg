@@ -15,6 +15,6 @@ Uther prefers structured briefings, anticipatory assistance, and confirmations b
 
 ## Token spend requests
 When the user asks for "today's tokens" or "today's USD spend", run:
-~/.openclaw/workspace/ops/scripts/token_today_totals.sh
+~/.openclaw/workspace/ops/scripts/ledger/token_today_totals.sh
 Then include the script's output verbatim in the single "Result: success — ..." sentence (not just a generic success).
 Artifacts: none.
