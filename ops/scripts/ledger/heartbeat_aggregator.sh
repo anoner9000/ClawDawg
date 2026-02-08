@@ -220,26 +220,9 @@ PY
   exit 1
 fi
 
-# Append usage if available
-if [ -x "$SCRIPT_DIR/usage_append_from_latest_response.sh" ]; then
-  APPEND_ERR_FILE="$(mktemp)"
-  echo "runner: uid=$(id -u) gid=$(id -g) user=$(id -un) group=$(id -gn) umask=$(umask) pwd=$(pwd)"
-  if "$SCRIPT_DIR/usage_append_from_latest_response.sh" "$RESP_FILE" 2>"$APPEND_ERR_FILE"; then
-    :
-  else
-    APPEND_RC=$?
-    echo "!!! WARNING: usage append failed (exit $APPEND_RC). API delivery succeeded, accounting incomplete." | tee -a "$LOG"
-    sed 's/^/usage_append_stderr: /' "$APPEND_ERR_FILE" >> "$LOG"
-    {
-      echo "response_path=$RESP_FILE"
-      sed 's/^/stderr: /' "$APPEND_ERR_FILE"
-      echo "---"
-    } >> "$LOG_DIR/usage_append_failures.log"
-    FLAG_TS="$(date +%s)"
-    touch "$LOG_DIR/accounting_incomplete_${FLAG_TS}.flag"
-    echo "Repair command: $SCRIPT_DIR/usage_append_from_latest_response.sh $RESP_FILE" >> "$LOG"
-  fi
-  rm -f "$APPEND_ERR_FILE"
+# Append usage
+if [ -x "$SCRIPT_DIR/custodian_telemetry_append.py" ]; then
+  python3 "$SCRIPT_DIR/custodian_telemetry_append.py" "$RESP_FILE" "$LOG_DIR/llm_usage.jsonl" || true
 fi
 
 # Mark delivered
