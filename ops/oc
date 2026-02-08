@@ -12,7 +12,8 @@ case "$cmd" in
     sub="${1:-}"; shift || true
     case "$sub" in
       today)             exec "$S/ledger/token_today_totals.sh" "$@" ;;
-      *) echo "Usage: oc tokens {today}" >&2; exit 2 ;;
+      month)             exec "$S/ledger/token_month_totals.sh" "$@" ;;
+      *) echo "Usage: oc tokens {today|month} [--daily]" >&2; exit 2 ;;
     esac
     ;;
   task-dashboard)        exec python3 "$S/dashboards/task_dashboard.py" "$@" ;;
