@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cmd="${1:-}"; shift || true
+case "$cmd" in
+  tasks) exec python3 "$DIR/dashboards/task_dashboard.py" "$@" ;;
+  task)  exec python3 "$DIR/dashboards/task_state.py" "$@" ;;
+  *) echo "Usage: dash {tasks|task} ..." >&2; exit 2 ;;
+esac
