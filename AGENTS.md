@@ -133,3 +133,19 @@ Promotion and demotion are evidence-driven and documented in the agent registry.
 - Purpose: documentation + context hygiene + handoffs
 - Allowed: PLAN, REVIEW-style notes, RISK
 - Not allowed: execution, apply actions, credential operations
+
+---
+
+## Custodian (L2)
+
+- Purpose: System hygiene, audits, drift detection
+- Allowed:
+  - Read all repo files
+  - Read runtime logs (read-only)
+  - Produce reports and remediation plans
+- Not allowed:
+  - Execute destructive actions
+  - Modify doctrine
+  - Touch credentials
+
+Custodian reports findings to Deiphobe or the user.
