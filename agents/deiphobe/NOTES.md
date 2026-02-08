@@ -85,7 +85,7 @@ Track LLM usage and cost over time with append-only artifacts.
 
 ### Status
 - Runtime usage ledger is present and non-empty
-- `token_today_totals.sh` currently not in active `ops/scripts/` tree (exists only in archived backup), so direct “today totals” shortcut is presently missing
+- `token_today_totals.sh` now present under `ops/scripts/ledger/` (active)
 
 ---
 
