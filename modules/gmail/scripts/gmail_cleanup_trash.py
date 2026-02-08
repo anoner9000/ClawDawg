@@ -32,6 +32,7 @@ HOME = os.path.expanduser("~")
 RUNTIME = os.path.join(HOME, ".openclaw", "runtime")
 CREDS_PATH = os.path.join(RUNTIME, "config", "credentials.json")
 TOKEN_PATH = pathlib.Path(os.path.join(RUNTIME, "config", "token_modify.json"))
+GLOBAL_TRASH_LEDGER = pathlib.Path(RUNTIME) / "logs" / "gmail_trash_ledger.jsonl"
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 APPROVAL_PHRASE = "TrashApply"
@@ -105,7 +106,14 @@ def main():
     p.add_argument("--quarantine-log", required=True)
     p.add_argument("--confirm", required=True)
     p.add_argument("--apply", action="store_true")
+    p.add_argument("--global-ledger", default=str(GLOBAL_TRASH_LEDGER),
+                   help="Global jsonl ledger used to dedupe trash across manifests/runs")
     args = p.parse_args()
+
+    if not args.quarantine_log.strip():
+        raise SystemExit("--quarantine-log is empty; aborting")
+    if not os.path.exists(args.quarantine_log):
+        raise SystemExit(f"quarantine log not found: {args.quarantine_log}")
 
     if args.confirm != APPROVAL_PHRASE:
         raise SystemExit("Confirmation phrase incorrect; will not proceed")
@@ -114,44 +122,76 @@ def main():
         raise SystemExit(f"credentials.json not found at {CREDS_PATH}")
 
     trash_log_path = args.quarantine_log + ".trash_log"
-    already_trashed = load_trashed_ids(trash_log_path)
-    eligible = [e for e in iter_quarantine_log(args.quarantine_log) if is_eligible(e)]
-    eligible = [e for e in eligible if e.get("id") and e.get("id") not in already_trashed]
+    already_trashed = set()
+    already_trashed |= load_trashed_ids(trash_log_path)
+    already_trashed |= load_trashed_ids(args.global_ledger)
+    eligible = [e for e in iter_quarantine_log(args.quarantine_log)
+                if is_eligible(e) and e.get("id")]
+
+    remaining = [e for e in eligible if e.get("id") not in already_trashed]
 
     if not eligible:
-        if already_trashed:
-            print("Nothing to do: all eligible messages are already recorded as trashed in trash_log")
-        else:
-            print("No eligible entries found in quarantine log; nothing to trash")
+        print("No eligible entries found in quarantine log; nothing to trash")
+        return
+
+    # QUIET / IDEMPOTENT GUARD:
+    # If everything has already been trashed before, exit cleanly.
+    if args.apply and not remaining:
+        print("Nothing to do: all eligible messages already trashed (ledger-backed)")
         return
 
     os.makedirs(os.path.dirname(trash_log_path) or ".", exist_ok=True)
+    pathlib.Path(args.global_ledger).parent.mkdir(parents=True, exist_ok=True)
 
     if not args.apply:
-        print(f"DRY_RUN: would trash {len(eligible)} messages. Use --apply to execute.")
-        for e in eligible[:20]:
+        if not remaining:
+            print("Nothing to do: all eligible messages are already recorded as trashed in trash_log")
+            return
+        print(f"DRY_RUN: would trash {len(remaining)} messages. Use --apply to execute.")
+        for e in remaining[:20]:
             print(json.dumps({"id": e.get("id"), "from": e.get("from", ""), "subject": e.get("subject", "")}))
         return
 
-    svc = auth()
-
     moved = 0
-    with open(trash_log_path, "a", encoding="utf-8") as out:
+    skipped_already = 0
+    svc = None
+    with open(trash_log_path, "a", encoding="utf-8") as out, open(args.global_ledger, "a", encoding="utf-8") as gout:
         for e in eligible:
             mid = e.get("id")
-            rec = {"id": mid, "time": utc_iso()}
+            rec = {
+                "id": mid,
+                "time": utc_iso(),
+                "source_quarantine_log": args.quarantine_log,
+                "from": e.get("from", ""),
+                "subject": e.get("subject", ""),
+                "date": e.get("date", ""),
+            }
+
+            if mid in already_trashed:
+                rec["action"] = "already_trashed"
+                out.write(json.dumps(rec) + "\n")
+                skipped_already += 1
+                continue
 
             try:
+                if svc is None:
+                    svc = auth()
                 svc.users().messages().trash(userId="me", id=mid).execute()
                 rec["action"] = "trashed"
                 moved += 1
+                gout.write(json.dumps(rec) + "\n")
             except Exception as ex:
                 rec["action"] = "error"
                 rec["error"] = str(ex)
 
             out.write(json.dumps(rec) + "\n")
 
-    print(f"trash_done moved={moved} attempted={len(eligible)} log={trash_log_path}")
+    print(
+        f"trash_done moved={moved} "
+        f"eligible={len(eligible)} "
+        f"remaining={len(remaining)} "
+        f"log={trash_log_path}"
+    )
 
 
 if __name__ == "__main__":

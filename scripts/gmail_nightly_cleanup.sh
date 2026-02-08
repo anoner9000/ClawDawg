@@ -11,7 +11,7 @@ HEARTBEAT_DIR="${RUNTIME}/logs/heartbeat"
 mkdir -p "$LOGDIR" "$TMPDIR" "$HEARTBEAT_DIR"
 
 TS="$(date -Iseconds | tr ':' '-')"
-LOG="${LOGDIR}/cron_gmail_cleanup_${TS}.log"
+LOG="${LOGDIR}/gmail_cleanup_${TS}.log"
 
 PY="${HOME}/.openclaw/venv/bin/python3"
 if [[ ! -x "$PY" ]]; then
@@ -108,6 +108,7 @@ PY
   fi
 
   : "${GMAIL_TRASH_CONFIRM:=}"
+  echo "trash_apply=${GMAIL_TRASH_APPLY:-0} trash_confirm=${GMAIL_TRASH_CONFIRM:-}"
   if [[ "${GMAIL_TRASH_APPLY:-0}" != "1" ]]; then
     echo "Skipping trash step (set GMAIL_TRASH_APPLY=1 to enable)."
   elif [[ "$GMAIL_TRASH_CONFIRM" != "TrashApply" ]]; then
