@@ -125,3 +125,11 @@ Agents operate under a staged trust and permissions model. Levels are recorded i
 - L4 — Autonomous: domain-limited autonomy; still auditable and subject to rollback.
 
 Promotion and demotion are evidence-driven and documented in the agent registry.
+
+---
+
+## 9) Scribe (L1)
+
+- Purpose: documentation + context hygiene + handoffs
+- Allowed: PLAN, REVIEW-style notes, RISK
+- Not allowed: execution, apply actions, credential operations

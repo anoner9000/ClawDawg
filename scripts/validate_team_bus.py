@@ -65,7 +65,7 @@ EMBEDDED_SCHEMA: Dict[str, Any] = {
         "next",
     ],
     "properties": {
-        "schema_version": {"const": "team_bus.v1"},
+        "schema_version": {"enum": ["team_bus.v1", "team_bus.v1.1"]},
         "ts": {
             "type": "string",
             "description": "ISO-8601 UTC timestamp (recommended Z suffix).",
@@ -93,6 +93,7 @@ EMBEDDED_SCHEMA: Dict[str, Any] = {
                 "VERIFIED",
                 "RISK",
                 "BLOCKED",
+                "UNBLOCKED",
                 "CLOSED",
             ],
         },
@@ -103,6 +104,11 @@ EMBEDDED_SCHEMA: Dict[str, Any] = {
             "additionalProperties": True,
         },
         "next": {"type": "string", "minLength": 1, "maxLength": 300},
+        "expires_at": {
+            "type": "string",
+            "description": "Optional approval expiry in ISO-8601 UTC.",
+            "pattern": r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,9})?Z$",
+        },
         "severity": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
         "evidence": {"type": "object", "additionalProperties": True},
     },
@@ -125,6 +131,10 @@ EMBEDDED_SCHEMA: Dict[str, Any] = {
         },
         {
             "if": {"properties": {"type": {"const": "CLOSED"}}, "required": ["type"]},
+            "then": {"properties": {"agent": {"const": "deiphobe"}}},
+        },
+        {
+            "if": {"properties": {"type": {"const": "UNBLOCKED"}}, "required": ["type"]},
             "then": {"properties": {"agent": {"const": "deiphobe"}}},
         },
     ],

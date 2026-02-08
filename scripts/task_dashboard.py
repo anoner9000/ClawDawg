@@ -38,7 +38,7 @@ import json
 import os
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -112,6 +112,23 @@ def parse_ts(ts: str) -> datetime:
 
 def now_utc() -> datetime:
     return datetime.now(timezone.utc)
+
+def parse_since_arg(s: str) -> Optional[datetime]:
+    if not s:
+        return None
+    s = s.strip()
+    # Duration formats: Nm, Nh, Nd
+    try:
+        if s.endswith("m"):
+            return now_utc() - timedelta(minutes=int(s[:-1]))
+        if s.endswith("h"):
+            return now_utc() - timedelta(hours=int(s[:-1]))
+        if s.endswith("d"):
+            return now_utc() - timedelta(days=int(s[:-1]))
+        # Absolute ISO-8601 UTC
+        return parse_ts(s)
+    except Exception:
+        return None
 
 def clear_screen():
     if os.environ.get("NO_CLEAR") == "1":
@@ -300,6 +317,26 @@ def render_detail(d: TaskDetail, color: bool):
     print(f"  summary: {le.get('summary')}")
     print(f"{k('COUNTS')}: " + ", ".join([f"{t}={n}" for t, n in sorted(d.counts.items())]))
 
+def render_event_tail(evs: List[dict], n: int, color: bool):
+    if n <= 0:
+        return
+    tail = evs[-n:]
+
+    print("\nRECENT EVENTS:")
+    for ev in tail:
+        ts = ev.get("ts", "")
+        agent = ev.get("agent", "")
+        etype = ev.get("type", "")
+        summary = ev.get("summary", "")
+
+        line = f"- {ts}  {etype}({agent})  {summary}"
+        if color:
+            if etype in ("BLOCKED", "RISK"):
+                line = f"{Ansi.RED}{line}{Ansi.RESET}"
+            elif etype in ("APPROVAL", "UNBLOCKED", "CLOSED"):
+                line = f"{Ansi.GREEN}{line}{Ansi.RESET}"
+        print(line)
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bus", default="~/.openclaw/runtime/logs/team_bus.jsonl")
@@ -311,6 +348,17 @@ def main():
     ap.add_argument("--deny-risk-severity", default="high,critical")
     ap.add_argument("--width", type=int, default=120, help="Render width (characters)")
     ap.add_argument("--show", default="", help="Show detailed view for a specific task_id")
+    ap.add_argument(
+        "--tail",
+        type=int,
+        default=0,
+        help="When used with --show, print the latest N events for the task",
+    )
+    ap.add_argument(
+        "--since",
+        default="",
+        help="When used with --show, filter events since a time (e.g., 10m, 2h, 2026-02-08T00:00:00Z)",
+    )
     ap.add_argument("--color", action="store_true", help="Enable ANSI color output (TTY recommended)")
     ap.add_argument("--force-color", action="store_true", help="Force color even if not a TTY")
     args = ap.parse_args()
@@ -342,11 +390,28 @@ def main():
             evs = by_task.get(args.show)
             clear_screen()
             print(f"OpenClaw Task Detail  |  bus={bus_path}  |  now={now_utc().strftime('%Y-%m-%dT%H:%M:%SZ')}\n")
+            if args.since:
+                print(f"(showing events since {args.since})\n")
             if not evs:
                 print(f"STATE: UNKNOWN (no events found for task_id={args.show})")
                 return
-            d = compute_task_detail(args.show, evs, deny_set)
+
+            since_dt = parse_since_arg(args.since)
+            if args.since and since_dt is None:
+                print(f"ERROR: invalid --since value: {args.since}")
+                return
+
+            filtered_evs = evs
+            if since_dt:
+                filtered_evs = [ev for ev in evs if parse_ts(ev.get("ts","")) >= since_dt]
+            if not filtered_evs:
+                print("STATE: UNKNOWN (no events in selected since window)")
+                return
+
+            d = compute_task_detail(args.show, filtered_evs, deny_set)
             render_detail(d, color_enabled)
+            if args.tail > 0:
+                render_event_tail(filtered_evs, args.tail, color_enabled)
             return
 
         rows: List[TaskRow] = []
