@@ -110,6 +110,32 @@ else
 fi
 
 # -------------------------------------------------------------------
+section "Network exposure"
+# Check common OpenClaw service ports for public bindings.
+# Override with: OPENCLAW_AUDIT_PORTS="8000,8080"
+PORTS_CSV="${OPENCLAW_AUDIT_PORTS:-8000,8080,3000,8787}"
+listeners="$(ss -lntH 2>/dev/null || true)"
+if [[ -z "$listeners" ]]; then
+  warn "Could not read listening sockets (ss unavailable or restricted)"
+else
+  IFS=',' read -r -a ports <<< "$PORTS_CSV"
+  for port in "${ports[@]}"; do
+    port="${port//[[:space:]]/}"
+    [[ -n "$port" ]] || continue
+
+    if grep -Eq "0\\.0\\.0\\.0:${port}[[:space:]]|\\[::\\]:${port}[[:space:]]" <<< "$listeners"; then
+      err "Port $port is publicly exposed (wildcard bind)"
+    elif grep -Eq "127\\.0\\.0\\.1:${port}[[:space:]]|\\[::1\\]:${port}[[:space:]]" <<< "$listeners"; then
+      ok "Port $port bound to localhost only"
+    elif grep -Eq ":[[:digit:]]*[[:space:]]" <<< "$listeners" && grep -Eq ":${port}[[:space:]]" <<< "$listeners"; then
+      warn "Port $port is listening on a non-localhost interface"
+    else
+      ok "Port $port not listening"
+    fi
+  done
+fi
+
+# -------------------------------------------------------------------
 section "Agent layout"
 for a in deiphobe scribe custodian; do
   [[ -d "$ROOT/agents/$a" ]] && ok "agent/$a present" || err "agent/$a missing"
