@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+WS="${OPENCLAW_WORKSPACE:-$HOME/.openclaw/workspace}"
+S="$WS/ops/scripts"
+
+cmd="${1:-}"; shift || true
+
+case "$cmd" in
+  deiphobe)              exec "$S/bus/deiphobe" "$@" ;;
+  task-dashboard)        exec python3 "$S/dashboards/task_dashboard.py" "$@" ;;
+  task-state)            exec python3 "$S/dashboards/task_state.py" "$@" ;;
+  gate)                  exec python3 "$S/gates/gate_require_approval.py" "$@" ;;
+  validate-bus)          exec python3 "$S/validate/validate_team_bus.py" "$@" ;;
+  validate-bus-jsonl)    exec python3 "$S/validate/validate_team_bus_jsonl.py" "$@" ;;
+  *) echo "Usage: oc {deiphobe|task-dashboard|task-state|gate|validate-bus|validate-bus-jsonl} ..." >&2; exit 2 ;;
+esac
