@@ -1,4 +1,4 @@
-# AGENTS.md — Global Agent Rules (Canonical)
+# AGENTS.md — Global Agent Rules (Canonical
 
 Version: 1.0
 Scope: All agents / all LLMs / all execution contexts inside OpenClaw
