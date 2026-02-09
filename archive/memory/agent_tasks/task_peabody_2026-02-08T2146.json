@@ -1,0 +1,12 @@
+{
+  "task_id": "peabody-review-heartbeat-2026-02-08T2146",
+  "assigned_to": "Peabody",
+  "session_key": "agent:developer:main",
+  "created_by": "deiphobe",
+  "created_at": "2026-02-08T21:46:00Z",
+  "type": "REVIEW",
+  "title": "Review heartbeat_aggregator.sh for provenance & gating",
+  "description": "Validate that heartbeat_aggregator.sh enforces provenance invariants, enqueues proposals only after checks, records accounting_incomplete flags on append failures, and calls rate_guard on 429s. Produce a concise checklist, any small fixes as a proposed diff, and verification commands.",
+  "constraints": ["no external calls", "dry-run only; write diagnostics to ~/.openclaw/runtime/logs/peabody/"],
+  "status": "queued"
+}

@@ -1,0 +1,32 @@
+*** Proposed minimal fixes for heartbeat_aggregator.sh
+*** Update: use sanitized timestamps for filenames and set tight perms for provenance files
+@@
+-INSTR_FILE="$LOG_DIR/instructions_$(date -Iseconds).txt"
++TS=$(date +%Y%m%dT%H%M%S%z)
++INSTR_FILE="$LOG_DIR/instructions_${TS}.txt"
+@@
+-REQ_FILE="$LOG_DIR/request_$(date -Iseconds).json"
+-RESP_FILE="$LOG_DIR/llm_response_$(date -Iseconds).json"
++REQ_FILE="$LOG_DIR/request_${TS}.json"
++RESP_FILE="$LOG_DIR/llm_response_${TS}.json"
+@@
+-python3 - <<'PY' > "$INSTR_FILE"
++python3 - <<'PY' > "$INSTR_FILE"
+@@
+-print "Instructions bytes: $instr_bytes" >> "$LOG"
+-if [ "$instr_bytes" -gt 60000 ]; then
+-  echo "ERROR: instructions too large (>60KB)" | tee -a "$LOG"
+-  exit 1
+-fi
++printf "Instructions bytes: %d\n" "$instr_bytes" >> "$LOG"
++if [ "$instr_bytes" -gt 60000 ]; then
++  echo "ERROR: instructions too large (>60KB)" | tee -a "$LOG"
++  exit 1
++fi
++
++# Ensure provenance files have restricted permissions
++chmod 640 "$INSTR_FILE" || true
++umask 0077
++chmod 640 "$REQ_FILE" || true
++chmod 640 "$RESP_FILE" || true
+*** End diff

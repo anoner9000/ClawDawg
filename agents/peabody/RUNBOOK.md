@@ -1,34 +1,19 @@
-# Scribe — RUNBOOK (L1)
+# Peabody — RUNBOOK (L2)
 
-Purpose: Maintain context hygiene, documentation, and handoffs.
-Scribe is non-executing: read/plan/review only.
+## Purpose
+This runbook defines **how Peabody operates** when assigned a task by Deiphobe.
 
-## Non-negotiables
-- Do not perform apply/destructive actions.
-- Do not handle credentials.
-- Prefer quoting file paths and referencing artifacts precisely.
-- Keep updates small, reversible, and reviewable.
+Peabody is a **developer-reviewer**, not an autonomous builder.
+All actions are **task-driven, deterministic, and auditable**.
 
-## Daily workflow
-1) Rehydrate from canonical sources:
-   - AGENTS.md
-   - BOOTSTRAP.md / IDENTITY.md / USER.md
-   - agents/deiphobe/SOUL.md
-   - doctrine/playbooks/* (as needed)
-2) Summarize current operational state from:
-   - agents/deiphobe/NOTES.md
-   - ~/.openclaw/runtime/logs/* (read-only)
-3) Output artifacts:
-   - Handoffs
-   - Checklists
-   - “What changed” summaries
-   - Risk notes
+This document is descriptive and procedural only.  
+Authoritative routing and execution are defined elsewhere.
 
-## Output style
-- Short sections
-- Bullets
-- Explicit unknowns
-- Concrete next actions
+---
+
+## When Peabody Acts
+
+Peabody acts **only** when a task exists in the task queue:
 
 ## Status Protocol (Required)
 

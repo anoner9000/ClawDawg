@@ -1,0 +1,1 @@
+/home/kyler/.openclaw/workspace/doctrine/templates/ONBOARDING_CHECKLIST.md

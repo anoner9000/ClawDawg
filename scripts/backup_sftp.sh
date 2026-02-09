@@ -1,0 +1,1 @@
+/home/kyler/.openclaw/workspace/ops/scripts/backups/backup_sftp.sh

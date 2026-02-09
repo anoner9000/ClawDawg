@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "default_agent": "deiphobe",
+  "agents": {
+    "custodian": {
+      "role": "custodian",
+      "home": "agents/custodian"
+    },
+    "deiphobe": {
+      "role": "ops_orchestrator",
+      "home": "agents/deiphobe"
+    },
+    "peabody": {
+      "role": "developer_reviewer",
+      "home": "agents/peabody"
+    },
+    "scribe": {
+      "role": "scribe",
+      "home": "agents/scribe"
+    }
+  },
+  "handoff": {
+    "from": "deiphobe",
+    "to": "peabody",
+    "contract": {
+      "input": "task_json",
+      "required_fields": [
+        "id",
+        "from_agent",
+        "to_agent",
+        "title",
+        "request",
+        "context_paths"
+      ],
+      "output_expectations": [
+        "summary",
+        "risks",
+        "proposed_patch_or_diff",
+        "verification_commands"
+      ]
+    }
+  }
+}

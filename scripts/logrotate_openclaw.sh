@@ -1,0 +1,1 @@
+/home/kyler/.openclaw/workspace/ops/scripts/backups/logrotate_openclaw.sh

@@ -1,0 +1,14 @@
+{
+  "id": "20260208-0001-test-deiphobe-peabody",
+  "from_agent": "deiphobe",
+  "to_agent": "peabody",
+  "title": "Test: Deiphobe -> Peabody",
+  "request": "Review the OpenClaw workspace for any scripts that should be moved/renamed for determinism.\nFocus on ops/scripts and doctrine. Propose minimal diffs only.",
+  "context_paths": [
+    "ops/scripts",
+    "doctrine",
+    "ops/schemas/agents.json"
+  ],
+  "created_at_utc": "2026-02-08T21:12:55.944847+00:00",
+  "state": "ROUTED"
+}

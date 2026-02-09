@@ -1,0 +1,1 @@
+/home/kyler/.openclaw/workspace/doctrine/playbooks/agent_management.md

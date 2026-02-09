@@ -1,0 +1,1 @@
+/home/kyler/.openclaw/workspace/doctrine/templates/SOUL.template.md

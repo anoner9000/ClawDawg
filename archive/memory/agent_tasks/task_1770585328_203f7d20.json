@@ -1,0 +1,10 @@
+{
+  "id": "1770585328_203f7d20",
+  "from_agent": "deiphobe",
+  "to_agent": "peabody",
+  "title": "Smoke test: create a task",
+  "request": "Please review ops/scripts/telemetry for correctness and propose any minimal diffs.",
+  "context_paths": [],
+  "created_at": 1770585328,
+  "registry_version": 1
+}

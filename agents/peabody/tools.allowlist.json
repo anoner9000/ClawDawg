@@ -1,0 +1,18 @@
+{
+  "allowed": [
+    "read_files",
+    "rg",
+    "find",
+    "git_status",
+    "git_diff",
+    "pytest",
+    "python_compile",
+    "bash_n",
+    "shellcheck"
+  ],
+  "blocked": [
+    "rm -rf",
+    "truncate",
+    "mass_delete"
+  ]
+}
