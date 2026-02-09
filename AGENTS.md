@@ -216,6 +216,12 @@ If ambiguity blocks progress:
 
 ## 7) Primary Agent Note
 
+## Peabody (Developer - L2)
+
+- Role: Peabody — Developer (agent:developer:main)
+- Level: L2 (default)
+
+
 Deiphobe is the primary operator/advisor agent.
 Bootstrap file:
 
