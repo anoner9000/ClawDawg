@@ -304,3 +304,24 @@ Source: `projects/agent_ops/ACCESS.md` — `## Read`, `## Write`, `## No access`
   - Stage and commit this new migration note entry if desired.
   - Merge/install shareable hook assets (`projects/agent_ops/tools/hooks/pre-commit`, `projects/agent_ops/tools/install-hooks.sh`) on `master` if not yet committed.
   - Run hook pass/fail staged-file tests on `master`.
+
+### 2026-02-13 01:28:31 CST — Committed agent_ops work, checked merge baseline, reinstalled local hook
+- What changed:
+  - Committed current `projects/agent_ops` changes on `master` before merge check.
+  - Ran merge against `tmp/hook-test-20260213-011756`; result was already up to date.
+  - Reinstalled local hook using installer and verified `.git/hooks/pre-commit` with line-numbered output.
+- Files created/modified:
+  - `projects/agent_ops/PROGRESS.md` (modified)
+- Commands run (if any):
+  - `git status --short --branch`
+  - `git add projects/agent_ops`
+  - `git commit -m "wip(agent_ops): hook installer work before merge"`
+  - `git merge tmp/hook-test-20260213-011756`
+  - `projects/agent_ops/tools/install-hooks.sh`
+  - `nl -ba .git/hooks/pre-commit | sed -n '1,40p'`
+- Evidence/refs (file paths + section headings):
+  - `projects/agent_ops/PROGRESS.md` — `## Log`
+  - `.git/hooks/pre-commit` — lines 1-40 verification output
+- Next steps:
+  - Stage and commit this new progress entry if you want it persisted in git history.
+  - Run the two staged-file hook tests on `master` if you want a fresh post-merge proof.
