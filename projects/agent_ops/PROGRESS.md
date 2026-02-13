@@ -347,3 +347,65 @@ Source: `projects/agent_ops/ACCESS.md` — `## Read`, `## Write`, `## No access`
 - Next steps:
   - If needed, stage/commit this new progress entry.
   - Run staged failure/pass tests again if you want post-merge reconfirmation.
+
+### 2026-02-13 02:10:53 CST — Restored ACE ingest script; confirmed scripts entrypoint differs; captured manifest to logs
+- What changed:
+  - Retrieved legacy ACE ingest script from archive and reinstated it under `modules/briefings/scripts/ingest_ace.sh`.
+  - Verified the canonical logic lives under `modules/briefings/scripts/*` instead of `scripts/` root.
+  - Ran the script once (without dry-run support available yet) to confirm it produced `ingest_manifest_2026-02-13.json`.
+  - Logged the entrypoint mismatch and preserved output under `~/logs/ingest/` for continuity.
+- Files created/modified:
+  - `modules/briefings/scripts/ingest_ace.sh` (restored)
+  - `scripts/ingest_ace.sh` (stub pointing at module path)
+- Commands run (if any):
+  - `./modules/briefings/scripts/ingest_ace.sh`
+  - `ls ~/logs/ingest`
+- Evidence/refs (file paths + section headings):
+  - `modules/briefings/scripts/ingest_ace.sh` — shebang + ingest loop
+  - `~/logs/ingest/ingest_manifest_2026-02-13.json`
+- Next steps:
+  - Add dry-run support so cron reminder can be literal.
+  - Normalize entrypoint: `./scripts/ingest_ace.sh` delegating to module script.
+  - Document canonical path + options in `CONTEXT.md`.
+
+### 2026-02-13 02:18:05 CST — Added dry-run + manifest-dir flags; updated cron + documentation
+- What changed:
+  - Rebuilt `modules/briefings/scripts/ingest_ace.sh` with `--dry-run/-n` and `--manifest-dir DIR` flags plus usage text; dry-run gates all writes (Calendar copies + link edits) while still emitting manifests.
+  - Confirmed wrapper `scripts/ingest_ace.sh` delegates correctly (no changes needed) and re-ran dry-run validation storing manifest outputs under `~/logs/ingest/`.
+  - Updated `projects/agent_ops/CONTEXT.md` invariants to document the canonical entrypoint and new flags.
+  - Adjusted ACE ingestion cron payload text to reference `./scripts/ingest_ace.sh --dry-run --manifest-dir ~/logs/ingest`.
+- Files created/modified:
+  - `modules/briefings/scripts/ingest_ace.sh`
+  - `projects/agent_ops/CONTEXT.md`
+- Commands run (if any):
+  - `./scripts/ingest_ace.sh --dry-run --manifest-dir ~/logs/ingest`
+  - `git status --porcelain`
+  - `openclaw cron update ...` (Nightly ACE ingestion reminder payload)
+- Evidence/refs (file paths + section headings):
+  - `modules/briefings/scripts/ingest_ace.sh` — CLI option parsing, dry-run gate, manifest entry JSON builder
+  - `projects/agent_ops/CONTEXT.md` — `## Current system invariants` entry describing ACE ingest options
+  - `~/logs/ingest/ingest_manifest_2026-02-13T02-17-34-06-00.json`
+- Next steps:
+  - (Optional) Add structured single-line logging per ingest run for trend analysis.
+  - Keep manifests under `~/logs/ingest/` and review for anomalies weekly.
+
+### 2026-02-13 02:24:45 CST — Hardened ACE ingest defaults + history log
+- What changed:
+  - Set the default ingest manifest path to `~/logs/ingest/` (with automatic dir creation) so repo root never accumulates `ingest_manifest_*.json` noise, and added append-only run history logging to `~/logs/ingest/history.jsonl`.
+  - Re-ran the dry-run workflow after the change to verify manifests land in the home logs path and that history entries serialize as single-line JSON objects (JSONL-friendly).
+  - Added `.gitignore` coverage for `Calendar/` and stray `ingest_manifest_*.json` artifacts to prevent future accidental staging; relocated the previously untracked manifest into `~/logs/ingest/`.
+- Files created/modified:
+  - `modules/briefings/scripts/ingest_ace.sh`
+  - `.gitignore`
+- Commands run (if any):
+  - `mkdir -p ~/logs/ingest && mv ingest_manifest_2026-02-13.json ~/logs/ingest/`
+  - `./scripts/ingest_ace.sh --dry-run`
+  - `python3 - <<'PY' ...` (single-line JSONL conversion helper)
+- Evidence/refs (file paths + section headings):
+  - `modules/briefings/scripts/ingest_ace.sh` — default manifest dir, history JSONL append logic
+  - `.gitignore` — `Calendar/` + `ingest_manifest_*.json` ignore entries
+  - `~/logs/ingest/history.jsonl` — per-run telemetry objects
+- Next steps:
+  - Build lightweight analysis tooling against `history.jsonl` if we want trend dashboards.
+  - Keep manifests and telemetry in `~/logs/ingest/` unless a run explicitly needs a different `--manifest-dir`.
+
