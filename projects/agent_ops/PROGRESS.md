@@ -261,3 +261,23 @@ Source: `projects/agent_ops/ACCESS.md` — `## Read`, `## Write`, `## No access`
 - Next steps:
   - [Placeholder]
 
+
+### 2026-02-13 01:18:23 CST — Verified pre-commit pass when agent_ops and PROGRESS are staged
+- What changed:
+  - Executed hook Test 2 by staging `projects/agent_ops/tasks/restart_plan.md` and `projects/agent_ops/PROGRESS.md`.
+  - Added helper-generated progress entry via `projects/agent_ops/tools/progress_append.sh` before staging `projects/agent_ops/PROGRESS.md`.
+  - Commit succeeded under hook policy.
+- Files created/modified:
+  - `projects/agent_ops/PROGRESS.md` (modified)
+- Commands run (if any):
+  - `echo "<!-- hook test -->" >> projects/agent_ops/tasks/restart_plan.md`
+  - `git add projects/agent_ops/tasks/restart_plan.md`
+  - `projects/agent_ops/tools/progress_append.sh "Test: verified pre-commit enforcement"`
+  - `git add projects/agent_ops/PROGRESS.md`
+  - `git commit -m "test: agent_ops change with progress"`
+- Evidence/refs (file paths + section headings):
+  - `.git/hooks/pre-commit` — policy condition (`has_agent_ops_changes` and `has_progress_staged`)
+  - commit output — `TEST2_EXIT=0` and `test: agent_ops change with progress`
+- Next steps:
+  - Optionally fill placeholder fields in helper-generated progress entries for completeness.
+  - Run `git status` to decide whether to keep or stage this latest progress append.
