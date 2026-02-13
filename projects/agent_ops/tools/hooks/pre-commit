@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Enforce progress tracking for agent_ops commits.
+# Policy:
+# - If any staged file is under projects/agent_ops/
+# - and projects/agent_ops/PROGRESS.md is not staged
+# - then block the commit.
+
+staged_files="$(git diff --cached --name-only)"
+
+# No staged files -> nothing to check
+if [[ -z "$staged_files" ]]; then
+  exit 0
+fi
+
+has_agent_ops_changes=0
+has_progress_staged=0
+
+while IFS= read -r path || [[ -n "$path" ]]; do
+  [[ -z "$path" ]] && continue
+
+  if [[ "$path" == projects/agent_ops/* ]]; then
+    has_agent_ops_changes=1
+  fi
+
+  if [[ "$path" == projects/agent_ops/PROGRESS.md ]]; then
+    has_progress_staged=1
+  fi
+done <<< "$staged_files
+::contentReference[oaicite:0]{index=0}
+"
+
+if [[ "$has_agent_ops_changes" -eq 1 && "$has_progress_staged" -eq 0 ]]; then
+  echo "ERROR: Pre-commit policy check failed." >&2
+  echo "Detected: staged changes under projects/agent_ops/." >&2
+  echo "Missing: projects/agent_ops/PROGRESS.md is not staged." >&2
+  echo "Fix: Update PROGRESS.md and stage it, or run tools/progress_append.sh" >&2
+  echo >&2
+  echo "Example:" >&2
+  echo "  projects/agent_ops/tools/progress_append.sh \"<short title>\"" >&2
+  echo "  git add projects/agent_ops/PROGRESS.md" >&2
+  exit 1
+fi
+
+exit 0

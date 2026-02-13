@@ -281,3 +281,26 @@ Source: `projects/agent_ops/ACCESS.md` — `## Read`, `## Write`, `## No access`
 - Next steps:
   - Optionally fill placeholder fields in helper-generated progress entries for completeness.
   - Run `git status` to decide whether to keep or stage this latest progress append.
+
+### 2026-02-13 01:27:46 CST — Merged throwaway hook-test branch; kept richer progress history
+- What changed:
+  - Merged `tmp/hook-test-20260213-011756` into `master`.
+  - Resolved merge blocker by backing up untracked `projects/agent_ops/PROGRESS.md` to `/tmp` and removing only the blocking local copy before merge.
+  - Kept the merged `projects/agent_ops/PROGRESS.md` because it contains richer history than the pre-merge local copy.
+  - Added this migration note entry to record the hook/progress history consolidation.
+- Files created/modified:
+  - `projects/agent_ops/PROGRESS.md` (modified)
+  - `projects/agent_ops/tasks/restart_plan.md` (created by merge)
+- Commands run (if any):
+  - `cp projects/agent_ops/PROGRESS.md /tmp/agent_ops_PROGRESS_master_premerge.md`
+  - `rm projects/agent_ops/PROGRESS.md`
+  - `git merge tmp/hook-test-20260213-011756`
+  - `wc -l projects/agent_ops/PROGRESS.md /tmp/agent_ops_PROGRESS_master_premerge.md`
+- Evidence/refs (file paths + section headings):
+  - `projects/agent_ops/PROGRESS.md` — `## Log`
+  - `projects/agent_ops/tasks/restart_plan.md` — file added via merge
+  - `/tmp/agent_ops_PROGRESS_master_premerge.md` — backup used for richness comparison
+- Next steps:
+  - Stage and commit this new migration note entry if desired.
+  - Merge/install shareable hook assets (`projects/agent_ops/tools/hooks/pre-commit`, `projects/agent_ops/tools/install-hooks.sh`) on `master` if not yet committed.
+  - Run hook pass/fail staged-file tests on `master`.
