@@ -325,3 +325,25 @@ Source: `projects/agent_ops/ACCESS.md` — `## Read`, `## Write`, `## No access`
 - Next steps:
   - Stage and commit this new progress entry if you want it persisted in git history.
   - Run the two staged-file hook tests on `master` if you want a fresh post-merge proof.
+
+### 2026-02-13 01:29:10 CST — Re-ran branch-clean merge checklist and hook reinstall
+- What changed:
+  - Checked branch cleanliness and found a tracked update in `projects/agent_ops/PROGRESS.md`.
+  - Committed the tracked progress update before merge flow.
+  - Re-ran merge against `tmp/hook-test-20260213-011756` and confirmed no new changes (`Already up to date`).
+  - Reinstalled local hook and re-verified line-numbered output.
+- Files created/modified:
+  - `projects/agent_ops/PROGRESS.md` (modified)
+- Commands run (if any):
+  - `git status --short --branch`
+  - `git add projects/agent_ops/PROGRESS.md`
+  - `git commit -m "wip(agent_ops): hook installer work before merge"`
+  - `git merge tmp/hook-test-20260213-011756`
+  - `projects/agent_ops/tools/install-hooks.sh`
+  - `nl -ba .git/hooks/pre-commit | sed -n '1,40p'`
+- Evidence/refs (file paths + section headings):
+  - `projects/agent_ops/PROGRESS.md` — `## Log`
+  - `.git/hooks/pre-commit` — lines 1-40 verification output
+- Next steps:
+  - If needed, stage/commit this new progress entry.
+  - Run staged failure/pass tests again if you want post-merge reconfirmation.

@@ -10,3 +10,11 @@
 # node
 node_modules/
 .vscode/
+
+# local/runtime
+.openclaw/
+memory/
+
+# python cache
+__pycache__/
+*.pyc
