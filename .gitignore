@@ -14,6 +14,8 @@ node_modules/
 # local/runtime
 .openclaw/
 memory/
+Calendar/
+ingest_manifest_*.json
 
 # python cache
 __pycache__/
