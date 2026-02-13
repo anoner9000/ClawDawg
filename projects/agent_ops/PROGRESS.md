@@ -409,3 +409,32 @@ Source: `projects/agent_ops/ACCESS.md` — `## Read`, `## Write`, `## No access`
   - Build lightweight analysis tooling against `history.jsonl` if we want trend dashboards.
   - Keep manifests and telemetry in `~/logs/ingest/` unless a run explicitly needs a different `--manifest-dir`.
 
+### 2026-02-13 02:31:55 CST — Clarified dry-run semantics in CONTEXT
+- What changed:
+  - Added explicit note in `projects/agent_ops/CONTEXT.md` that dry-run mode still emits manifests/history while guaranteeing zero filesystem writes (no Calendar copies, no link edits).
+  - Logged optional analyzer/alerting work as backlog-only until history `errors` become non-empty or counts spike.
+- Files created/modified:
+  - `projects/agent_ops/CONTEXT.md`
+  - `projects/agent_ops/PROGRESS.md`
+- Commands run (if any):
+  - `python3 - <<'PY' ...` (context update)
+- Evidence/refs (file paths + section headings):
+  - `projects/agent_ops/CONTEXT.md` — `## Current system invariants`
+  - `projects/agent_ops/PROGRESS.md` — this log entry
+- Next steps:
+  - Leave analyzer/alerting work in backlog unless ingest history shows non-empty errors or unexpected count spikes.
+
+
+### 2026-02-13 02:35:06 CST — Executed full Scribe onboarding trial via scribe_onboarding_v1; generated completed checklist, acceptance decision, and evidence artifacts under onboarding/trials
+- What changed:
+  - [Placeholder]
+  - Unknown facts marked as [Unknown]; TODO to verify.
+- Files created/modified:
+  - [Placeholder]
+- Commands run (if any):
+  - [Placeholder]
+- Evidence/refs (file paths + section headings):
+  - [Placeholder]
+- Next steps:
+  - [Placeholder]
+
