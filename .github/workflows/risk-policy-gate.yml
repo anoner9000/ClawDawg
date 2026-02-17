@@ -1,0 +1,75 @@
+name: risk-policy-gate
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compute base/head
+        id: shas
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
+            echo "head=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "base=$(git rev-parse HEAD^ 2>/dev/null || echo origin/master)" >> $GITHUB_OUTPUT
+            echo "head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run risk policy gate
+        env:
+          BASE_SHA: ${{ steps.shas.outputs.base }}
+          HEAD_SHA: ${{ steps.shas.outputs.head }}
+        run: |
+
+cat > .github/workflows/risk-policy-gate.yml <<'YAML'
+name: risk-policy-gate
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compute base/head
+        id: shas
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
+            echo "head=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "base=$(git rev-parse HEAD^ 2>/dev/null || echo origin/master)" >> $GITHUB_OUTPUT
+            echo "head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run risk policy gate
+        env:
+          BASE_SHA: ${{ steps.shas.outputs.base }}
+          HEAD_SHA: ${{ steps.shas.outputs.head }}
+        run: |
+          python ops/scripts/policy/risk_policy_gate.py
