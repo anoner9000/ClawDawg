@@ -29,7 +29,7 @@ jobs:
             echo "head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run risk policy gate (prints required checks + tier)
+      - name: Run risk policy gate
         id: gate
         env:
           BASE_SHA: ${{ steps.shas.outputs.base }}
@@ -40,24 +40,26 @@ jobs:
 
       - name: Read review-agent policy
         id: rap
+        env:
+          GITHUB_OUTPUT: ${{ github.output }}
         run: |
-          python - <<'PY'
-          import json
-          p = json.load(open("policy/risk_policy.json"))
-          ra = p.get("reviewAgent", {})
-          enabled = bool(ra.get("enabled", False))
-          timeout = int(ra.get("timeoutMinutes", 20))
-          checks = ra.get("checkNames", {}).get("high", []) or []
-          print(f"enabled={str(enabled).lower()}")
-          print(f"timeout={timeout}")
-          print("checks=" + ",".join(checks))
-          with open("${GITHUB_OUTPUT}", "a", encoding="utf-8") as f:
-            f.write(f"enabled={str(enabled).lower()}\n")
-            f.write(f"timeout={timeout}\n")
-            f.write("checks=" + ",".join(checks) + "\n")
-          PY
+          python - <<PY
+import json, os
 
-      - name: Wait for review-agent checks (current-head SHA discipline)
+p = json.load(open("policy/risk_policy.json"))
+ra = p.get("reviewAgent", {})
+enabled = bool(ra.get("enabled", False))
+timeout = int(ra.get("timeoutMinutes", 20))
+checks = ra.get("checkNames", {}).get("high", []) or []
+
+output_path = os.environ["GITHUB_OUTPUT"]
+with open(output_path, "a", encoding="utf-8") as f:
+    f.write(f"enabled={str(enabled).lower()}\n")
+    f.write(f"timeout={timeout}\n")
+    f.write("checks=" + ",".join(checks) + "\n")
+PY
+
+      - name: Wait for review-agent checks
         if: ${{ github.event_name == 'pull_request' && steps.gate.outputs.riskTier == 'high' && steps.rap.outputs.enabled == 'true' && steps.rap.outputs.checks != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
