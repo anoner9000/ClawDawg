@@ -41,6 +41,31 @@ def docs_drift_ok(changed: list[str], docs_rules: dict) -> bool:
     # If control-plane touched, require at least one docs file in same PR.
     return (not touches_control_plane) or touches_docs
 
+def enforce_review_agent(policy: dict, risk: str, head: str) -> bool:
+    cfg = policy.get("reviewAgent", {})
+    if risk != "high" or not cfg.get("enabled", False):
+        return False
+    if os.environ.get("GITHUB_EVENT_NAME") != "pull_request":
+        # Review-agent evidence is PR-comment based, so skip outside PRs.
+        return False
+
+    script = Path("ops/scripts/policy/require_review_agent.py")
+    if not script.exists():
+        print(f"ERROR: missing {script}", file=sys.stderr)
+        sys.exit(2)
+    if not os.environ.get("GITHUB_TOKEN"):
+        print("ERROR: GITHUB_TOKEN is required to enforce reviewAgent in PR context", file=sys.stderr)
+        sys.exit(2)
+
+    env = os.environ.copy()
+    env["HEAD_SHA"] = head
+    env["TIMEOUT_MINUTES"] = str(cfg.get("timeoutMinutes", 20))
+    try:
+        subprocess.run([sys.executable, str(script)], env=env, check=True)
+    except subprocess.CalledProcessError as e:
+        sys.exit(e.returncode or 1)
+    return True
+
 def main():
     base = os.environ.get("BASE_SHA") or (sys.argv[1] if len(sys.argv) > 1 else "")
     head = os.environ.get("HEAD_SHA") or (sys.argv[2] if len(sys.argv) > 2 else "HEAD")
@@ -59,13 +84,15 @@ def main():
         print("Changed files:", *changed, sep="\n  - ", file=sys.stderr)
         sys.exit(1)
 
+    review_agent_enforced = enforce_review_agent(policy, risk, head)
     checks = policy["mergePolicy"][risk]["requiredChecks"]
     print(json.dumps({
         "riskTier": risk,
         "base": base,
         "head": head,
         "changedFiles": changed,
-        "requiredChecks": checks
+        "requiredChecks": checks,
+        "reviewAgentEnforced": review_agent_enforced
     }, indent=2))
 
 if __name__ == "__main__":

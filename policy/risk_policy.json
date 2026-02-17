@@ -49,7 +49,7 @@
     "timeoutMinutes": 20,
     "checkNames": {
       "high": [
-        "CodeRabbit(comment-evidence)"
+        "CodeRabbit"
       ],
       "low": []
     }
