@@ -11,7 +11,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Basic check
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Python syntax check (compileall)
         run: |
-          echo "CI is running"
-          git status -sb || true
+          python -m compileall -q .
+
+      - name: Shell syntax check (bash -n)
+        run: |
+          set -euo pipefail
+          # Only check files that are bash scripts (shebang contains bash) or end with .sh
+          files="$(git ls-files '*.sh' || true)"
+          if [ -n "$files" ]; then
+            echo "$files" | while read -r f; do
+              bash -n "$f"
+            done
+          fi
+
+      - name: Repo policy smoke (no secrets staged)
+        run: |
+          set -euo pipefail
+          # Cheap grep for obvious credential patterns in tracked files (adjust later)
+          ! git grep -nE '(OPENAI_API_KEY|AWS_SECRET_ACCESS_KEY|BEGIN PRIVATE KEY|xox[baprs]-)' -- . || (echo "Possible secret detected"; exit 1)
+
+      - name: Show git status (debug)
+        run: git status -sb || true
