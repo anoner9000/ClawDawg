@@ -12,4 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Basic check
-        run: echo "CI is running"
+        run: |
+          echo "CI is running"
+          git status -sb || true
