@@ -43,5 +43,15 @@
       "*.md",
       "**/*.md"
     ]
+  },
+  "reviewAgent": {
+    "enabled": true,
+    "timeoutMinutes": 20,
+    "checkNames": {
+      "high": [
+        "CodeRabbit"
+      ],
+      "low": []
+    }
   }
 }
