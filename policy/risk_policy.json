@@ -45,11 +45,11 @@
     ]
   },
   "reviewAgent": {
-    "enabled": false,
+    "enabled": true,
     "timeoutMinutes": 20,
     "checkNames": {
       "high": [
-        "CodeRabbit"
+        "CodeRabbit(comment-evidence)"
       ],
       "low": []
     }
