@@ -45,7 +45,7 @@
     ]
   },
   "reviewAgent": {
-    "enabled": true,
+    "enabled": false,
     "timeoutMinutes": 20,
     "checkNames": {
       "high": [
