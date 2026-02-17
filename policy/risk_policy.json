@@ -1,0 +1,47 @@
+{
+  "version": "1",
+  "riskTierRules": {
+    "high": [
+      "ops/**",
+      "scripts/**",
+      "modules/**",
+      "mission_control/**",
+      "agents/**",
+      "projects/**"
+    ],
+    "low": [
+      "doctrine/**",
+      "playbooks/**",
+      "reports/**",
+      "*.md",
+      "**/*.md"
+    ]
+  },
+  "mergePolicy": {
+    "high": {
+      "requiredChecks": [
+        "risk-policy-gate",
+        "CI Pipeline"
+      ]
+    },
+    "low": {
+      "requiredChecks": [
+        "risk-policy-gate",
+        "CI Pipeline"
+      ]
+    }
+  },
+  "docsDriftRules": {
+    "requireDocsForPaths": [
+      "ops/**",
+      "scripts/**",
+      "mission_control/**"
+    ],
+    "docsGlobs": [
+      "doctrine/**",
+      "playbooks/**",
+      "*.md",
+      "**/*.md"
+    ]
+  }
+}
