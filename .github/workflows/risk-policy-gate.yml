@@ -40,8 +40,6 @@ jobs:
 
       - name: Read review-agent policy
         id: rap
-        env:
-          GITHUB_OUTPUT: ${{ github.output }}
         run: |
           python - <<PY
 import json, os
@@ -52,8 +50,7 @@ enabled = bool(ra.get("enabled", False))
 timeout = int(ra.get("timeoutMinutes", 20))
 checks = ra.get("checkNames", {}).get("high", []) or []
 
-output_path = os.environ["GITHUB_OUTPUT"]
-with open(output_path, "a", encoding="utf-8") as f:
+with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
     f.write(f"enabled={str(enabled).lower()}\n")
     f.write(f"timeout={timeout}\n")
     f.write("checks=" + ",".join(checks) + "\n")
