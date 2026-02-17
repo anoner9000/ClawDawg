@@ -42,10 +42,12 @@ jobs:
         id: rap
         run: |
           python - <<PY
-import json, os
+import json
+import os
 
 p = json.load(open("policy/risk_policy.json"))
 ra = p.get("reviewAgent", {})
+
 enabled = bool(ra.get("enabled", False))
 timeout = int(ra.get("timeoutMinutes", 20))
 checks = ra.get("checkNames", {}).get("high", []) or []
