@@ -63,21 +63,16 @@ def docs_updated(changed_files: list[str]) -> bool:
     """
     Returns True if canonical control-plane docs were updated.
     """
-    for path in changed_files:
-        if path == "docs/control-plane.md":
-            return True
-    return False
+    return "docs/control-plane.md" in changed_files
 
 def control_plane_changed(changed_files: list[str]) -> bool:
     """
     Returns True if control-plane paths were modified.
     """
-    for path in changed_files:
-        if path.startswith(".github/workflows/"):
-            return True
-        if path.startswith("ops/scripts/policy/"):
-            return True
-    return False
+    return any(
+        path.startswith(".github/workflows/") or path.startswith("ops/scripts/policy/")
+        for path in changed_files
+    )
 
 def enforce_review_agent(policy: dict, risk: str, head: str) -> bool:
     cfg = policy.get("reviewAgent", {})
@@ -144,9 +139,9 @@ def main():
         with open("gate.json", "w", encoding="utf-8") as jf:
             json.dump(result, jf, indent=2)
         write_github_output(
-            riskTier=result.get("riskTier"),
-            requiredChecks=result.get("requiredChecks", []),
-            touchedPaths=result.get("touchedPaths", []),
+            riskTier=result["riskTier"],
+            requiredChecks=result["requiredChecks"],
+            touchedPaths=result["touchedPaths"],
         )
         print(json.dumps(result, indent=2))
         return
@@ -178,9 +173,9 @@ def main():
     with open("gate.json", "w", encoding="utf-8") as jf:
         json.dump(result, jf, indent=2)
     write_github_output(
-        riskTier=result.get("riskTier"),
-        requiredChecks=result.get("requiredChecks", []),
-        touchedPaths=result.get("touchedPaths", []),
+        riskTier=result["riskTier"],
+        requiredChecks=result["requiredChecks"],
+        touchedPaths=result["touchedPaths"],
     )
     print(json.dumps(result, indent=2))
 
