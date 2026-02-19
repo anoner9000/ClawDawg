@@ -29,7 +29,7 @@ jobs:
             echo "head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run risk policy gate (prints required checks + tier)
+      - name: Run risk policy gate
         id: gate
         env:
           BASE_SHA: ${{ steps.shas.outputs.base }}
@@ -38,15 +38,12 @@ jobs:
           python ops/scripts/policy/risk_policy_gate.py | tee gate.json
           echo "riskTier=$(python -c 'import json; print(json.load(open("gate.json"))["riskTier"])')" >> $GITHUB_OUTPUT
 
-      - name: Wait for review-agent checks (current-head SHA discipline)
+      - name: Require CodeRabbit review evidence (current-head)
         if: ${{ github.event_name == 'pull_request' && steps.gate.outputs.riskTier == 'high' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           HEAD_SHA: ${{ steps.shas.outputs.head }}
           TIMEOUT_MINUTES: "20"
-          # Comma-separated check names. Update policy + optionally mirror here later.
-          REQUIRED_CHECKS: "CodeRabbit"
-          GATE_CHECK_NAME: "risk-policy-gate"
         run: |
-          python ops/scripts/policy/wait_for_check_runs.py
+          python ops/scripts/policy/require_coderabbit_review.py
