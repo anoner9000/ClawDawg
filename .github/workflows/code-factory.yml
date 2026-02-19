@@ -41,8 +41,10 @@ jobs:
       - name: Run risk policy gate
         id: policy
         env:
-          BASE_SHA: ${{ steps.shas.outputs.base }}
-          HEAD_SHA: ${{ steps.shas.outputs.head }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           python ops/scripts/policy/risk_policy_gate.py
