@@ -59,13 +59,25 @@ def compute_required_checks(policy: dict, risk: str) -> list[str]:
         out.append(check)
     return out
 
-def docs_drift_ok(changed: list[str], docs_rules: dict) -> bool:
-    require_docs_for = docs_rules.get("requireDocsForPaths", [])
-    docs_globs = docs_rules.get("docsGlobs", [])
-    touches_control_plane = any(match_any(f, require_docs_for) for f in changed)
-    touches_docs = any(match_any(f, docs_globs) for f in changed)
-    # If control-plane touched, require at least one docs file in same PR.
-    return (not touches_control_plane) or touches_docs
+def docs_updated(changed_files: list[str]) -> bool:
+    """
+    Returns True if canonical control-plane docs were updated.
+    """
+    for path in changed_files:
+        if path == "docs/control-plane.md":
+            return True
+    return False
+
+def control_plane_changed(changed_files: list[str]) -> bool:
+    """
+    Returns True if control-plane paths were modified.
+    """
+    for path in changed_files:
+        if path.startswith(".github/workflows/"):
+            return True
+        if path.startswith("ops/scripts/policy/"):
+            return True
+    return False
 
 def enforce_review_agent(policy: dict, risk: str, head: str) -> bool:
     cfg = policy.get("reviewAgent", {})
@@ -139,9 +151,15 @@ def main():
         print(json.dumps(result, indent=2))
         return
 
-    if not docs_drift_ok(changed, policy.get("docsDriftRules", {})):
-        print("FAIL: control-plane paths changed but no docs updates found.", file=sys.stderr)
-        print("Changed files:", *changed, sep="\n  - ", file=sys.stderr)
+    changed_files = changed
+    cp_changed = control_plane_changed(changed_files)
+    docs_changed = docs_updated(changed_files)
+
+    if cp_changed and not docs_changed:
+        print("FAIL: control-plane paths changed but no docs/control-plane.md update found.")
+        print("Changed files:")
+        for f in changed_files:
+            print(f"  - {f}")
         sys.exit(1)
 
     review_agent_enforced = enforce_review_agent(policy, risk, head)
