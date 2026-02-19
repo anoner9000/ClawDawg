@@ -33,13 +33,46 @@ def compute_risk(changed: list[str], rules: dict) -> str:
         return "low"
     return "high"
 
-def docs_drift_ok(changed: list[str], docs_rules: dict) -> bool:
-    require_docs_for = docs_rules.get("requireDocsForPaths", [])
-    docs_globs = docs_rules.get("docsGlobs", [])
-    touches_control_plane = any(match_any(f, require_docs_for) for f in changed)
-    touches_docs = any(match_any(f, docs_globs) for f in changed)
-    # If control-plane touched, require at least one docs file in same PR.
-    return (not touches_control_plane) or touches_docs
+def compute_required_checks(policy: dict, risk: str) -> list[str]:
+    merge_policy = policy.get("mergePolicy", {})
+    raw_checks = merge_policy.get(risk, {}).get("requiredChecks", [])
+    # Normalize historical check names into branch-protection contexts.
+    normalize = {
+        "CI Pipeline": "ci",
+        "risk-policy-gate": "gate",
+    }
+    checks: list[str] = []
+    for check in raw_checks:
+        checks.append(normalize.get(check, check))
+
+    review_cfg = policy.get("reviewAgent", {})
+    if risk == "high" and review_cfg.get("enabled", False):
+        checks.append("code-review-head")
+
+    # Stable de-dup preserving order.
+    seen: set[str] = set()
+    out: list[str] = []
+    for check in checks:
+        if check in seen:
+            continue
+        seen.add(check)
+        out.append(check)
+    return out
+
+def docs_updated(changed_files: list[str]) -> bool:
+    """
+    Returns True if canonical control-plane docs were updated.
+    """
+    return "docs/control-plane.md" in changed_files
+
+def control_plane_changed(changed_files: list[str]) -> bool:
+    """
+    Returns True if control-plane paths were modified.
+    """
+    return any(
+        path.startswith(".github/workflows/") or path.startswith("ops/scripts/policy/")
+        for path in changed_files
+    )
 
 def enforce_review_agent(policy: dict, risk: str, head: str) -> bool:
     cfg = policy.get("reviewAgent", {})
@@ -66,6 +99,20 @@ def enforce_review_agent(policy: dict, risk: str, head: str) -> bool:
         sys.exit(e.returncode or 1)
     return True
 
+def write_github_output(**kwargs):
+    """
+    Write key=value lines to GITHUB_OUTPUT for GitHub Actions.
+    """
+    output_path = os.environ.get("GITHUB_OUTPUT")
+    if not output_path:
+        return
+    with open(output_path, "a", encoding="utf-8") as f:
+        for key, val in kwargs.items():
+            # JSON-encode complex values
+            if isinstance(val, (dict, list, bool)):
+                val = json.dumps(val)
+            f.write(f"{key}={val}\n")
+
 def main():
     base = os.environ.get("BASE_SHA") or (sys.argv[1] if len(sys.argv) > 1 else "")
     head = os.environ.get("HEAD_SHA") or (sys.argv[2] if len(sys.argv) > 2 else "HEAD")
@@ -74,26 +121,63 @@ def main():
         base = "origin/master"
     policy = load_policy()
     changed = list_changed(base, head)
+    risk = compute_risk(changed, policy.get("riskTierRules", {})) if changed else "low"
+    checks = compute_required_checks(policy, risk)
     if not changed:
-        print("OK: no changed files")
+        result = {
+            "baseSha": base,
+            "headSha": head,
+            "riskTier": "low",
+            "requiredChecks": checks,
+            "touchedPaths": [],
+            "policy": {
+                "tierRules": policy.get("riskTierRules", {}),
+                "mergePolicy": policy.get("mergePolicy", {}),
+            },
+            "reviewAgentEnforced": False
+        }
+        with open("gate.json", "w", encoding="utf-8") as jf:
+            json.dump(result, jf, indent=2)
+        write_github_output(
+            riskTier=result["riskTier"],
+            requiredChecks=result["requiredChecks"],
+            touchedPaths=result["touchedPaths"],
+        )
+        print(json.dumps(result, indent=2))
         return
 
-    risk = compute_risk(changed, policy.get("riskTierRules", {}))
-    if not docs_drift_ok(changed, policy.get("docsDriftRules", {})):
-        print("FAIL: control-plane paths changed but no docs updates found.", file=sys.stderr)
-        print("Changed files:", *changed, sep="\n  - ", file=sys.stderr)
+    changed_files = changed
+    cp_changed = control_plane_changed(changed_files)
+    docs_changed = docs_updated(changed_files)
+
+    if cp_changed and not docs_changed:
+        print("FAIL: control-plane paths changed but no docs/control-plane.md update found.")
+        print("Changed files:")
+        for f in changed_files:
+            print(f"  - {f}")
         sys.exit(1)
 
     review_agent_enforced = enforce_review_agent(policy, risk, head)
-    checks = policy["mergePolicy"][risk]["requiredChecks"]
-    print(json.dumps({
+    result = {
+        "baseSha": base,
+        "headSha": head,
         "riskTier": risk,
-        "base": base,
-        "head": head,
-        "changedFiles": changed,
         "requiredChecks": checks,
+        "touchedPaths": changed,
+        "policy": {
+            "tierRules": policy.get("riskTierRules", {}),
+            "mergePolicy": policy.get("mergePolicy", {}),
+        },
         "reviewAgentEnforced": review_agent_enforced
-    }, indent=2))
+    }
+    with open("gate.json", "w", encoding="utf-8") as jf:
+        json.dump(result, jf, indent=2)
+    write_github_output(
+        riskTier=result["riskTier"],
+        requiredChecks=result["requiredChecks"],
+        touchedPaths=result["touchedPaths"],
+    )
+    print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
     main()
