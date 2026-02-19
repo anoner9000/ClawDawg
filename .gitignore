@@ -21,3 +21,4 @@ ingest_manifest_*.json
 __pycache__/
 *.pyc
 gate.json
+gate.json
