@@ -11,6 +11,23 @@ def gh_api(url: str):
     with urllib.request.urlopen(req) as r:
         return json.loads(r.read().decode("utf-8"))
 
+def coderabbit_checkrun_success(payload: dict) -> bool:
+    # Accept if any check-run from coderabbit is completed/success.
+    for cr in payload.get("check_runs", []):
+        app = (cr.get("app") or {}).get("slug") or ""
+        name = cr.get("name") or ""
+        if app in ("coderabbitai", "coderabbit") or name.lower().startswith("coderabbit"):
+            if cr.get("status") == "completed" and cr.get("conclusion") == "success":
+                return True
+    return False
+
+def coderabbit_status_success(payload: dict) -> bool:
+    # Accept commit status context "CodeRabbit" == success.
+    for st in payload.get("statuses", []):
+        if (st.get("context") or "") == "CodeRabbit" and st.get("state") == "success":
+            return True
+    return False
+
 def main():
     repo = os.environ["GITHUB_REPOSITORY"]  # owner/name
     head_sha = os.environ["HEAD_SHA"]
@@ -33,6 +50,8 @@ def main():
     # or (fallback) a bot comment created after the latest commit timestamp.
     commits_url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/commits?per_page=250"
     comments_url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments?per_page=250"
+    check_runs_url = f"https://api.github.com/repos/{repo}/commits/{head_sha}/check-runs"
+    statuses_url = f"https://api.github.com/repos/{repo}/commits/{head_sha}/status"
 
     # Get PR commits to learn latest commit time
     commits = gh_api(commits_url)
@@ -53,6 +72,10 @@ def main():
     last_state = None
     while time.time() < deadline:
         comments = gh_api(comments_url)
+        check_runs_json = gh_api(check_runs_url)
+        status_json = gh_api(statuses_url)
+        checkrun_ok = coderabbit_checkrun_success(check_runs_json)
+        status_ok = coderabbit_status_success(status_json)
 
         matched_strong = None
         matched_weak = None
@@ -78,6 +101,8 @@ def main():
             "pr": pr_number,
             "head_sha": head_sha,
             "latest_commit_time": latest_time,
+            "checkrun_ok": checkrun_ok,
+            "status_ok": status_ok,
             "strong": bool(matched_strong),
             "weak": bool(matched_weak),
         }
@@ -90,6 +115,9 @@ def main():
             return
         if matched_weak:
             print("OK: CodeRabbit summary comment posted after latest commit:", json.dumps(matched_weak))
+            return
+        if checkrun_ok or status_ok:
+            print("OK: CodeRabbit evidence found on current head (check-run or status context).")
             return
 
         time.sleep(10)
