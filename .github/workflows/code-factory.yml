@@ -55,6 +55,19 @@ jobs:
           set -euo pipefail
           python ops/scripts/policy/risk_policy_gate.py
 
+      - name: Request CodeRabbit rerun (canonical, sha-deduped)
+        if: ${{ github.event_name == 'pull_request' && contains(steps.gate.outputs.requiredChecks, 'code-review-head') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ steps.shas.outputs.head }}
+          CODERABBIT_MENTION: "@coderabbitai"
+        run: |
+          set -euo pipefail
+          python ops/scripts/policy/request_coderabbit_rerun.py
+
+
       - name: Require CodeRabbit review evidence (current-head)
         if: ${{ github.event_name == 'pull_request' && contains(steps.policy.outputs.requiredChecks, '"code-review-head"') }}
         env:
