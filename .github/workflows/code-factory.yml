@@ -34,7 +34,13 @@ jobs:
             echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
             echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
           else
-            echo "base=$(git rev-parse HEAD^)" >> "$GITHUB_OUTPUT"
+            # Handle initial-commit / no-parent edge case on push events
+            if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+              echo "base=$(git rev-parse HEAD^)" >> "$GITHUB_OUTPUT"
+            else
+              # Fall back to HEAD when there is no parent
+              echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            fi
             echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           fi
 

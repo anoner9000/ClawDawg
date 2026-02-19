@@ -114,7 +114,7 @@ def write_github_output(**kwargs):
     with open(output_path, "a", encoding="utf-8") as f:
         for key, val in kwargs.items():
             # JSON-encode complex values
-            if isinstance(val, (dict, list)):
+            if isinstance(val, (dict, list, bool)):
                 val = json.dumps(val)
             f.write(f"{key}={val}\n")
 
