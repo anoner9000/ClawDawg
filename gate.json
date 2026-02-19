@@ -1,0 +1,44 @@
+{
+  "baseSha": "HEAD",
+  "headSha": "HEAD",
+  "riskTier": "low",
+  "requiredChecks": [
+    "gate",
+    "ci"
+  ],
+  "touchedPaths": [],
+  "policy": {
+    "tierRules": {
+      "high": [
+        "ops/**",
+        "scripts/**",
+        "modules/**",
+        "mission_control/**",
+        "agents/**",
+        "projects/**"
+      ],
+      "low": [
+        "doctrine/**",
+        "playbooks/**",
+        "reports/**",
+        "*.md",
+        "**/*.md"
+      ]
+    },
+    "mergePolicy": {
+      "high": {
+        "requiredChecks": [
+          "risk-policy-gate",
+          "CI Pipeline"
+        ]
+      },
+      "low": {
+        "requiredChecks": [
+          "risk-policy-gate",
+          "CI Pipeline"
+        ]
+      }
+    }
+  },
+  "reviewAgentEnforced": false
+}

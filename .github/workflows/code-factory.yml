@@ -1,0 +1,94 @@
+name: Code Factory
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  gate:
+    name: gate
+    runs-on: ubuntu-latest
+    outputs:
+      riskTier: ${{ steps.policy.outputs.riskTier }}
+      requiredChecks: ${{ steps.policy.outputs.requiredChecks }}
+      touchedPaths: ${{ steps.policy.outputs.touchedPaths }}
+      baseSha: ${{ steps.shas.outputs.base }}
+      headSha: ${{ steps.shas.outputs.head }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compute base/head
+        id: shas
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=$(git rev-parse HEAD^)" >> "$GITHUB_OUTPUT"
+            echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run risk policy gate
+        id: policy
+        env:
+          BASE_SHA: ${{ steps.shas.outputs.base }}
+          HEAD_SHA: ${{ steps.shas.outputs.head }}
+        run: |
+          set -euo pipefail
+          python ops/scripts/policy/risk_policy_gate.py
+
+      - name: Require CodeRabbit review evidence (current-head)
+        if: ${{ github.event_name == 'pull_request' && contains(steps.policy.outputs.requiredChecks, '"code-review-head"') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          HEAD_SHA: ${{ steps.shas.outputs.head }}
+          TIMEOUT_MINUTES: "20"
+        run: |
+          set -euo pipefail
+          python ops/scripts/policy/require_coderabbit_review.py
+
+      # Optional: makes debugging PR failures dead simple
+      - name: Debug gate outputs
+        if: ${{ always() }}
+        run: |
+          echo "riskTier=${{ steps.policy.outputs.riskTier }}"
+          echo "requiredChecks=${{ steps.policy.outputs.requiredChecks }}"
+          echo "touchedPaths=${{ steps.policy.outputs.touchedPaths }}"
+          echo "baseSha=${{ steps.shas.outputs.base }}"
+          echo "headSha=${{ steps.shas.outputs.head }}"
+
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    needs: [ gate ]
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Put your real CI steps here ---
+      # Python example (keep/remove depending on your repo):
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: CI smoke
+        run: |
+          set -euo pipefail
+          python -m py_compile ops/scripts/policy/risk_policy_gate.py
+
+      # Node example (only if you actually use Node):
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: "20"
+      # - run: npm ci
+      # - run: npm test
