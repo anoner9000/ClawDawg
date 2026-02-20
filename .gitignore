@@ -22,3 +22,8 @@ __pycache__/
 *.pyc
 gate.json
 gate.json
+
+# local
+.venv/
+__pycache__/
+*.pyc
