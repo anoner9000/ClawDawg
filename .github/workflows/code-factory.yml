@@ -56,7 +56,7 @@ jobs:
           python ops/scripts/policy/risk_policy_gate.py
 
       - name: Request CodeRabbit rerun (canonical, sha-deduped)
-        if: ${{ github.event_name == 'pull_request' && contains(steps.gate.outputs.requiredChecks, 'code-review-head') }}
+        if: ${{ github.event_name == 'pull_request' && contains(steps.policy.outputs.requiredChecks, 'code-review-head') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
