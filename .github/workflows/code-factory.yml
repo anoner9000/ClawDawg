@@ -74,7 +74,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          RISK="$(jq -r '.riskTier' gate_output.json)"
+          # Extract valid JSON in case gate output contains leading text
+          CLEAN_JSON=$(sed -n '/^{/,$p' gate_output.json)
+          echo "$CLEAN_JSON" > gate_output_clean.json
+
+          # Validate JSON before parsing
+          jq -e . gate_output_clean.json > /dev/null
+
+          RISK="$(jq -r '.riskTier' gate_output_clean.json)"
           PR="${{ github.event.pull_request.number }}"
 
           gh pr edit "$PR" --remove-label "risk:low" || true
