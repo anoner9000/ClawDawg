@@ -30,6 +30,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install gate dependencies
+        run: python3 -m pip install --disable-pip-version-check --no-cache-dir pyyaml
+
       - name: Compute base/head
         id: shas
         shell: bash
