@@ -47,3 +47,4 @@ Require updating this document in the same PR.
 - Workflow permissions now explicitly grant `contents: read`, `pull-requests: write`, and `issues: write` for PR comment operations.
 - Rerun request step now skips fork PRs (`!github.event.pull_request.head.repo.fork`) to avoid permission-driven hard failures.
 - Governance contract: added `ops/policy/risk_policy.yml` (policyVersion: 1) and updated `risk_policy_gate.py` to derive required checks/control-plane rules from the YAML contract.
+- Auto-merge: enable GitHub auto-merge for low-risk PRs (contract-driven) after `gate` + `ci` succeed; skipped for fork PRs.
