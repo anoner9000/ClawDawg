@@ -27,3 +27,6 @@ gate.json
 .venv/
 __pycache__/
 *.pyc
+# Investigation gate outputs (generated)
+**/validation.ok
+**/adjudication.json
