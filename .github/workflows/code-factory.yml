@@ -6,6 +6,11 @@ on:
   push:
     branches: [ master ]
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   gate:
     name: gate
@@ -56,7 +61,7 @@ jobs:
           python ops/scripts/policy/risk_policy_gate.py
 
       - name: Request CodeRabbit rerun (canonical, sha-deduped)
-        if: ${{ github.event_name == 'pull_request' && contains(steps.policy.outputs.requiredChecks, 'code-review-head') }}
+        if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && contains(steps.policy.outputs.requiredChecks, 'code-review-head') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}

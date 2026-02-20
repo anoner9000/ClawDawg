@@ -44,3 +44,5 @@ Require updating this document in the same PR.
 - `gh_api` now uses explicit request timeout and timeout-specific error handling.
 - `gh_api` enforces HTTPS-only URLs via scheme guard.
 - Removed unused `time` import from rerun script.
+- Workflow permissions now explicitly grant `contents: read`, `pull-requests: write`, and `issues: write` for PR comment operations.
+- Rerun request step now skips fork PRs (`!github.event.pull_request.head.repo.fork`) to avoid permission-driven hard failures.
