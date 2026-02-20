@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "runId": "smoke-001",
+  "objective": "Smoke test: validate and adjudicate a minimal investigation run.",
+  "claims": [
+    {
+      "claimId": "C-001",
+      "statement": "The investigation gate pipeline can validate and adjudicate artifacts end-to-end.",
+      "confidence": 0.9,
+      "evidenceRefs": ["E-001"],
+      "riskTags": ["other"],
+      "derivationSummary": "Single-file evidence reference.",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "sources": [
+    {
+      "sourceRef": "local:artifact.txt",
+      "kind": "file",
+      "path": "investigations/smoke-001/artifact.txt",
+      "notes": "Smoke test source file for CI gate."
+    }
+  ]
+}

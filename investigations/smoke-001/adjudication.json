@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0",
+  "runId": "smoke-001",
+  "overallStatus": "canonical",
+  "mergeEligible": false,
+  "followupRecommended": false,
+  "claims": [
+    {
+      "claimId": "C-001",
+      "status": "canonical",
+      "adjustedConfidence": 0.9,
+      "blockingReasons": [],
+      "skepticFindings": []
+    }
+  ],
+  "notes": ""
+}

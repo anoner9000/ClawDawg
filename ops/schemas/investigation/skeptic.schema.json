@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openclaw://schemas/investigation/skeptic.schema.json",
+  "title": "Skeptic Findings",
+  "type": "object",
+  "required": ["schemaVersion", "runId", "claims"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "runId": { "type": "string", "minLength": 6 },
+    "claims": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/claimReview" }
+    }
+  },
+  "$defs": {
+    "claimReview": {
+      "type": "object",
+      "required": ["claimId", "findings"],
+      "properties": {
+        "claimId": { "type": "string", "pattern": "^C-[0-9]{3,}$" },
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/finding" },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "required": ["issueType", "severity", "impact"],
+      "properties": {
+        "issueType": {
+          "type": "string",
+          "enum": [
+            "ENTITY_COLLISION",
+            "TEMPORAL_MISMATCH",
+            "SELECTION_BIAS",
+            "SOURCE_UNRELIABLE",
+            "INSUFFICIENT_EVIDENCE",
+            "NON_REPRODUCIBLE",
+            "LOGIC_GAP",
+            "OTHER"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["low", "moderate", "high"]
+        },
+        "impact": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 0.4,
+          "description": "Confidence penalty (bounded to prevent overkill)."
+        },
+        "detail": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
