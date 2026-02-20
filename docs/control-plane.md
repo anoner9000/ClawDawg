@@ -85,3 +85,12 @@ This keeps merge behavior deterministic and contract-driven, independent of GitH
 - Safety: patch proposals are quarantined under `<run>/patches/` and validated (denylist, traversal rejection, size caps).
 - Receipt: gate prints a deterministic run hash (RECEIPT line) for auditability.
 
+
+## Investigation Gate (update 2026-02-20T20:07:55Z)
+
+- Added investigation-gate workflow.
+- Added validation/adjudication lane.
+- Offline dependency install from ops/vendor.
+- Gate prints RECEIPT with run hash.
+- Required status context: investigation-gate / investigation-gate.
+
