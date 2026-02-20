@@ -20,10 +20,12 @@ Optional:
 
 import json
 import os
+import socket
 import sys
 import time
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 
 
 MARKER = "<!-- coderabbit-auto-rerun -->"
@@ -34,7 +36,17 @@ def die(msg: str, code: int = 2) -> None:
     raise SystemExit(code)
 
 
-def gh_api(method: str, url: str, token: str, body: dict | None = None) -> dict:
+def gh_api(
+    method: str,
+    url: str,
+    token: str,
+    body: dict | None = None,
+    timeout_secs: int = 15,
+) -> dict:
+    parsed = urlparse(url)
+    if parsed.scheme != "https":
+        die(f"{method} {url} failed: unsupported URL scheme {parsed.scheme!r}", code=3)
+
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
@@ -47,12 +59,20 @@ def gh_api(method: str, url: str, token: str, body: dict | None = None) -> dict:
 
     req = Request(url, data=data, headers=headers, method=method)
     try:
-        with urlopen(req) as resp:
+        with urlopen(req, timeout=timeout_secs) as resp:
             raw = resp.read().decode("utf-8")
             return json.loads(raw) if raw else {}
     except HTTPError as e:
         raw = e.read().decode("utf-8") if e.fp else ""
         die(f"{method} {url} failed: HTTP {e.code} {raw}", code=3)
+    except socket.timeout:
+        die(f"{method} {url} failed: timeout after {timeout_secs}s", code=3)
+    except URLError as e:
+        # Some timeouts surface as URLError(reason=timeout/TimeoutError)
+        reason = getattr(e, "reason", None)
+        if isinstance(reason, (socket.timeout, TimeoutError)):
+            die(f"{method} {url} failed: timeout after {timeout_secs}s", code=3)
+        die(f"{method} {url} failed: {e}", code=3)
 
 
 def coderabbit_evidence_ok(token: str, repo: str, sha: str) -> bool:
