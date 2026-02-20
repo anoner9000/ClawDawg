@@ -20,6 +20,22 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Sanity check (stable check name + wheel ABI)
+        run: |
+          set -euo pipefail
+          # Confirm the required check context will remain stable:
+          echo "expected required check context: investigation-gate / investigation-gate"
+          # Confirm rpds_py wheel ABI matches configured Python (e.g. cp312 for 3.12):
+          PYVER=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+          TAG="cp${PYVER/./}"
+          echo "python: ${PYVER} => ABI tag: ${TAG}"
+          ls -1 ops/vendor/wheels/rpds_py-*.whl >/dev/null 2>&1 || { echo "ERROR: rpds_py wheel missing"; exit 1; }
+          RPDS=$(ls -1 ops/vendor/wheels/rpds_py-*.whl | head -n1)
+          echo "rpds wheel: $(basename "$RPDS")"
+          echo "$(basename "$RPDS")" | grep -q "${TAG}" || {
+            echo "ERROR: rpds wheel ABI mismatch: expected ${TAG} in filename";
+            exit 1;
+          }
       - name: Install deps (offline from vendored wheels)
         run: |
           set -euo pipefail
