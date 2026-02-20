@@ -7,16 +7,19 @@ control_plane_paths:
 
 tiers:
   low:
+    label: "risk:low"
     required_checks: ["gate", "ci"]
     require_coderabbit_head: false
     allow_auto_merge: true
 
   medium:
+    label: "risk:medium"
     required_checks: ["gate", "ci"]
     require_coderabbit_head: true
     allow_auto_merge: false
 
   high:
+    label: "risk:high"
     required_checks: ["gate", "ci", "code-review-head"]
     require_coderabbit_head: true
     allow_auto_merge: false

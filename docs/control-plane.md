@@ -57,3 +57,5 @@ Require updating this document in the same PR.
 
 The Code Factory now auto-applies risk labels (`risk:low|medium|high`)
 based on `gate_output.json` produced by the risk policy gate.
+
+- Risk labels are contract-driven: `ops/policy/risk_policy.yml` defines `tiers.*.label`, and the gate emits `riskLabel` for the workflow to apply.

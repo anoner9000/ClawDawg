@@ -87,19 +87,30 @@ def main() -> None:
 
     tiers = require_key(policy, "tiers", "root")
     require(isinstance(tiers, dict), "root.tiers: must be an object")
+
+    labels: list[str] = []
     for tier in ALLOWED_TIERS:
         t = tiers.get(tier)
         require(isinstance(t, dict), f"root.tiers.{tier}: must be an object")
+
         required_checks = require_key(t, "required_checks", f"root.tiers.{tier}")
         require_list_of_str(required_checks, f"root.tiers.{tier}.required_checks", non_empty=True)
-        # Optional but common
+
         if "require_coderabbit_head" in t:
             require_bool(t["require_coderabbit_head"], f"root.tiers.{tier}.require_coderabbit_head")
 
-    # Optional: sanity check no unknown tier keys (helps catch typos like "medum")
+        label = require_key(t, "label", f"root.tiers.{tier}")
+        label_s = require_str(label, f"root.tiers.{tier}.label")
+        require(label_s.startswith("risk:"), f"root.tiers.{tier}.label must start with 'risk:'")
+        labels.append(label_s)
+
     unknown = sorted([k for k in tiers.keys() if k not in ALLOWED_TIERS])
     if unknown:
         die(f"root.tiers: unknown tier(s) {unknown}; allowed: {list(ALLOWED_TIERS)}")
+
+    dupes = sorted({x for x in labels if labels.count(x) > 1})
+    if dupes:
+        die(f"tier labels must be unique; duplicates: {dupes}")
 
     print(f"OK: {POLICY_PATH} valid (policyVersion={int(version)})")
 
