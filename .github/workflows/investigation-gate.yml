@@ -57,6 +57,10 @@ jobs:
             run_id="$(basename "${dir}")"
             echo "---- gate: ${dir} (run_id=${run_id}) ----"
             python ops/scripts/investigation/investigation_gate.py "${dir}" "${run_id}"
+            if [ -f "${dir}/adjudication.json" ]; then
+              echo "---- adjudication.json (${dir}) ----"
+              cat "${dir}/adjudication.json" || true
+            fi
           done <<< "${RUN_DIRS}"
 
       - name: Upload investigation artifacts
