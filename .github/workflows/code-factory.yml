@@ -69,68 +69,33 @@ jobs:
           python3 ops/scripts/policy/risk_policy_gate.py | tee gate_output.json
 
       - name: Apply risk label
-        if: ${{ github.event_name == 'pull_request' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == 'pull_request'
         run: |
+          set -euo pipefail
 
-              set -euo pipefail
+          echo "Reading gate_output.json..."
+          cat gate_output.json || true
 
-              
+          RISK_TIER="$(jq -r '.riskTier // empty' gate_output.json 2>/dev/null || true)"
 
-              # Read risk tier from gate output (written earlier in the workflow)
+          if [ -z "$RISK_TIER" ]; then
+            echo "No riskTier found. Skipping label application."
+            exit 0
+          fi
 
-              RISK_TIER="$(jq -r '.riskTier' gate_output.json)"
+          LABEL="risk:${RISK_TIER}"
+          echo "Computed label: $LABEL"
 
-              echo "riskTier=$RISK_TIER"
+          echo "Ensuring label exists (idempotent)..."
+          gh label create "$LABEL" \
+            --color "ededed" \
+            --description "Risk tier derived from policy gate" \
+            2>/dev/null || true
 
-              
+          echo "Applying label to PR..."
+          gh pr edit "$PR_NUMBER" --add-label "$LABEL" 2>/dev/null || true
 
-              # Ensure labels exist (idempotent). Do NOT fail gate if label creation is blocked.
-
-              # Note: label APIs are 'issues' scope; workflow should already have issues: write.
-
-              ensure_label() {
-
-                local name="$1" color="$2" desc="$3"
-
-                gh label create "$name" --color "$color" --description "$desc" --force >/dev/null 2>&1 || true
-
-              }
-
-              
-
-              ensure_label "risk:low"    "0E8A16" "Code Factory risk tier: low" 
-
-              ensure_label "risk:medium" "FBCA04" "Code Factory risk tier: medium" 
-
-              ensure_label "risk:high"   "D93F0B" "Code Factory risk tier: high" 
-
-              
-
-              # Remove any existing risk:* labels (don’t fail if missing)
-
-              gh pr edit "$PR" --remove-label "risk:low" >/dev/null 2>&1 || true
-
-              gh pr edit "$PR" --remove-label "risk:medium" >/dev/null 2>&1 || true
-
-              gh pr edit "$PR" --remove-label "risk:high" >/dev/null 2>&1 || true
-
-              
-
-              # Apply the correct label (don’t fail gate if labeling is blocked for some reason)
-
-              case "$RISK_TIER" in
-
-                low)    gh pr edit "$PR" --add-label "risk:low"    >/dev/null 2>&1 || true ;;
-
-                medium) gh pr edit "$PR" --add-label "risk:medium" >/dev/null 2>&1 || true ;;
-
-                high)   gh pr edit "$PR" --add-label "risk:high"   >/dev/null 2>&1 || true ;;
-
-                *) echo "WARN: unknown riskTier '$RISK_TIER' (no label applied)" ;;
-
-              esac
+          echo "Risk label step completed (non-blocking)."
 
       - name: Request CodeRabbit rerun (canonical, sha-deduped)
         if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && contains(steps.policy.outputs.requiredChecks, 'code-review-head') }}
