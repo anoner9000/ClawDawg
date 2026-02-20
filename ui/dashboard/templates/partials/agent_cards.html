@@ -4,7 +4,11 @@
     <h3><a href="/agents/{{ c.agent }}">{{ c.agent }}</a></h3>
     <p>bus_events: {{ c.parsed.bus_events if c.parsed.bus_events is not none else 'n/a' }}</p>
     <p>status: {{ c.parsed.snapshot.get('status', 'n/a') if c.parsed.snapshot else 'n/a' }}</p>
-    {% if not c.result.ok %}<p class="error">CLI ERROR</p>{% endif %}
+    <p class="badges">
+      {% if not c.result.ok and not c.result.timed_out %}<span class="badge err">CLI ERROR</span>{% endif %}
+      {% if c.result.timed_out %}<span class="badge warn">TIMEOUT</span>{% endif %}
+      {% if c.result.truncated %}<span class="badge warn">TRUNC</span>{% endif %}
+    </p>
   </article>
 {% else %}
   <p>(no agents discovered)</p>

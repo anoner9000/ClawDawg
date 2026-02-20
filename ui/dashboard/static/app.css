@@ -27,6 +27,18 @@ main { padding: 16px; }
 .ok { color: var(--ok); }
 .warn { color: var(--warn); }
 .error { color: var(--err); }
+.badges { margin: 6px 0; }
+.badge {
+  display: inline-block;
+  margin-right: 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge.err { color: var(--err); border-color: #dca9a2; background: #fff4f2; }
+.badge.warn { color: var(--warn); border-color: #dfd2a5; background: #fffcf0; }
 table { width: 100%; border-collapse: collapse; background: #fff; }
 th, td { border: 1px solid var(--line); padding: 6px; text-align: left; vertical-align: top; }
 pre { white-space: pre-wrap; word-break: break-word; background: #fafaf8; border: 1px solid var(--line); padding: 8px; }

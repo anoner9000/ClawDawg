@@ -4,6 +4,10 @@
 {% if not result.ok %}
 <div class="error">CLI ERROR ({{ result.code }}): {{ result.stderr }}</div>
 {% endif %}
+<p class="badges">
+  {% if result.timed_out %}<span class="badge warn">TIMEOUT</span>{% endif %}
+  {% if result.truncated %}<span class="badge warn">TRUNC</span>{% endif %}
+</p>
 <p><strong>State:</strong> {{ parsed.state }}</p>
 <p><strong>Bus events:</strong> {{ parsed.bus_events }}</p>
 <h3>Latest by Agent</h3>

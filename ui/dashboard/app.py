@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .cli import run_query_status
-from .config import ATTENTION_TYPES, QUERY_STATUS_CLI, STATUS_AGENTS_DIR, STATUS_TASKS_DIR
+from .config import ATTENTION_TYPES, POLL_AGENTS_SECS, POLL_TASKS_SECS, QUERY_STATUS_CLI, STATUS_AGENTS_DIR, STATUS_TASKS_DIR
 from .parsers import parse_agent_output, parse_task_output, read_receipt
 
 app = FastAPI(title="OpenClaw Control Plane UI")
@@ -79,13 +79,18 @@ def home(request: Request):
             "attention": attention,
             "agent_cards": cards,
             "tasks": tasks,
+            "poll_agents_s": POLL_AGENTS_SECS,
+            "poll_tasks_s": POLL_TASKS_SECS,
         },
     )
 
 
 @app.get("/agents", response_class=HTMLResponse)
 def agents(request: Request):
-    return templates.TemplateResponse("agents.html", {"request": request, "agent_cards": collect_agent_views()})
+    return templates.TemplateResponse(
+        "agents.html",
+        {"request": request, "agent_cards": collect_agent_views(), "poll_agents_s": POLL_AGENTS_SECS},
+    )
 
 
 @app.get("/agents/{agent}", response_class=HTMLResponse)
@@ -97,7 +102,7 @@ def agent_detail(request: Request, agent: str):
 
 @app.get("/tasks", response_class=HTMLResponse)
 def tasks(request: Request):
-    return templates.TemplateResponse("tasks.html", {"request": request, "tasks": collect_task_views()})
+    return templates.TemplateResponse("tasks.html", {"request": request, "tasks": collect_task_views(), "poll_tasks_s": POLL_TASKS_SECS})
 
 
 @app.get("/tasks/{task_id}", response_class=HTMLResponse)
@@ -113,7 +118,10 @@ def task_detail(request: Request, task_id: str):
 
 @app.get("/receipts", response_class=HTMLResponse)
 def receipts(request: Request):
-    return templates.TemplateResponse("receipts.html", {"request": request, "receipts": discover_receipts()})
+    return templates.TemplateResponse(
+        "receipts.html",
+        {"request": request, "receipts": discover_receipts(), "poll_tasks_s": POLL_TASKS_SECS},
+    )
 
 
 @app.get("/partials/banner", response_class=HTMLResponse)

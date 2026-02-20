@@ -1,6 +1,6 @@
 <table>
   <thead>
-    <tr><th>task_id</th><th>state</th><th>bus_events</th><th>latest_by_agent</th></tr>
+    <tr><th>task_id</th><th>state</th><th>bus_events</th><th>latest_by_agent</th><th>flags</th></tr>
   </thead>
   <tbody>
   {% for t in tasks %}
@@ -9,9 +9,14 @@
       <td>{{ t.parsed.state }}</td>
       <td>{{ t.parsed.bus_events if t.parsed.bus_events is not none else 'n/a' }}</td>
       <td>{{ t.parsed.latest_by_agent | join('; ') }}</td>
+      <td>
+        {% if not t.result.ok and not t.result.timed_out %}<span class="badge err">CLI ERROR</span>{% endif %}
+        {% if t.result.timed_out %}<span class="badge warn">TIMEOUT</span>{% endif %}
+        {% if t.result.truncated %}<span class="badge warn">TRUNC</span>{% endif %}
+      </td>
     </tr>
   {% else %}
-    <tr><td colspan="4">(no tasks discovered)</td></tr>
+    <tr><td colspan="5">(no tasks discovered)</td></tr>
   {% endfor %}
   </tbody>
 </table>

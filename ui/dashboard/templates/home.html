@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<div id="banner" hx-get="/partials/banner" hx-trigger="load, every 5s" hx-swap="innerHTML"></div>
+<div id="banner" hx-get="/partials/banner" hx-trigger="load, every {{ poll_agents_s }}s" hx-swap="innerHTML"></div>
 <section>
   <h2>Agents</h2>
-  <div id="agent-cards" hx-get="/partials/agent-cards" hx-trigger="load, every 5s" hx-swap="innerHTML"></div>
+  <div id="agent-cards" hx-get="/partials/agent-cards" hx-trigger="load, every {{ poll_agents_s }}s" hx-swap="innerHTML"></div>
 </section>
 <section>
   <h2>Recent Tasks</h2>
-  <div id="task-table" hx-get="/partials/task-table" hx-trigger="load, every 10s" hx-swap="innerHTML"></div>
+  <div id="task-table" hx-get="/partials/task-table" hx-trigger="load, every {{ poll_tasks_s }}s" hx-swap="innerHTML"></div>
 </section>
 {% endblock %}
