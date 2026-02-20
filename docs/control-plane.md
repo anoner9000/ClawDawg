@@ -63,27 +63,6 @@ based on `gate_output.json` produced by the risk policy gate.
 ## 2026-02-20 — Guarded Direct Merge for Low-Risk PRs
 
 ### Summary
-Replaced native GitHub auto-merge mutation with guarded direct `gh pr merge --squash`
-execution in Code Factory.
-
-### Details
-- Introduced Guard auto-merge step:
-  - Validates requiredChecks (`gate` + `ci`) are green on current head SHA.
-  - Verifies repository auto-merge setting when applicable.
-- Merge step now executes direct squash merge:
-  - `gh pr merge --squash --delete-branch=false`
-  - Only runs when:
-    - `riskTier == low`
-    - requiredChecks satisfied
-- Maintains deterministic contract-driven governance.
-
-### Rationale
-Ensures merge enforcement is self-contained in workflow and does not rely
-on GitHub native auto-merge setting.
-
-## 2026-02-20 — Guarded Direct Merge for Low-Risk PRs
-
-### Summary
 Code Factory now performs a guarded, direct squash merge for low-risk PRs.
 
 ### Details
