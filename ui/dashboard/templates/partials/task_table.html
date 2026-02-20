@@ -1,0 +1,17 @@
+<table>
+  <thead>
+    <tr><th>task_id</th><th>state</th><th>bus_events</th><th>latest_by_agent</th></tr>
+  </thead>
+  <tbody>
+  {% for t in tasks %}
+    <tr>
+      <td><a href="/tasks/{{ t.task_id }}">{{ t.task_id }}</a></td>
+      <td>{{ t.parsed.state }}</td>
+      <td>{{ t.parsed.bus_events if t.parsed.bus_events is not none else 'n/a' }}</td>
+      <td>{{ t.parsed.latest_by_agent | join('; ') }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4">(no tasks discovered)</td></tr>
+  {% endfor %}
+  </tbody>
+</table>

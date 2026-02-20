@@ -1,0 +1,7 @@
+{% if not runtime_ready %}
+<div class="warn">Runtime not initialized</div>
+{% elif attention %}
+<div class="error">ATTENTION REQUIRED</div>
+{% else %}
+<div class="ok">OK</div>
+{% endif %}
