@@ -41,7 +41,7 @@ def gh_api(
     token: str,
     body: dict | None = None,
     timeout_secs: int = 15,
-) -> dict:
+) -> dict | list:
     parsed = urlparse(url)
     if parsed.scheme != "https":
         die(f"{method} {url} failed: unsupported URL scheme {parsed.scheme!r}", code=3)
