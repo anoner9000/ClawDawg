@@ -66,7 +66,22 @@ jobs:
           HEAD_SHA: ${{ steps.shas.outputs.head }}
         run: |
           set -euo pipefail
-          python ops/scripts/policy/risk_policy_gate.py
+          python3 ops/scripts/policy/risk_policy_gate.py | tee gate_output.json
+
+      - name: Apply risk label
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          RISK="$(jq -r '.riskTier' gate_output.json)"
+          PR="${{ github.event.pull_request.number }}"
+
+          gh pr edit "$PR" --remove-label "risk:low" || true
+          gh pr edit "$PR" --remove-label "risk:medium" || true
+          gh pr edit "$PR" --remove-label "risk:high" || true
+
+          gh pr edit "$PR" --add-label "risk:$RISK"
 
       - name: Request CodeRabbit rerun (canonical, sha-deduped)
         if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && contains(steps.policy.outputs.requiredChecks, 'code-review-head') }}
@@ -192,4 +207,3 @@ jobs:
           path: |
             /tmp/code_factory_merge_audit.json
             /tmp/code_factory_merge_ledger.jsonl
-
