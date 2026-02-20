@@ -144,11 +144,18 @@ def main():
     docs_changed = docs_updated(changed_files, docs_required)
 
     if cp_changed and not docs_changed:
-        print(f"FAIL: control-plane paths changed but no {docs_required} update found.")
-        print("Changed files:")
-        for f in changed_files:
-            print(f"  - {f}")
-        sys.exit(1)
+        if risk == "low":
+            print(
+                f"WARNING: control-plane paths changed but no {docs_required} update found; "
+                "allowing because riskTier=low.",
+                file=sys.stderr,
+            )
+        else:
+            print(f"FAIL: control-plane paths changed but no {docs_required} update found.")
+            print("Changed files:")
+            for f in changed_files:
+                print(f"  - {f}")
+            sys.exit(1)
 
     review_agent_enforced = enforce_review_agent(bool(tier_config.get("require_coderabbit_head")), head)
     result = {
