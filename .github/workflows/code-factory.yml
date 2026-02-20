@@ -66,7 +66,36 @@ jobs:
           HEAD_SHA: ${{ steps.shas.outputs.head }}
         run: |
           set -euo pipefail
-          python ops/scripts/policy/risk_policy_gate.py
+          python3 ops/scripts/policy/risk_policy_gate.py | tee gate_output.json
+
+      - name: Apply risk label
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+
+          echo "Reading gate_output.json..."
+          cat gate_output.json || true
+
+          RISK_TIER="$(jq -r '.riskTier // empty' gate_output.json 2>/dev/null || true)"
+
+          if [ -z "$RISK_TIER" ]; then
+            echo "No riskTier found. Skipping label application."
+            exit 0
+          fi
+
+          LABEL="risk:${RISK_TIER}"
+          echo "Computed label: $LABEL"
+
+          echo "Ensuring label exists (idempotent)..."
+          gh label create "$LABEL" \
+            --color "ededed" \
+            --description "Risk tier derived from policy gate" \
+            2>/dev/null || true
+
+          echo "Applying label to PR..."
+          gh pr edit "$PR_NUMBER" --add-label "$LABEL" 2>/dev/null || true
+
+          echo "Risk label step completed (non-blocking)."
 
       - name: Request CodeRabbit rerun (canonical, sha-deduped)
         if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && contains(steps.policy.outputs.requiredChecks, 'code-review-head') }}
@@ -192,4 +221,3 @@ jobs:
           path: |
             /tmp/code_factory_merge_audit.json
             /tmp/code_factory_merge_ledger.jsonl
-
