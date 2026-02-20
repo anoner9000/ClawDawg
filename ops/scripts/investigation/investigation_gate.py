@@ -35,7 +35,7 @@ def compute_run_hash(run_dir: Path) -> str:
     return "sha256:" + h.hexdigest()
 
 def run(cmd, **kw):
-    return subprocess.run(cmd, check=False, text=True, **kw)
+    return subprocess.run(cmd, check=False, text=True, capture_output=True, **kw)
 
 def die(msg, code=1):
     print(f"ERROR: {msg}", file=sys.stderr)
@@ -91,7 +91,8 @@ def main():
     run_hash = compute_run_hash(run_dir)
     print(f"RECEIPT investigation_gate runId={run_id} status={status} mergeEligible={merge_eligible} runHash={run_hash}")
 
-    # Only block on invalid (structural failure)
+    # Gate is intentionally structural: adjudication quality is reported in receipt/artifact
+    # but does not block unless the run is structurally invalid.
     if status == "invalid":
         return 2
 

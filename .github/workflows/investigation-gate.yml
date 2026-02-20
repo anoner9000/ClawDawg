@@ -29,8 +29,8 @@ jobs:
           PYVER=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
           TAG="cp${PYVER/./}"
           echo "python: ${PYVER} => ABI tag: ${TAG}"
-          ls -1 ops/vendor/wheels/rpds_py-*.whl >/dev/null 2>&1 || { echo "ERROR: rpds_py wheel missing"; exit 1; }
-          RPDS=$(ls -1 ops/vendor/wheels/rpds_py-*.whl | head -n1)
+          RPDS=$(ls -1 ops/vendor/wheels/rpds_py-*-"${TAG}"-*.whl 2>/dev/null | head -n1 || true)
+          [ -n "${RPDS}" ] || { echo "ERROR: rpds_py wheel missing for ABI ${TAG}"; exit 1; }
           echo "rpds wheel: $(basename "$RPDS")"
           echo "$(basename "$RPDS")" | grep -q "${TAG}" || {
             echo "ERROR: rpds wheel ABI mismatch: expected ${TAG} in filename";
@@ -39,7 +39,6 @@ jobs:
       - name: Install deps (offline from vendored wheels)
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
 
           test -d ops/vendor/wheels
           test -f ops/vendor/requirements/investigation_gate.txt
@@ -56,7 +55,7 @@ jobs:
           RUN_DIRS=$( (find runtime/investigations -maxdepth 2 -type f -name claims.json -printf '%h\n' 2>/dev/null || true; find investigations -maxdepth 2 -type f -name claims.json -printf '%h\n' 2>/dev/null || true) | sort -u )
 
           if [ -z "${RUN_DIRS}" ]; then
-            echo "No investigation runs found under runtime/investigations/**"
+            echo "No investigation runs found under runtime/investigations/** or investigations/**"
             exit 0
           fi
 
