@@ -49,3 +49,4 @@ Require updating this document in the same PR.
 - Governance contract: added `ops/policy/risk_policy.yml` (policyVersion: 1) and updated `risk_policy_gate.py` to derive required checks/control-plane rules from the YAML contract.
 - Auto-merge: enable GitHub auto-merge for low-risk PRs (contract-driven) after `gate` + `ci` succeed; skipped for fork PRs.
 - Tightened workflow top-level permissions to `contents: read`; write access restricted to `auto-merge-low` job only (least-privilege enforcement).
+- Policy validation: added `ops/scripts/policy/validate_risk_policy.py` and run it in Code Factory before the gate so malformed `ops/policy/risk_policy.yml` fails fast.

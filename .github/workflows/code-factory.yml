@@ -51,6 +51,11 @@ jobs:
             fi
             echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           fi
+      - name: Validate risk policy contract
+        run: |
+          set -euo pipefail
+          python3 ops/scripts/policy/validate_risk_policy.py
+
 
       - name: Run risk policy gate
         id: policy
