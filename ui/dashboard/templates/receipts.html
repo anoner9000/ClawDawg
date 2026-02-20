@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Receipts</h2>
+<div id="receipts-list" hx-get="/partials/receipts-list" hx-trigger="load, every {{ poll_tasks_s }}s" hx-swap="innerHTML"></div>
+{% endblock %}

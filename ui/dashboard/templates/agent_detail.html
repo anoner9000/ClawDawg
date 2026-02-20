@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Agent: {{ agent }}</h2>
+{% if not result.ok %}
+<div class="error">CLI ERROR ({{ result.code }}): {{ result.stderr }}</div>
+{% endif %}
+<p class="badges">
+  {% if result.timed_out %}<span class="badge warn">TIMEOUT</span>{% endif %}
+  {% if result.truncated %}<span class="badge warn">TRUNC</span>{% endif %}
+</p>
+<h3>Snapshot</h3>
+<pre>{{ parsed.snapshot | tojson(indent=2) if parsed.snapshot else "(none)" }}</pre>
+<h3>Recent</h3>
+<ul>
+  {% for item in parsed.recent %}
+  <li>{{ item }}</li>
+  {% else %}
+  <li>(none)</li>
+  {% endfor %}
+</ul>
+<details>
+  <summary>Raw CLI Output</summary>
+  <pre>{{ result.stdout }}</pre>
+  {% if result.stderr %}<pre>{{ result.stderr }}</pre>{% endif %}
+</details>
+{% endblock %}

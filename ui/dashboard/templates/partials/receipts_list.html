@@ -1,0 +1,10 @@
+<ul>
+{% for r in receipts %}
+  <li>
+    <a href="/tasks/{{ r.task_id }}">{{ r.task_id }}</a> — {{ r.name }}
+    <details><summary>Preview</summary><pre>{{ r.preview }}</pre></details>
+  </li>
+{% else %}
+  <li>(no receipts found)</li>
+{% endfor %}
+</ul>

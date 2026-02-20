@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Task: {{ task_id }}</h2>
+{% if not result.ok %}
+<div class="error">CLI ERROR ({{ result.code }}): {{ result.stderr }}</div>
+{% endif %}
+<p class="badges">
+  {% if result.timed_out %}<span class="badge warn">TIMEOUT</span>{% endif %}
+  {% if result.truncated %}<span class="badge warn">TRUNC</span>{% endif %}
+</p>
+<p><strong>State:</strong> {{ parsed.state }}</p>
+<p><strong>Bus events:</strong> {{ parsed.bus_events }}</p>
+<h3>Latest by Agent</h3>
+<ul>
+  {% for item in parsed.latest_by_agent %}
+  <li>{{ item }}</li>
+  {% else %}
+  <li>(none)</li>
+  {% endfor %}
+</ul>
+<h3>Receipts</h3>
+{% if receipts %}
+  {% for r in receipts %}
+    <article>
+      <h4>{{ r.name }}</h4>
+      <pre>{{ r.preview }}</pre>
+      <details><summary>Raw</summary><pre>{{ r.raw }}</pre></details>
+    </article>
+  {% endfor %}
+{% else %}
+  <p>(none)</p>
+{% endif %}
+<details>
+  <summary>Raw CLI Output</summary>
+  <pre>{{ result.stdout }}</pre>
+</details>
+{% endblock %}

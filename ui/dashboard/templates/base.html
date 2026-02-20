@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenClaw Control Plane</title>
+    <link rel="stylesheet" href="/static/app.css" />
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </head>
+  <body>
+    <header>
+      <h1>OpenClaw Control Plane</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/agents">Agents</a>
+        <a href="/tasks">Tasks</a>
+        <a href="/receipts">Receipts</a>
+      </nav>
+    </header>
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>
