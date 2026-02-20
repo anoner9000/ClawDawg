@@ -2,6 +2,13 @@
 import json, os, subprocess, sys
 from pathlib import Path
 from fnmatch import fnmatch
+import yaml
+
+POLICY_PATH = Path("ops/policy/risk_policy.yml")
+
+def die(msg: str, code: int = 2) -> None:
+    print(f"ERROR: {msg}", file=sys.stderr)
+    sys.exit(code)
 
 def sh(*args: str) -> str:
     return subprocess.check_output(args, text=True).strip()
@@ -11,88 +18,57 @@ def list_changed(base: str, head: str) -> list[str]:
     return [l for l in out.splitlines() if l.strip()]
 
 def load_policy() -> dict:
-    p = Path("policy/risk_policy.json")
-    if not p.exists():
-        print("ERROR: missing policy/risk_policy.json", file=sys.stderr)
-        sys.exit(2)
-    return json.loads(p.read_text(encoding="utf-8"))
+    if not POLICY_PATH.exists():
+        die("risk_policy.yml not found; policy contract required.", code=2)
+    try:
+        with POLICY_PATH.open("r", encoding="utf-8") as f:
+            policy = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        die(f"invalid policy contract YAML: {e}", code=2)
+    if not isinstance(policy, dict):
+        die("invalid policy contract: expected top-level mapping", code=2)
+    tiers = policy.get("tiers")
+    if not isinstance(tiers, dict) or not tiers:
+        die("invalid policy contract: missing or invalid 'tiers'", code=2)
+    return policy
 
 def match_any(path: str, globs: list[str]) -> bool:
     # Support ** by using fnmatch (works fine for typical patterns)
     return any(fnmatch(path, g) for g in globs)
 
-def compute_risk(changed: list[str], rules: dict) -> str:
-    high = rules.get("high", [])
-    low  = rules.get("low",  ["**"])
-    # If any file matches high, treat as high.
-    for f in changed:
-        if match_any(f, high):
-            return "high"
-    # Otherwise low if all match low
-    if all(match_any(f, low) for f in changed):
-        return "low"
-    return "high"
+def compute_risk(changed: list[str], control_plane_patterns: list[str]) -> str:
+    if control_plane_changed(changed, control_plane_patterns):
+        return "high"
+    return "low"
 
-def compute_required_checks(policy: dict, risk: str) -> list[str]:
-    merge_policy = policy.get("mergePolicy", {})
-    raw_checks = merge_policy.get(risk, {}).get("requiredChecks", [])
-    # Normalize historical check names into branch-protection contexts.
-    normalize = {
-        "CI Pipeline": "ci",
-        "risk-policy-gate": "gate",
-    }
-    checks: list[str] = []
-    for check in raw_checks:
-        checks.append(normalize.get(check, check))
-
-    review_cfg = policy.get("reviewAgent", {})
-    if risk == "high" and review_cfg.get("enabled", False):
-        checks.append("code-review-head")
-
-    # Stable de-dup preserving order.
-    seen: set[str] = set()
-    out: list[str] = []
-    for check in checks:
-        if check in seen:
-            continue
-        seen.add(check)
-        out.append(check)
-    return out
-
-def docs_updated(changed_files: list[str]) -> bool:
+def docs_updated(changed_files: list[str], required_doc: str) -> bool:
     """
     Returns True if canonical control-plane docs were updated.
     """
-    return "docs/control-plane.md" in changed_files
+    return required_doc in changed_files
 
-def control_plane_changed(changed_files: list[str]) -> bool:
+def control_plane_changed(changed_files: list[str], control_plane_patterns: list[str]) -> bool:
     """
     Returns True if control-plane paths were modified.
     """
-    return any(
-        path.startswith(".github/workflows/") or path.startswith("ops/scripts/policy/")
-        for path in changed_files
-    )
+    return any(match_any(path, control_plane_patterns) for path in changed_files)
 
-def enforce_review_agent(policy: dict, risk: str, head: str) -> bool:
-    cfg = policy.get("reviewAgent", {})
-    if risk != "high" or not cfg.get("enabled", False):
+def enforce_review_agent(require_coderabbit_head: bool, head: str) -> bool:
+    if not require_coderabbit_head:
         return False
     if os.environ.get("GITHUB_EVENT_NAME") != "pull_request":
         # Review-agent evidence is PR-comment based, so skip outside PRs.
         return False
 
-    script = Path("ops/scripts/policy/require_review_agent.py")
+    script = Path("ops/scripts/policy/require_coderabbit_review.py")
     if not script.exists():
-        print(f"ERROR: missing {script}", file=sys.stderr)
-        sys.exit(2)
+        die(f"missing {script}", code=2)
     if not os.environ.get("GITHUB_TOKEN"):
-        print("ERROR: GITHUB_TOKEN is required to enforce reviewAgent in PR context", file=sys.stderr)
-        sys.exit(2)
+        die("GITHUB_TOKEN is required to enforce coderabbit head review in PR context", code=2)
 
     env = os.environ.copy()
     env["HEAD_SHA"] = head
-    env["TIMEOUT_MINUTES"] = str(cfg.get("timeoutMinutes", 20))
+    env["TIMEOUT_MINUTES"] = str(env.get("TIMEOUT_MINUTES", "20"))
     try:
         subprocess.run([sys.executable, str(script)], env=env, check=True)
     except subprocess.CalledProcessError as e:
@@ -120,9 +96,24 @@ def main():
         # In CI for PRs we’ll set BASE_SHA; locally allow base=origin/master
         base = "origin/master"
     policy = load_policy()
+    control_plane_patterns = policy.get("control_plane_paths", [])
+    if not isinstance(control_plane_patterns, list):
+        die("invalid policy contract: 'control_plane_paths' must be a list", code=2)
+    docs_cfg = policy.get("docs", {})
+    docs_required = "docs/control-plane.md"
+    if isinstance(docs_cfg, dict):
+        docs_required = docs_cfg.get("required_on_control_plane_change", docs_required)
+
     changed = list_changed(base, head)
-    risk = compute_risk(changed, policy.get("riskTierRules", {})) if changed else "low"
-    checks = compute_required_checks(policy, risk)
+    risk = compute_risk(changed, control_plane_patterns) if changed else "low"
+    tiers = policy.get("tiers", {})
+    tier_config = tiers.get(risk)
+    if not isinstance(tier_config, dict):
+        die(f"invalid policy contract: missing tier config for '{risk}'", code=2)
+    checks = tier_config.get("required_checks")
+    if not isinstance(checks, list):
+        die(f"invalid policy contract: tiers.{risk}.required_checks must be a list", code=2)
+
     if not changed:
         result = {
             "baseSha": base,
@@ -130,9 +121,11 @@ def main():
             "riskTier": "low",
             "requiredChecks": checks,
             "touchedPaths": [],
+            "policyVersion": policy.get("version"),
             "policy": {
-                "tierRules": policy.get("riskTierRules", {}),
-                "mergePolicy": policy.get("mergePolicy", {}),
+                "controlPlanePaths": control_plane_patterns,
+                "tiers": tiers,
+                "docs": docs_cfg if isinstance(docs_cfg, dict) else {},
             },
             "reviewAgentEnforced": False
         }
@@ -147,26 +140,28 @@ def main():
         return
 
     changed_files = changed
-    cp_changed = control_plane_changed(changed_files)
-    docs_changed = docs_updated(changed_files)
+    cp_changed = control_plane_changed(changed_files, control_plane_patterns)
+    docs_changed = docs_updated(changed_files, docs_required)
 
     if cp_changed and not docs_changed:
-        print("FAIL: control-plane paths changed but no docs/control-plane.md update found.")
+        print(f"FAIL: control-plane paths changed but no {docs_required} update found.")
         print("Changed files:")
         for f in changed_files:
             print(f"  - {f}")
         sys.exit(1)
 
-    review_agent_enforced = enforce_review_agent(policy, risk, head)
+    review_agent_enforced = enforce_review_agent(bool(tier_config.get("require_coderabbit_head")), head)
     result = {
         "baseSha": base,
         "headSha": head,
         "riskTier": risk,
         "requiredChecks": checks,
         "touchedPaths": changed,
+        "policyVersion": policy.get("version"),
         "policy": {
-            "tierRules": policy.get("riskTierRules", {}),
-            "mergePolicy": policy.get("mergePolicy", {}),
+            "controlPlanePaths": control_plane_patterns,
+            "tiers": tiers,
+            "docs": docs_cfg if isinstance(docs_cfg, dict) else {},
         },
         "reviewAgentEnforced": review_agent_enforced
     }

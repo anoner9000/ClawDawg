@@ -1,0 +1,25 @@
+version: 1
+
+control_plane_paths:
+  - ".github/workflows/**"
+  - "ops/scripts/policy/**"
+  - "docs/control-plane.md"
+
+tiers:
+  low:
+    required_checks: ["gate", "ci"]
+    require_coderabbit_head: false
+    allow_auto_merge: true
+
+  medium:
+    required_checks: ["gate", "ci"]
+    require_coderabbit_head: true
+    allow_auto_merge: false
+
+  high:
+    required_checks: ["gate", "ci", "code-review-head"]
+    require_coderabbit_head: true
+    allow_auto_merge: false
+
+docs:
+  required_on_control_plane_change: "docs/control-plane.md"
