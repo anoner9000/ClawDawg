@@ -2,12 +2,6 @@ name: investigation-gate
 
 on:
   pull_request:
-    paths:
-      - "runtime/investigations/**"
-      - "investigations/**"
-      - "ops/scripts/investigation/**"
-      - "ops/schemas/investigation/**"
-      - "ops/vendor/**"
 
 jobs:
   investigation-gate:
