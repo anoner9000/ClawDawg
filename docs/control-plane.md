@@ -59,3 +59,20 @@ The Code Factory now auto-applies risk labels (`risk:low|medium|high`)
 based on `gate_output.json` produced by the risk policy gate.
 
 - Risk labels are contract-driven: `ops/policy/risk_policy.yml` defines `tiers.*.label`, and the gate emits `riskLabel` for the workflow to apply.
+
+## 2026-02-20 — Guarded Direct Merge for Low-Risk PRs
+
+### Summary
+Code Factory now performs a guarded, direct squash merge for low-risk PRs.
+
+### Details
+- Added a guard step that verifies required check-runs listed by policy (e.g., `gate`, `ci`) are successful on the PR head SHA.
+- Replaced the GitHub native auto-merge GraphQL mutation with a direct merge:
+  - `gh pr merge --squash --delete-branch=false`
+- Merge step only runs when:
+  - `riskTier == low`
+  - guard confirms required checks are green.
+
+### Rationale
+This keeps merge behavior deterministic and contract-driven, independent of GitHub’s native auto-merge setting.
+
