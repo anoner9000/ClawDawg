@@ -116,6 +116,8 @@ def main():
     if not isinstance(checks, list):
         die(f"invalid policy contract: tiers.{risk}.required_checks must be a list", code=2)
     risk_label = tier_config.get("label") if isinstance(tier_config.get("label"), str) else f"risk:{risk}"
+    cp_changed = False
+    labels_to_apply = [risk_label]
 
     if not changed:
         result = {
@@ -125,6 +127,9 @@ def main():
             "riskLabel": risk_label,
             "requiredChecks": checks,
             "touchedPaths": [],
+            "controlPlaneChanged": bool(cp_changed),
+            "controlPlaneLabel": str(control_plane_label),
+            "labelsToApply": list(labels_to_apply),
             "policyVersion": policy.get("version"),
             "policy": {
                 "controlPlanePaths": control_plane_patterns,
@@ -146,8 +151,6 @@ def main():
 
     changed_files = changed
     cp_changed = control_plane_changed(changed_files, control_plane_patterns)
-    risk_label = str(tiers.get(risk, {}).get('label', f'risk:{risk}'))
-    labels_to_apply = [risk_label]
     if cp_changed:
         labels_to_apply.append(str(control_plane_label))
 
