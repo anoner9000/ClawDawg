@@ -136,6 +136,9 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Checkout (for audit emitter)
+        uses: actions/checkout@v4
+
       - name: Decide auto-merge
         id: decide
         run: |
@@ -169,3 +172,24 @@ jobs:
               }' -F o="${REPO%/*}" -F n="${REPO#*/}" -F num="$PR" --jq '.data.repository.pullRequest.id')" \
           >/dev/null
           echo "OK: auto-merge enabled for PR #$PR"
+      - name: Emit merge audit record (artifact + summary)
+        if: ${{ steps.decide.outputs.enable == 'true' }}
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RISK_TIER: ${{ needs.gate.outputs.riskTier }}
+          POLICY_VERSION: ${{ needs.gate.outputs.policyVersion }}
+          MERGE_METHOD: SQUASH
+        run: |
+          set -euo pipefail
+          python3 ops/scripts/policy/emit_merge_audit.py             --out-json /tmp/code_factory_merge_audit.json             --append-jsonl /tmp/code_factory_merge_ledger.jsonl             --out-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload merge audit artifact
+        if: ${{ steps.decide.outputs.enable == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-factory-merge-audit
+          path: |
+            /tmp/code_factory_merge_audit.json
+            /tmp/code_factory_merge_ledger.jsonl
+
