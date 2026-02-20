@@ -52,3 +52,8 @@ Require updating this document in the same PR.
 - Policy validation: added `ops/scripts/policy/validate_risk_policy.py` and run it in Code Factory before the gate so malformed `ops/policy/risk_policy.yml` fails fast.
 - Merge audit: when `auto-merge-low` enables GitHub auto-merge (riskTier=low), Code Factory emits a structured JSON audit record and uploads it as an Actions artifact (`code-factory-merge-audit`).
 - Gate behavior: control-plane doc drift is WARNING-only for riskTier=low; still enforced (blocking) for medium/high.
+
+### Risk Label Automation
+
+The Code Factory now auto-applies risk labels (`risk:low|medium|high`)
+based on `gate_output.json` produced by the risk policy gate.
