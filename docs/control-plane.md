@@ -50,3 +50,4 @@ Require updating this document in the same PR.
 - Auto-merge: enable GitHub auto-merge for low-risk PRs (contract-driven) after `gate` + `ci` succeed; skipped for fork PRs.
 - Tightened workflow top-level permissions to `contents: read`; write access restricted to `auto-merge-low` job only (least-privilege enforcement).
 - Policy validation: added `ops/scripts/policy/validate_risk_policy.py` and run it in Code Factory before the gate so malformed `ops/policy/risk_policy.yml` fails fast.
+- Merge audit: when `auto-merge-low` enables GitHub auto-merge (riskTier=low), Code Factory emits a structured JSON audit record and uploads it as an Actions artifact (`code-factory-merge-audit`).
