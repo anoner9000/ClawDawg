@@ -97,6 +97,8 @@ def main():
         base = "origin/master"
     policy = load_policy()
     control_plane_patterns = policy.get("control_plane_paths", [])
+    control_plane_label = str(policy.get('control_plane_label', 'control-plane'))
+
     if not isinstance(control_plane_patterns, list):
         die("invalid policy contract: 'control_plane_paths' must be a list", code=2)
     docs_cfg = policy.get("docs", {})
@@ -144,6 +146,11 @@ def main():
 
     changed_files = changed
     cp_changed = control_plane_changed(changed_files, control_plane_patterns)
+    risk_label = str(tiers.get(risk, {}).get('label', f'risk:{risk}'))
+    labels_to_apply = [risk_label]
+    if cp_changed:
+        labels_to_apply.append(str(control_plane_label))
+
     docs_changed = docs_updated(changed_files, docs_required)
 
     if cp_changed and not docs_changed:
@@ -168,6 +175,9 @@ def main():
         "riskLabel": risk_label,
         "requiredChecks": checks,
         "touchedPaths": changed,
+        "controlPlaneChanged": bool(cp_changed),
+        "controlPlaneLabel": str(control_plane_label),
+        "labelsToApply": list(labels_to_apply),
         "policyVersion": policy.get("version"),
         "policy": {
             "controlPlanePaths": control_plane_patterns,

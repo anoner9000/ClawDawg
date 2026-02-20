@@ -69,48 +69,121 @@ jobs:
           python3 ops/scripts/policy/risk_policy_gate.py | tee gate_output.json
 
       - name: Apply risk label
-        if: github.event_name == 'pull_request'
+
+        if: always()
+
+        continue-on-error: true
+
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
           PR: ${{ github.event.pull_request.number }}
+
           REPO: ${{ github.repository }}
+
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
         run: |
+
           set -euo pipefail
 
-          echo "Reading gate_output.json..."
+
+          if [ ! -f gate_output.json ]; then
+
+            echo "gate_output.json missing; skip labeling"
+
+            exit 0
+
+          fi
+
+
+          echo "Reading gate_output.json (labelsToApply)..."
+
           cat gate_output.json || true
 
-          # Prefer contract-driven label; fallback to risk:<tier>.
-          LABEL="$(jq -r '.riskLabel // empty' gate_output.json 2>/dev/null || true)"
-          if [ -z "$LABEL" ]; then
-            TIER="$(jq -r '.riskTier // empty' gate_output.json 2>/dev/null || true)"
-            [ -n "$TIER" ] && LABEL="risk:$TIER" || LABEL=""
-          fi
 
-          if [ -z "$LABEL" ]; then
-            echo "WARN: no riskLabel/riskTier in gate_output.json; skipping label apply"
+          # labelsToApply is gate-emitted; expected like: ["risk:low","control-plane"]
+
+          mapfile -t LABELS < <(jq -r '.labelsToApply[]? // empty' gate_output.json 2>/dev/null || true)
+
+
+          if [ "${#LABELS[@]}" -eq 0 ]; then
+
+            echo "WARN: no labelsToApply in gate_output.json; skipping label apply"
+
             exit 0
+
           fi
 
-          echo "Desired risk label: $LABEL"
 
-          # Best-effort: ensure label exists.
-          gh label create "$LABEL" \
-            --color "ededed" \
-            --description "Code Factory: risk tier label" \
-            2>/dev/null || true
+          echo "labelsToApply=${LABELS[*]}"
 
-          # Best-effort: remove other risk:* labels, then add current one.
-          EXISTING="$(gh pr view "$PR" --repo "$REPO" --json labels -q '.labels[].name' 2>/dev/null || true)"
-          for l in $EXISTING; do
-            case "$l" in
-              risk:*)
-                [ "$l" = "$LABEL" ] || (gh pr edit "$PR" --repo "$REPO" --remove-label "$l" 2>/dev/null || true)
-                ;;
-            esac
+
+          RISK_LABEL=""
+
+          OTHER_LABELS=()
+
+          for L in "${LABELS[@]}"; do
+
+            if [[ "$L" == risk:* ]]; then
+
+              RISK_LABEL="$L"
+
+            else
+
+              OTHER_LABELS+=("$L")
+
+            fi
+
           done
 
-          gh pr edit "$PR" --repo "$REPO" --add-label "$LABEL" 2>/dev/null || true
+
+          # --- Apply risk label (remove other risk:* first), best-effort ---
+
+          if [ -n "$RISK_LABEL" ]; then
+
+            echo "Desired risk label: $RISK_LABEL"
+
+
+            gh label create "$RISK_LABEL" --color "ededed" --description "Code Factory: contract-driven risk tier label" 2>/dev/null || true
+
+
+            EXISTING="$(gh pr view "$PR" --repo "$REPO" --json labels -q '.labels[].name' 2>/dev/null || true)"
+
+            for l in $EXISTING; do
+
+              case "$l" in
+
+                risk:*)
+
+                  [ "$l" = "$RISK_LABEL" ] || (gh pr edit "$PR" --repo "$REPO" --remove-label "$l" 2>/dev/null || true)
+
+                  ;;
+
+              esac
+
+            done
+
+
+            gh pr edit "$PR" --repo "$REPO" --add-label "$RISK_LABEL" 2>/dev/null || true
+
+          fi
+
+
+          # --- Apply non-risk labels (e.g., control-plane), best-effort ---
+
+          for L in "${OTHER_LABELS[@]}"; do
+
+            [ -n "$L" ] || continue
+
+            echo "Applying label: $L"
+
+            gh label create "$L" --color "ededed" --description "Code Factory: contract-driven label" 2>/dev/null || true
+
+            gh pr edit "$PR" --repo "$REPO" --add-label "$L" 2>/dev/null || true
+
+          done
+
+
           echo "OK: label step completed (best-effort)"
 
       - name: Request CodeRabbit rerun (canonical, sha-deduped)

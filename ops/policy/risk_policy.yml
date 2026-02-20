@@ -1,4 +1,5 @@
 version: 1
+control_plane_label: "control-plane"
 
 control_plane_paths:
   - ".github/workflows/**"
