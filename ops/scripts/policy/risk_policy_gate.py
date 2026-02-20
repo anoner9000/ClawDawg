@@ -113,12 +113,14 @@ def main():
     checks = tier_config.get("required_checks")
     if not isinstance(checks, list):
         die(f"invalid policy contract: tiers.{risk}.required_checks must be a list", code=2)
+    risk_label = tier_config.get("label") if isinstance(tier_config.get("label"), str) else f"risk:{risk}"
 
     if not changed:
         result = {
             "baseSha": base,
             "headSha": head,
             "riskTier": "low",
+            "riskLabel": risk_label,
             "requiredChecks": checks,
             "touchedPaths": [],
             "policyVersion": policy.get("version"),
@@ -133,6 +135,7 @@ def main():
             json.dump(result, jf, indent=2)
         write_github_output(
             riskTier=result["riskTier"],
+            riskLabel=result["riskLabel"],
             requiredChecks=result["requiredChecks"],
             touchedPaths=result["touchedPaths"],
         )
@@ -162,6 +165,7 @@ def main():
         "baseSha": base,
         "headSha": head,
         "riskTier": risk,
+        "riskLabel": risk_label,
         "requiredChecks": checks,
         "touchedPaths": changed,
         "policyVersion": policy.get("version"),
@@ -176,6 +180,7 @@ def main():
         json.dump(result, jf, indent=2)
     write_github_output(
         riskTier=result["riskTier"],
+        riskLabel=result["riskLabel"],
         requiredChecks=result["requiredChecks"],
         touchedPaths=result["touchedPaths"],
     )

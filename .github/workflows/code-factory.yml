@@ -70,32 +70,48 @@ jobs:
 
       - name: Apply risk label
         if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
 
           echo "Reading gate_output.json..."
           cat gate_output.json || true
 
-          RISK_TIER="$(jq -r '.riskTier // empty' gate_output.json 2>/dev/null || true)"
+          # Prefer contract-driven label; fallback to risk:<tier>.
+          LABEL="$(jq -r '.riskLabel // empty' gate_output.json 2>/dev/null || true)"
+          if [ -z "$LABEL" ]; then
+            TIER="$(jq -r '.riskTier // empty' gate_output.json 2>/dev/null || true)"
+            [ -n "$TIER" ] && LABEL="risk:$TIER" || LABEL=""
+          fi
 
-          if [ -z "$RISK_TIER" ]; then
-            echo "No riskTier found. Skipping label application."
+          if [ -z "$LABEL" ]; then
+            echo "WARN: no riskLabel/riskTier in gate_output.json; skipping label apply"
             exit 0
           fi
 
-          LABEL="risk:${RISK_TIER}"
-          echo "Computed label: $LABEL"
+          echo "Desired risk label: $LABEL"
 
-          echo "Ensuring label exists (idempotent)..."
+          # Best-effort: ensure label exists.
           gh label create "$LABEL" \
             --color "ededed" \
-            --description "Risk tier derived from policy gate" \
+            --description "Code Factory: risk tier label" \
             2>/dev/null || true
 
-          echo "Applying label to PR..."
-          gh pr edit "$PR_NUMBER" --add-label "$LABEL" 2>/dev/null || true
+          # Best-effort: remove other risk:* labels, then add current one.
+          EXISTING="$(gh pr view "$PR" --repo "$REPO" --json labels -q '.labels[].name' 2>/dev/null || true)"
+          for l in $EXISTING; do
+            case "$l" in
+              risk:*)
+                [ "$l" = "$LABEL" ] || (gh pr edit "$PR" --repo "$REPO" --remove-label "$l" 2>/dev/null || true)
+                ;;
+            esac
+          done
 
-          echo "Risk label step completed (non-blocking)."
+          gh pr edit "$PR" --repo "$REPO" --add-label "$LABEL" 2>/dev/null || true
+          echo "OK: label step completed (best-effort)"
 
       - name: Request CodeRabbit rerun (canonical, sha-deduped)
         if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && contains(steps.policy.outputs.requiredChecks, 'code-review-head') }}
