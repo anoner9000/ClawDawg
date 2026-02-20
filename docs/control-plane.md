@@ -35,3 +35,12 @@ Any changes to:
 - `ops/scripts/policy/**`
 
 Require updating this document in the same PR.
+
+## Change Log / Notes
+
+- Workflow: CodeRabbit rerun condition now keys off `steps.policy.outputs.requiredChecks`.
+- Script: `ops/scripts/policy/request_coderabbit_rerun.py` added/updated for canonical rerun requests.
+- Rerun requests are SHA-deduped via marker `<!-- coderabbit-auto-rerun -->` and `sha:<HEAD_SHA>`.
+- `gh_api` now uses explicit request timeout and timeout-specific error handling.
+- `gh_api` enforces HTTPS-only URLs via scheme guard.
+- Removed unused `time` import from rerun script.
