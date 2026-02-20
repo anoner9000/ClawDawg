@@ -22,7 +22,6 @@ import json
 import os
 import socket
 import sys
-import time
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
