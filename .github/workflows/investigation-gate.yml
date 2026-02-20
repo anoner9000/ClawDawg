@@ -1,0 +1,70 @@
+name: investigation-gate
+
+on:
+  pull_request:
+    paths:
+      - "runtime/investigations/**"
+      - "investigations/**"
+      - "ops/scripts/investigation/**"
+      - "ops/schemas/investigation/**"
+      - "ops/vendor/**"
+
+jobs:
+  investigation-gate:
+    runs-on: ubuntu-latest
+
+    # Least privilege: no write perms, no PR writes, no checks writes, etc.
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps (offline from vendored wheels)
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+
+          test -d ops/vendor/wheels
+          test -f ops/vendor/requirements/investigation_gate.txt
+
+          python -m pip install \
+            --no-index \
+            --find-links ops/vendor/wheels \
+            -r ops/vendor/requirements/investigation_gate.txt
+
+      - name: Run investigation gate(s)
+        run: |
+          set -euo pipefail
+
+          RUN_DIRS=$(find runtime/investigations -maxdepth 2 -type f -name claims.json -printf '%h\n' 2>/dev/null | sort -u || true)
+
+          if [ -z "${RUN_DIRS}" ]; then
+            echo "No investigation runs found under runtime/investigations/**"
+            exit 0
+          fi
+
+          echo "Found investigation run dirs:"
+          echo "${RUN_DIRS}"
+
+          while IFS= read -r dir; do
+            run_id="$(basename "${dir}")"
+            echo "---- gate: ${dir} (run_id=${run_id}) ----"
+            python ops/scripts/investigation/investigation_gate.py "${dir}" "${run_id}"
+          done <<< "${RUN_DIRS}"
+
+      - name: Upload investigation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: investigation-runs
+          path: |
+            runtime/investigations/**
+            investigations/**
+          if-no-files-found: ignore
