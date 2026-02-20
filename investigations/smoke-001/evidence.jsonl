@@ -1,0 +1,1 @@
+{"schemaVersion":"1.0","evidenceId":"E-001","type":"doc_excerpt","sourceRef":"local:artifact.txt","contentHash":"sha256:e3daf0d08aa85c1d6a5683c24bad45c6c324654c9402e4d6b2b29fc4e18e3bab","locator":{"kind":"file_span","path":"investigations/smoke-001/artifact.txt","span":"all"},"extract":{"text":"Smoke test artifact content (see file)."},"notes":"End-to-end CI smoke test."}
