@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openclaw://schemas/investigation/skeptic_requests.schema.json",
+  "title": "Skeptic Requests",
+  "type": "object",
+  "required": ["schemaVersion", "runId", "requests"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "runId": { "type": "string", "minLength": 6 },
+    "requests": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/request" },
+      "default": []
+    }
+  },
+  "$defs": {
+    "request": {
+      "type": "object",
+      "required": ["requestId", "claimId", "requestType", "stopCondition", "effortBudget"],
+      "properties": {
+        "requestId": { "type": "string", "pattern": "^R-[0-9]{3,}$" },
+        "claimId": { "type": "string", "pattern": "^C-[0-9]{3,}$" },
+        "requestType": {
+          "type": "string",
+          "enum": ["corroborate", "disambiguate_entity", "sensitivity_test", "repro_check", "extract_more_rows"]
+        },
+        "stopCondition": { "type": "string", "minLength": 1 },
+        "effortBudget": { "type": "string", "enum": ["small", "medium"] },
+        "exactDataNeeded": { "type": "string", "default": "" },
+        "rationale": { "type": "string", "default": "" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

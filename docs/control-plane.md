@@ -76,3 +76,12 @@ Code Factory now performs a guarded, direct squash merge for low-risk PRs.
 
 ### Rationale
 This keeps merge behavior deterministic and contract-driven, independent of GitHub’s native auto-merge setting.
+
+## Investigation gate (added 2026-02-20T20:05:51Z)
+
+- New required status check: `investigation-gate / investigation-gate`
+- Purpose: validate investigation artifacts (claims/evidence/skeptic) and adjudicate deterministically.
+- Offline deps: installs from `ops/vendor/wheels` + pinned `ops/vendor/requirements/investigation_gate.txt`.
+- Safety: patch proposals are quarantined under `<run>/patches/` and validated (denylist, traversal rejection, size caps).
+- Receipt: gate prints a deterministic run hash (RECEIPT line) for auditability.
+

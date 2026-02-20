@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openclaw://schemas/investigation/evidence.schema.json",
+  "title": "Investigation Evidence Line (JSONL)",
+  "type": "object",
+  "required": ["schemaVersion", "evidenceId", "type", "sourceRef", "contentHash", "locator"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "evidenceId": { "type": "string", "pattern": "^E-[0-9]{3,}$" },
+    "type": {
+      "type": "string",
+      "enum": ["dataset_row", "doc_excerpt", "web_source", "computed_join", "script_output"]
+    },
+    "sourceRef": { "type": "string", "minLength": 1 },
+    "contentHash": { "type": "string", "pattern": "^(sha256:)[0-9a-f]{64}$" },
+    "locator": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["file_row", "file_span", "url", "command"] },
+        "path": { "type": "string" },
+        "rowIndex": { "type": "integer", "minimum": 0 },
+        "span": { "type": "string" },
+        "url": { "type": "string" },
+        "httpFetchedAt": { "type": "string" },
+        "command": { "type": "string" },
+        "exitCode": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "extract": {
+      "type": "object",
+      "description": "Small, bounded excerpt. Keep it short to avoid bloat.",
+      "properties": {
+        "text": { "type": "string", "maxLength": 4000 },
+        "fields": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "notes": { "type": "string", "default": "" }
+  },
+  "additionalProperties": false
+}

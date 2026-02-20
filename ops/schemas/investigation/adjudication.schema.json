@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openclaw://schemas/investigation/adjudication.schema.json",
+  "title": "Investigation Adjudication",
+  "type": "object",
+  "required": ["schemaVersion", "runId", "overallStatus", "mergeEligible", "claims"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "runId": { "type": "string", "minLength": 6 },
+    "overallStatus": { "type": "string", "enum": ["canonical", "provisional", "exploratory", "invalid"] },
+    "mergeEligible": { "type": "boolean" },
+    "followupRecommended": { "type": "boolean", "default": false },
+    "followupRequests": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/claimDecision" }
+    },
+    "notes": { "type": "string", "default": "" }
+  },
+  "$defs": {
+    "claimDecision": {
+      "type": "object",
+      "required": ["claimId", "status", "adjustedConfidence"],
+      "properties": {
+        "claimId": { "type": "string", "pattern": "^C-[0-9]{3,}$" },
+        "status": { "type": "string", "enum": ["canonical", "provisional", "exploratory", "invalid"] },
+        "adjustedConfidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "blockingReasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "NO_EVIDENCE_REFS",
+              "MISSING_EVIDENCE_OBJECT",
+              "EVIDENCE_HASH_MISMATCH",
+              "REPRO_REQUIRED_MISSING",
+              "REPRO_FAILED",
+              "FORBIDDEN_PATCH_PATH",
+              "CONTRADICTS_EVIDENCE"
+            ]
+          },
+          "default": []
+        },
+        "skepticFindings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/finding" },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "required": ["issueType", "severity", "impact"],
+      "properties": {
+        "issueType": {
+          "type": "string",
+          "enum": [
+            "ENTITY_COLLISION",
+            "TEMPORAL_MISMATCH",
+            "SELECTION_BIAS",
+            "SOURCE_UNRELIABLE",
+            "INSUFFICIENT_EVIDENCE",
+            "NON_REPRODUCIBLE",
+            "LOGIC_GAP",
+            "OTHER"
+          ]
+        },
+        "severity": { "type": "string", "enum": ["low", "moderate", "high"] },
+        "impact": {
+          "type": "number",
+          "description": "Confidence penalty suggestion (0..1).",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "detail": { "type": "string", "default": "" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
