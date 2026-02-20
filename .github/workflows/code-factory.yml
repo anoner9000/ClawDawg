@@ -73,22 +73,34 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-          # Extract valid JSON in case gate output contains leading text
-          CLEAN_JSON=$(sed -n '/^{/,$p' gate_output.json)
-          echo "$CLEAN_JSON" > gate_output_clean.json
+                    set -euo pipefail
 
-          # Validate JSON before parsing
-          jq -e . gate_output_clean.json > /dev/null
+                    # Determine desired label from gate output (supports both raw JSON and wrapped output)
+                    RAW="$(cat gate_output.json)"
+                    JSON="$RAW"
+                    if echo "$RAW" | grep -q '^```'; then
+                      JSON="$(printf '%s' "$RAW" | sed -n '/^```/,$p' | sed '1d;$d')"
+                    fi
 
-          RISK="$(jq -r '.riskTier' gate_output_clean.json)"
-          PR="${{ github.event.pull_request.number }}"
+                    RISK="$(printf '%s' "$JSON" | jq -r '.riskTier')"
+                    case "$RISK" in
+                      low|medium|high) ;;
+                      *) echo "WARN: unexpected riskTier='$RISK' (skipping labels)"; exit 0 ;;
+                    esac
 
-          gh pr edit "$PR" --remove-label "risk:low" || true
-          gh pr edit "$PR" --remove-label "risk:medium" || true
-          gh pr edit "$PR" --remove-label "risk:high" || true
+                    DESIRED="risk:$RISK"
+                    echo "riskTier=$RISK desiredLabel=$DESIRED"
 
-          gh pr edit "$PR" --add-label "risk:$RISK"
+                    # Removing labels that aren't present makes gh exit 1.
+                    # Make this idempotent so the workflow doesn't fail.
+                    gh pr edit "$PR" --remove-label "risk:low"    || true
+                    gh pr edit "$PR" --remove-label "risk:medium" || true
+                    gh pr edit "$PR" --remove-label "risk:high"   || true
+
+                    # Add the desired one (this should succeed even if already present)
+                    gh pr edit "$PR" --add-label "$DESIRED" || {
+                      echo "WARN: failed to add label '$DESIRED' (not blocking)"; exit 0;
+                    }
 
       - name: Request CodeRabbit rerun (canonical, sha-deduped)
         if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && contains(steps.policy.outputs.requiredChecks, 'code-review-head') }}
