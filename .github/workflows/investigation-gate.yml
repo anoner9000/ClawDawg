@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          RUN_DIRS=$(find runtime/investigations -maxdepth 2 -type f -name claims.json -printf '%h\n' 2>/dev/null | sort -u || true)
+          RUN_DIRS=$( (find runtime/investigations -maxdepth 2 -type f -name claims.json -printf '%h\n' 2>/dev/null || true; find investigations -maxdepth 2 -type f -name claims.json -printf '%h\n' 2>/dev/null || true) | sort -u )
 
           if [ -z "${RUN_DIRS}" ]; then
             echo "No investigation runs found under runtime/investigations/**"
