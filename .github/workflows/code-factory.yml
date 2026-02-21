@@ -344,3 +344,13 @@ jobs:
           path: |
             /tmp/code_factory_merge_audit.json
             /tmp/code_factory_merge_ledger.jsonl
+
+
+      - name: Verify required status contexts match ruleset
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RULESET_ID: 12897173
+        run: |
+          set -euo pipefail
+          scripts/verify_required_status_contexts.py
