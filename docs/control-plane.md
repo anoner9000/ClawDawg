@@ -100,3 +100,6 @@ This keeps merge behavior deterministic and contract-driven, independent of GitH
 - Verifier now auto-detects `RULESET_ID` from `RULESET_NAME` (`${RULESET_NAME:-master}`) instead of hardcoding an id.
 - Rationale: avoids ruleset-id drift when rulesets are renamed/recreated and keeps verification stable across repos/environments.
 - Required inputs for this step: `GH_TOKEN` (`${{ github.token }}`), `GITHUB_REPOSITORY`, and `PR_NUMBER`.
+coderabbit-head test 2026-02-20T21:33:21-06:00
+head-bump 2026-02-20T21:33:28-06:00
+nudge 2026-02-20T21:33:47-06:00
