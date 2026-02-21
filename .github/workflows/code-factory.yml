@@ -354,7 +354,7 @@ jobs:
         run: |
           set -euo pipefail
           # Auto-detect ruleset id by name (avoid hardcoding)
-          RULESET_NAME="master"
+          RULESET_NAME="${RULESET_NAME:-master}"
           RULESET_ID=$(gh api "repos/${GITHUB_REPOSITORY}/rulesets" -q '.[] | select(.name=="'"${RULESET_NAME}"'") | .id' | head -n1)
           test -n "${RULESET_ID}" || { echo "ERROR: could not find ruleset named ${RULESET_NAME}"; exit 2; }
           export RULESET_ID
