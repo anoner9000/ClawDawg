@@ -97,3 +97,6 @@ This keeps merge behavior deterministic and contract-driven, independent of GitH
 
 ## Code Factory: required-check context drift guard
 - Added a CI step that verifies ruleset required status check contexts match the PR-emitted checks (prevents mergeStateStatus=BLOCKED when contexts drift).
+- Verifier now auto-detects `RULESET_ID` from `RULESET_NAME` (`${RULESET_NAME:-master}`) instead of hardcoding an id.
+- Rationale: avoids ruleset-id drift when rulesets are renamed/recreated and keeps verification stable across repos/environments.
+- Required inputs for this step: `GH_TOKEN` (`${{ github.token }}`), `GITHUB_REPOSITORY`, and `PR_NUMBER`.
