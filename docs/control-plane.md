@@ -94,3 +94,6 @@ This keeps merge behavior deterministic and contract-driven, independent of GitH
 - Gate prints RECEIPT with run hash.
 - Required status context: investigation-gate / investigation-gate.
 
+
+## Code Factory: required-check context drift guard
+- Added a CI step that verifies ruleset required status check contexts match the PR-emitted checks (prevents mergeStateStatus=BLOCKED when contexts drift).
