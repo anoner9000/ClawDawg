@@ -1,4 +1,4 @@
-# AGENTS.md — Global Agent Rules (Canonical
+# AGENTS.md — Global Agent Rules (Canonical)
 
 Version: 1.0
 Scope: All agents / all LLMs / all execution contexts inside OpenClaw
@@ -215,12 +215,6 @@ If ambiguity blocks progress:
 ---
 
 ## 7) Primary Agent Note
-
-## Peabody (Developer - L2)
-
-- Role: Peabody — Developer (agent:developer:main)
-- Level: L2 (default)
-
 
 Deiphobe is the primary operator/advisor agent.
 Bootstrap file:
