@@ -1,0 +1,14 @@
+{
+  "id": "mdn-css",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/CSS",
+  "topic": "css",
+  "fetched_at": "2026-02-23T17:41:14Z",
+  "ok": true,
+  "status_code": 200,
+  "content_type": "text/html",
+  "bytes": 283388,
+  "sha256": "e6e86c7aff25fdf25ce4afc73c236b4cbc3a49b6e70ce80273995be15e2e0675",
+  "raw_path": "corpus/raw/mdn-css.html",
+  "text_path": "corpus/text/mdn-css.txt",
+  "meta_path": "corpus/meta/mdn-css.json"
+}

@@ -1,0 +1,52 @@
+{
+  "name": "dashboard",
+  "version": "1.0.0",
+  "description": "Local, deterministic observability UI for OpenClaw’s control-plane lanes.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5174",
+    "build:css": "sass src/styles.scss static/app.bundle.css --style=expanded --no-source-map && postcss static/app.bundle.css -o static/app.bundle.css",
+    "build:js": "esbuild src/dashboard.js --bundle --format=esm --target=es2020 --outfile=static/dashboard.bundle.js --sourcemap",
+    "watch:css": "sass --watch src/styles.scss:static/app.bundle.css --style=expanded --no-source-map",
+    "watch:js": "esbuild src/dashboard.js --bundle --format=esm --target=es2020 --outfile=static/dashboard.bundle.js --sourcemap --watch=forever",
+    "watch": "sh -c 'pnpm run watch:css & pnpm run watch:js & wait'",
+    "build:assets": "node scripts/build-assets.mjs",
+    "build": "pnpm run build:css && pnpm run build:js && pnpm run build:assets",
+    "format": "prettier --write \"src/**/*.{js,scss}\" \"templates/**/*.html\"",
+    "icons:optimize": "svgo -f static/icons",
+    "test:a11y": "pa11y-ci",
+    "test:lighthouse": "lhci autorun",
+    "test:e2e": "playwright test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/manrope": "^5.2.8",
+    "chart.js": "^4.5.1",
+    "culori": "^4.0.2",
+    "echarts": "^6.0.0",
+    "gsap": "^3.14.2",
+    "lottie-web": "^5.13.0",
+    "lucide": "^0.575.0",
+    "motion": "^12.34.3"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.58.2",
+    "autoprefixer": "^10.4.24",
+    "esbuild": "^0.27.3",
+    "pa11y": "^9.1.0",
+    "playwright": "^1.58.2",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "prettier": "^3.8.1",
+    "sass": "^1.97.3",
+    "sharp": "^0.34.5",
+    "svgo": "^4.0.0",
+    "tailwindcss": "^4.2.0",
+    "vite": "^7.3.1"
+  }
+}

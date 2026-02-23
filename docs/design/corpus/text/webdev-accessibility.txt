@@ -1,0 +1,292 @@
+Learn Accessibility  |  web.dev
+Skip to main content
+Resources
+Web Platform
+Dive into the web platform, at your pace.
+HTML
+CSS
+JavaScript
+User experience
+Learn how to build better user experiences.
+Performance
+Accessibility
+Identity
+Learn
+Get up to speed on web development.
+Learn HTML
+Learn CSS
+Learn JavaScript
+Learn AI
+Learn Performance
+Learn Accessibility
+More courses
+Additional resources
+Explore content collections, patterns, and more.
+AI and the web
+Explore
+PageSpeed Insights
+Patterns
+Podcasts & shows
+Developer Newsletter
+About web.dev
+Baseline
+How to use Baseline
+Blog
+Case Studies
+/
+Sign in
+Resources
+AI
+Privacy
+Accessibility
+HTML
+Images
+Responsive Design
+Forms
+PWA
+CSS
+Performance
+Testing
+JavaScript
+Resources
+More
+AI
+Privacy
+Accessibility
+HTML
+Images
+Responsive Design
+Forms
+PWA
+CSS
+Performance
+Testing
+JavaScript
+Baseline
+How to use Baseline
+Blog
+Case Studies
+Web Platform
+HTML
+CSS
+JavaScript
+User experience
+Performance
+Accessibility
+Identity
+Learn
+Learn HTML
+Learn CSS
+Learn JavaScript
+Learn AI
+Learn Performance
+Learn Accessibility
+More courses
+Additional resources
+AI and the web
+Explore
+PageSpeed Insights
+Patterns
+Podcasts & shows
+Developer Newsletter
+About web.dev
+Chrome is back at Google I/O May 19-20!
+Register now
+web.dev
+Resources
+Accessibility
+Stay organized with collections
+Save and categorize content based on your preferences.
+Learn Accessibility
+An evergreen accessibility course and reference to level up your web development.
+Go back
+check_circle
+Welcome to Learn Accessibility!
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+An evergreen accessibility course and reference to level up your web development.
+Read article
+check_circle
+What is digital accessibility, and why does it matter?
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Design and build websites and web apps so that people with disabilities can interact in a meaningful and equivalent way. Read about the business and legal impact of these choices.
+Read article
+check_circle
+How is digital accessibility measured?
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Introduction to accessibility measurement, which ensures everyone, including people with disabilities, can still interact with your website in a meaningful and equal way.
+Read article
+check_circle
+ARIA and HTML
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+When to use ARIA versus HTML.
+Read article
+check_circle
+Content structure
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Use semantic HTML, landmarks, and tables for accessible content.
+Read article
+check_circle
+The Document
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Additional HTML elements to consider when building accessible websites and web apps.
+Read article
+check_circle
+Keyboard focus
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Understand and enhance keyboard navigation order and style.
+Read article
+check_circle
+JavaScript
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Write accessible trigger events, page titles, dynamic content, and more.
+Read article
+check_circle
+Images
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Create accessible images.
+Read article
+check_circle
+Color and contrast
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Build accessible color palettes with appropriate contrast.
+Read article
+check_circle
+Animation and motion
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Support people with all types of movement-triggered disorders.
+Read article
+check_circle
+Typography
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Pick the right typefaces, font sizes, and structure your copy with an accessible layout.
+Read article
+check_circle
+Video and audio
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Alternative media types which make your video and audio accessible.
+Read article
+check_circle
+Forms
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Create accessible forms.
+Read article
+check_circle
+Patterns, components, and design systems
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Evaluate patterns, components, and design systems for accessibility.
+Read article
+check_circle
+Design and user experience
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Create accessible designs and evaluate your user's experience.
+Read article
+check_circle
+Automated accessibility testing
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+How to perform automated accessibility testing.
+Read article
+check_circle
+Manual accessibility testing
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+How to manually test for accessibility.
+Read article
+check_circle
+Assistive Technology testing
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+How to test with Assistive Technology (AT).
+Read article
+check_circle
+Conclusion and next steps
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Further resources to help you take your next steps.
+Read article
+check_circle
+Glossary
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Optional
+Learn common accessibility terms and concepts.
+Skip
+Read article
+[[["Easy to understand","easyToUnderstand","thumb-up"],["Solved my problem","solvedMyProblem","thumb-up"],["Other","otherUp","thumb-up"]],[["Missing the information I need","missingTheInformationINeed","thumb-down"],["Too complicated / too many steps","tooComplicatedTooManySteps","thumb-down"],["Out of date","outOfDate","thumb-down"],["Samples / code issue","samplesCodeIssue","thumb-down"],["Other","otherDown","thumb-down"]],[],[],[]]
+web.dev
+web.dev
+We want to help you build beautiful, accessible, fast, and secure websites that work cross-browser, and for all of your users. This site is our home for content to help you on that journey, written by members of the Chrome team, and external experts.
+Contribute
+File a bug
+See open issues
+Related Content
+Chrome for Developers
+Chromium updates
+Case studies
+Podcasts & shows
+Follow
+@ChromiumDev on X
+YouTube
+Chrome for Developers on LinkedIn
+RSS
+Terms
+Privacy
+Manage cookies

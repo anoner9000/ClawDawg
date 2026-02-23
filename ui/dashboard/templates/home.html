@@ -1,12 +1,140 @@
 {% extends "base.html" %}
 {% block content %}
-<div id="banner" hx-get="/partials/banner" hx-trigger="load, every {{ poll_agents_s }}s" hx-swap="innerHTML"></div>
-<section>
-  <h2>Agents</h2>
-  <div id="agent-cards" hx-get="/partials/agent-cards" hx-trigger="load, every {{ poll_agents_s }}s" hx-swap="innerHTML"></div>
-</section>
-<section>
-  <h2>Recent Tasks</h2>
-  <div id="task-table" hx-get="/partials/task-table" hx-trigger="load, every {{ poll_tasks_s }}s" hx-swap="innerHTML"></div>
-</section>
+<div class="stack home-v4">
+  <section class="panel-section home-command-bar">
+    <div class="quick-actions">
+      <button class="action-btn qa-btn" type="button" id="open-command-palette" data-action-id="open_palette" data-action-kind="safe_action">Command Palette (Ctrl+K)</button>
+      {% if enable_governed_actions %}
+      <button class="action-btn qa-btn" hx-post="/actions/close-placebo-tasks" hx-target="#qa-result" hx-swap="innerHTML" data-action-id="close_placebo_tasks" data-action-kind="governed_action">Close Placebo</button>
+      {% else %}
+      <button class="action-btn qa-btn qa-btn-disabled" type="button" disabled title="Governed action disabled by policy" data-action-id="close_placebo_tasks" data-action-kind="governed_action">Close Placebo (Policy Off)</button>
+      {% endif %}
+      <a class="action-btn qa-btn" href="/tasks" data-action-id="open_tasks" data-action-kind="navigate">Open Tasks</a>
+      <a class="action-btn qa-btn" href="/agents" data-action-id="open_agents" data-action-kind="navigate">Open Agents</a>
+      <a class="action-btn qa-btn" href="#governed-actions-history" data-action-id="open_governed_history" data-action-kind="navigate">Governed History</a>
+    </div>
+    <div class="saved-view">
+      <label for="view-preset">Saved View</label>
+      <select id="view-preset" class="chat-select">
+        <option value="ops">Ops (Recommended)</option>
+        <option value="chat">Chat-heavy</option>
+        <option value="incident">Incident</option>
+        <option value="review">Review</option>
+      </select>
+    </div>
+    <div id="qa-result" class="task-actions-result" role="status" aria-live="polite"></div>
+  </section>
+
+  <div id="banner" hx-get="/partials/banner" hx-trigger="load, every {{ poll_agents_s }}s" hx-swap="innerHTML"></div>
+  <div id="overview-gauges" hx-get="/partials/overview-gauges" hx-trigger="load, every {{ poll_tasks_s }}s" hx-swap="innerHTML">
+    {% include "partials/overview_gauges.html" %}
+  </div>
+
+  <div id="home-intel" hx-get="/partials/home-intel" hx-trigger="load, every 10s" hx-swap="innerHTML">
+    {% with intel=home_intel %}
+    {% include "partials/home_intel.html" %}
+    {% endwith %}
+  </div>
+
+  <div class="home-main-grid">
+    <div class="home-main-left">
+      <section class="panel-section">
+        <h2 class="section-title">Agents</h2>
+        <div id="agent-cards" hx-get="/partials/agent-cards" hx-trigger="load" hx-swap="innerHTML"></div>
+      </section>
+      <section class="panel-section">
+        <h2 class="section-title">Recent Tasks</h2>
+        <div id="task-table" hx-get="/partials/task-table" hx-trigger="load, every {{ poll_tasks_s }}s" hx-swap="innerHTML"></div>
+      </section>
+    </div>
+
+    <aside class="home-chat-column">
+      <section class="panel-section chat-shell home-chat-shell">
+        <h2 class="section-title">Agent Chat</h2>
+        <p class="muted">Direct messages from the home dashboard.</p>
+
+        {% if chat_agents %}
+        <form class="chat-controls" method="get" action="/">
+          <label class="chat-label" for="home-chat-agent">Agent</label>
+          <select class="chat-select" id="home-chat-agent" name="chat_agent" onchange="this.form.submit()">
+            {% for a in chat_agents %}
+            <option value="{{ a }}" {% if a == selected_chat_agent %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+          </select>
+        </form>
+
+        <form
+          class="chat-compose"
+          hx-post="/actions/chat-send"
+          hx-target="#home-chat-thread"
+          hx-swap="innerHTML"
+          hx-on::after-request="this.querySelector('textarea').value=''"
+        >
+          <input type="hidden" name="agent" value="{{ selected_chat_agent }}" />
+          <input type="hidden" name="sender" value="operator" />
+          <label class="chat-label" for="home-chat-message-box">Message</label>
+          <div class="chat-compose-row">
+            <textarea
+              id="home-chat-message-box"
+              class="chat-input"
+              name="message"
+              rows="4"
+              placeholder="Type a direct message to {{ selected_chat_agent }}..."
+              aria-label="Message text"
+              required
+            ></textarea>
+            <button class="chat-send-btn" type="submit">Send</button>
+          </div>
+        </form>
+
+        <div
+          id="home-chat-thread"
+          hx-get="/partials/chat-thread?agent={{ selected_chat_agent }}"
+          hx-trigger="load, every 4s"
+          hx-swap="innerHTML"
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+        >
+          {% with selected_agent=selected_chat_agent, messages=chat_messages %}
+          {% include "partials/chat_thread.html" %}
+          {% endwith %}
+        </div>
+        {% else %}
+        <div class="chat-empty">
+          <p>No filesystem-backed agents were discovered.</p>
+        </div>
+        {% endif %}
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div id="task-drawer-shell" class="task-drawer-shell hidden">
+  <div class="task-drawer-backdrop" data-close-drawer="1"></div>
+  <aside id="task-drawer" class="task-drawer">
+    <button type="button" class="task-drawer-close" data-close-drawer="1">Close</button>
+    <div id="task-drawer-content">
+      <p class="muted">Select a task row to inspect details.</p>
+    </div>
+  </aside>
+</div>
+
+<div id="command-palette" class="command-palette hidden">
+  <div class="command-palette-backdrop" data-close-palette="1"></div>
+  <div class="command-palette-modal">
+    <input id="command-palette-input" type="text" placeholder="Type command..." aria-label="Command palette input" />
+    <ul id="command-palette-list" role="listbox" aria-label="Available commands">
+      <li data-cmd="nav-home">Go: Home</li>
+      <li data-cmd="nav-agents">Go: Agents</li>
+      <li data-cmd="nav-tasks">Go: Tasks</li>
+      <li data-cmd="nav-chat">Go: Chat</li>
+      <li data-cmd="toggle-theme">Action: Toggle Theme</li>
+      <li data-cmd="view-ops">View: Ops</li>
+      <li data-cmd="view-chat">View: Chat-heavy</li>
+      <li data-cmd="view-incident">View: Incident</li>
+      <li data-cmd="view-review">View: Review</li>
+    </ul>
+  </div>
+</div>
 {% endblock %}

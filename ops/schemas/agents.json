@@ -17,6 +17,10 @@
     "scribe": {
       "role": "scribe",
       "home": "agents/scribe"
+    },
+    "rembrandt": {
+      "role": "design_specialist",
+      "home": "agents/rembrandt"
     }
   },
   "handoff": {

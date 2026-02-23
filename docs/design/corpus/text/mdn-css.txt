@@ -1,0 +1,1753 @@
+CSS: Cascading Style Sheets | MDN
+Skip to main content
+Skip to search
+MDN
+HTML
+HTML: Markup language
+HTML reference
+Elements
+Global attributes
+Attributes
+See all…
+HTML guides
+Responsive images
+HTML cheatsheet
+Date & time formats
+See all…
+Markup languages
+SVG
+MathML
+XML
+CSS
+CSS: Styling language
+CSS reference
+Properties
+Selectors
+At-rules
+Values
+See all…
+CSS guides
+Box model
+Animations
+Flexbox
+Colors
+See all…
+Layout cookbook
+Column layouts
+Centering an element
+Card component
+See all…
+JavaScript
+JS
+JavaScript: Scripting language
+JS reference
+Standard built-in objects
+Expressions & operators
+Statements & declarations
+Functions
+See all…
+JS guides
+Control flow & error handing
+Loops and iteration
+Working with objects
+Using classes
+See all…
+Web APIs
+Web APIs: Programming interfaces
+Web API reference
+File system API
+Fetch API
+Geolocation API
+HTML DOM API
+Push API
+Service worker API
+See all…
+Web API guides
+Using the Web animation API
+Using the Fetch API
+Working with the History API
+Using the Web speech API
+Using web workers
+All
+All web technology
+Technologies
+Accessibility
+HTTP
+URI
+Web extensions
+WebAssembly
+WebDriver
+See all…
+Topics
+Media
+Performance
+Privacy
+Security
+Progressive web apps
+Learn
+Learn web development
+Frontend developer course
+Getting started modules
+Core modules
+MDN Curriculum
+Learn HTML
+Structuring content with HTML module
+Learn CSS
+CSS styling basics module
+CSS layout module
+Learn JavaScript
+Dynamic scripting with JavaScript module
+Tools
+Discover our tools
+Playground
+HTTP Observatory
+Border-image generator
+Border-radius generator
+Box-shadow generator
+Color format converter
+Color mixer
+Shape generator
+About
+Get to know MDN better
+About MDN
+Advertise with us
+Community
+MDN on GitHub
+Blog
+Toggle sidebar
+Web
+CSS
+Theme
+OS default
+Light
+Dark
+English (US)
+Remember language
+Learn more
+Deutsch
+English (US)
+Español
+Français
+日本語
+한국어
+Português (do Brasil)
+Русский
+中文 (简体)
+正體中文 (繁體)
+CSS: Cascading Style Sheets
+Cascading Style Sheets
+(
+CSS
+) is a
+stylesheet
+language used to describe the presentation of a document written in
+HTML
+or
+XML
+(including XML dialects such as
+SVG
+,
+MathML
+or
+XHTML
+). CSS describes how elements should be rendered on screen, on paper, in speech, or on other media.
+CSS is among the core languages of the
+open web
+and is standardized across web browsers according to
+W3C specifications
+. Previously, the development of various parts of CSS specification was done synchronously, which allowed the versioning of the latest recommendations. You might have heard about CSS1, CSS2.1, or even CSS3. There will never be a CSS3 or a CSS4; rather, everything is now just "CSS" with individual CSS modules having version numbers.
+After CSS 2.1, the scope of the specification increased significantly and the progress on different CSS modules started to differ so much, that it became more effective to
+develop and release recommendations separately per module
+. Instead of versioning the CSS specification, W3C now periodically takes a snapshot of
+the latest stable state of the CSS specification
+and individual modules progress. CSS modules now have version numbers, or levels, such as
+CSS Color Module Level 5
+.
+In this article
+Beginner's tutorials
+Guides
+How to
+Tools
+Reference
+See also
+Beginner's tutorials
+Our
+learn web development core modules
+contain modern, up-to-date tutorials covering CSS fundamentals.
+Your first website: Styling the content
+This article provides a brief tour of what CSS is and how to use it, aimed at people who are completely new to web development.
+CSS styling basics
+This module provides all the CSS fundamentals you'll need to start learning the technology effectively, including syntax, features, and techniques.
+CSS text styling
+Here we look at CSS text fundamentals including setting font, boldness, italics, line and letter spacing, and drop shadows. We round off the module by looking at applying custom fonts to your page, and styling lists and links.
+CSS layout
+This module looks at floats, positioning, other modern layout tools, and building responsive designs that will adapt to different devices, screen sizes, and resolutions.
+Guides
+CSS guides are organized by modules and are there to help you learn what you can achieve using CSS. Browse the complete list at
+CSS guides
+, which includes topics such as:
+CSS syntax
+including declarations and rulesets.
+Specificity
+,
+inheritance
+, and
+cascade
+Nesting
+,
+scoping
+and
+shadow parts
+Media
+and
+container
+queries
+Numeric
+and
+textual
+data types
+Box model
+and
+margin collapse
+Containing block
+Stacking
+and
+block-formatting
+contexts
+Property value processing
+Shorthand properties
+Flexible box
+,
+multi-column
+and
+grid
+layouts
+Animations
+,
+transitions
+, and
+transforms
+How to
+CSS layout cookbook
+Recipes for common layout patterns you might need to implement in your sites. These recipes provide code you can use as a starting point in your projects. These recipes also highlight the different ways layout specifications can be used and the choices you can make as a developer.
+Tools
+Border-image generator
+Generate CSS
+border-image
+values.
+Border-radius generator
+Generate CSS
+border-radius
+effects.
+Box-shadow generator
+Add
+box-shadow
+effects to your CSS objects.
+Color format converter
+Enter or pick a color and copy its corresponding value in any CSS
+color format
+.
+Color mixer
+Mix two colors in any color space using the
+color-mix()
+function and copy the resulting color in any CSS color format.
+Shape generator
+Define coordinates and syntax for
+<basic-shape>
+features.
+You can also use the following resources:
+W3C CSS Validation Service
+: To check if your CSS is valid. This is an invaluable debugging tool.
+Firefox Developer Tools
+: To view and edit a page's live CSS via the
+Inspector
+and the
+Style Editor
+tools.
+Web Developer extension
+: To track and edit live CSS on websites in Firefox.
+Reference
+Browse the complete
+CSS reference
+documentation.
+CSS properties
+Reference for all CSS properties.
+CSS selectors
+Reference for CSS selectors,
+combinators
+,
+pseudo-classes
+, and
+pseudo-elements
+.
+CSS at-rules
+Reference for CSS at-rules including media queries.
+CSS values
+Reference for CSS keywords,
+data types
+, and
+functions
+.
+See also
+Web languages to which CSS is often applied:
+HTML
+,
+SVG
+,
+MathML
+,
+XHTML
+, and
+XML
+.
+Stack Overflow questions about CSS
+Help improve MDN
+Was this page helpful to you?
+Yes
+No
+Learn how to contribute
+This page was last modified on
+Dec 29, 2025
+by
+MDN contributors
+.
+View this page on GitHub
+•
+Report a problem with this content
+Filter sidebar
+CSS
+Guides
+Modules
+Anchor positioning
+Animations
+Backgrounds and borders
+Basic user interface
+Borders and box decorations
+Box alignment
+Box model
+Box sizing
+Cascading and inheritance
+Color adjustment
+Colors
+Compositing and blending
+Conditional rules
+Containment
+Counter styles
+CSSOM view
+Custom functions and mixins
+Custom highlight API
+Custom properties for cascading variables
+Display
+Easing functions
+Environment variables
+Filter effects
+Flexible box layout
+Font loading
+Fonts
+Fragmentation
+Generated content
+Grid layout
+Images
+Inline layout
+Lists and counters
+Logical properties and values
+Masking
+Media queries
+Motion path
+Multi-column layout
+Namespaces
+Nesting
+Overflow
+Overscroll behavior
+Paged media
+Positioned layout
+Properties and values API
+Pseudo-elements
+Round display
+Ruby layout
+Scoping
+Scroll anchoring
+Scroll snap
+Scroll-driven animations
+Scrollbars styling
+Selectors
+Shadow parts
+Shapes
+Syntax
+Table
+Text
+Text decoration
+Transforms
+Transitions
+Values and units
+View transitions
+Viewport
+Writing modes
+Anchor positioning
+Using anchor positioning
+Handling overflow
+Animations
+Animatable properties
+Using animations
+Backgrounds and borders
+Using multiple backgrounds
+Resizing background images
+Scaling SVG backgrounds
+Box alignment
+Overview
+In block layout
+In flexbox
+In grid layout
+In multi-column layout
+Box model
+Introduction
+Margin collapsing
+Box sizing
+Aspect ratios
+Cascade
+Introduction
+Inheritance
+Specificity
+Property value processing
+Shorthand properties
+Cascading variables
+Using custom properties
+Colors
+Applying color
+Color values
+Using relative colors
+Using color wisely
+Accessibility: Colors and luminance
+Accessibility: Color contrast
+Columns
+Basic concepts
+Styling columns
+Using multi-column layouts
+Spanning and balancing columns
+Handling overflow
+Handling content breaks
+Conditional rules
+Using feature queries
+Using container scroll-state queries
+Containment
+Container queries
+Using containment
+Using container size and style queries
+Counters
+Using counters
+CSSOM view
+Coordinate systems (API)
+Viewport concepts
+Custom functions and mixins
+Using CSS custom functions
+Display
+Block and inline layout
+Flow layout
+Flow layout and overflow
+Flow layout and writing modes
+In flow and out of flow
+Layout and the containing block
+Formatting contexts
+Block formatting context
+Inline formatting context
+Using multi-keyword syntax
+Visual formatting model
+Environment variables
+Using environment variables
+Filter effects
+Using filter effects
+Flexbox
+Basic concepts
+Flexbox and other layouts
+Aligning flex items
+Ordering flex items
+Controlling flex item ratios
+Wrapping flex items
+Typical use cases
+Fonts
+OpenType features
+Variable fonts
+WOFF
+Grid
+Basic concepts
+Grid and other layouts
+Using line-based placement
+Grid template areas
+Using named grid lines
+Using auto-placement
+Aligning items
+Logical values and writing modes
+Grid layout and accessibility
+Common grid layouts
+Subgrid
+Masonry layout
+Experimental
+Images
+Using gradients
+Using object-view-box
+Styling replaced elements
+Implementing image sprites
+Lists
+Indenting lists
+Logical properties
+Basic concepts
+For floating and positioning
+For margins, borders, and padding
+For sizing
+Masking
+Introduction
+Clipping
+Multiple masks
+Mask properties
+Media queries
+Using media queries
+For accessibility
+Testing
+Printing
+Nesting
+Nesting at-rules
+Nesting and specificity
+Using nesting
+Overflow
+Creating carousels
+Positioning
+Stacking context
+Stacking floating elements
+Understanding z-index
+Using z-index
+Stacking without z-index
+Properties and Values API
+CSS Houdini
+Scroll anchoring
+Overview
+Scroll-driven animations
+Scroll-driven animation timelines
+Scroll snap
+Basic concepts
+Using scroll snap events
+Selectors
+Selectors and combinators
+Selector structure
+Privacy and :visited
+Using :target
+Shapes
+Overview
+Box-value shapes
+Image-based shapes
+Using shape-outside
+Shape generator
+Syntax
+Introduction
+Comments
+At-rules
+Error handling
+Text
+Wrapping and breaking text
+Handling whitespace
+Text decoration
+Text shadows
+Transforms
+Using transforms
+Transitions
+Using transitions
+Values and units
+Value definition syntax
+Numeric data types
+Textual data types
+Using math functions
+Using typed arithmetic
+Writing modes
+Introduction
+Vertical form controls
+How to
+Layout cookbook
+Media objects
+Column layouts
+Center an element
+Sticky footers
+Split navigation
+Breadcrumb navigation
+List group with badges
+Pagination
+Card
+Grid wrapper
+Contribute a recipe
+Cookbook template
+Tools
+Border-image generator
+Border-radius generator
+Box-shadow generator
+Color format converter
+Color mixer
+Shape generator
+Reference
+Properties
+-moz-*
+-moz-float-edge
+Non-standard
+Deprecated
+-moz-force-broken-image-icon
+Non-standard
+Deprecated
+-moz-orient
+Non-standard
+-moz-user-focus
+Non-standard
+Deprecated
+-moz-user-input
+Non-standard
+Deprecated
+-webkit-*
+-webkit-border-before
+Non-standard
+-webkit-box-reflect
+Non-standard
+-webkit-mask-box-image
+Non-standard
+-webkit-mask-composite
+Non-standard
+-webkit-mask-position-x
+Non-standard
+-webkit-mask-position-y
+Non-standard
+-webkit-mask-repeat-x
+Non-standard
+-webkit-mask-repeat-y
+Non-standard
+-webkit-tap-highlight-color
+Non-standard
+-webkit-text-fill-color
+-webkit-text-security
+Non-standard
+-webkit-text-stroke
+-webkit-text-stroke-color
+-webkit-text-stroke-width
+-webkit-touch-callout
+Non-standard
+Custom properties (--*): CSS variables
+accent-color
+align-*
+align-content
+align-items
+align-self
+alignment-baseline
+all
+anchor-name
+anchor-scope
+animation-*
+animation
+animation-composition
+animation-delay
+animation-direction
+animation-duration
+animation-fill-mode
+animation-iteration-count
+animation-name
+animation-play-state
+animation-range
+animation-range-end
+animation-range-start
+animation-timeline
+animation-timing-function
+appearance
+aspect-ratio
+backdrop-filter
+backface-visibility
+background-*
+background
+background-attachment
+background-blend-mode
+background-clip
+background-color
+background-image
+background-origin
+background-position
+background-position-x
+background-position-y
+background-repeat
+background-size
+baseline-shift
+baseline-source
+block-size
+border-*
+border
+border-block
+border-block-color
+border-block-end
+border-block-end-color
+border-block-end-style
+border-block-end-width
+border-block-start
+border-block-start-color
+border-block-start-style
+border-block-start-width
+border-block-style
+border-block-width
+border-bottom
+border-bottom-color
+border-bottom-left-radius
+border-bottom-right-radius
+border-bottom-style
+border-bottom-width
+border-collapse
+border-color
+border-end-end-radius
+border-end-start-radius
+border-image
+border-image-outset
+border-image-repeat
+border-image-slice
+border-image-source
+border-image-width
+border-inline
+border-inline-color
+border-inline-end
+border-inline-end-color
+border-inline-end-style
+border-inline-end-width
+border-inline-start
+border-inline-start-color
+border-inline-start-style
+border-inline-start-width
+border-inline-style
+border-inline-width
+border-left
+border-left-color
+border-left-style
+border-left-width
+border-radius
+border-right
+border-right-color
+border-right-style
+border-right-width
+border-spacing
+border-start-end-radius
+border-start-start-radius
+border-style
+border-top
+border-top-color
+border-top-left-radius
+border-top-right-radius
+border-top-style
+border-top-width
+border-width
+bottom
+box-*
+box-align
+Non-standard
+Deprecated
+box-decoration-break
+box-direction
+Non-standard
+Deprecated
+box-flex
+Non-standard
+Deprecated
+box-flex-group
+Non-standard
+Deprecated
+box-lines
+Non-standard
+Deprecated
+box-ordinal-group
+Non-standard
+Deprecated
+box-orient
+Non-standard
+Deprecated
+box-pack
+Non-standard
+Deprecated
+box-shadow
+box-sizing
+break-*
+break-after
+break-before
+break-inside
+caption-side
+caret-*
+caret
+Experimental
+caret-animation
+Experimental
+caret-color
+caret-shape
+Experimental
+clear
+clip-*
+clip
+Deprecated
+clip-path
+clip-rule
+color-*
+color
+color-interpolation
+color-interpolation-filters
+color-scheme
+column-*
+column-count
+column-fill
+column-gap
+column-rule
+column-rule-color
+column-rule-style
+column-rule-width
+column-span
+column-width
+columns
+contain-*
+contain
+contain-intrinsic-block-size
+contain-intrinsic-height
+contain-intrinsic-inline-size
+contain-intrinsic-size
+contain-intrinsic-width
+container-*
+container
+container-name
+container-type
+content
+content-visibility
+corner-*
+corner-block-end-shape
+Experimental
+corner-block-start-shape
+Experimental
+corner-bottom-left-shape
+Experimental
+corner-bottom-right-shape
+Experimental
+corner-bottom-shape
+Experimental
+corner-end-end-shape
+Experimental
+corner-end-start-shape
+Experimental
+corner-inline-end-shape
+Experimental
+corner-inline-start-shape
+Experimental
+corner-left-shape
+Experimental
+corner-right-shape
+Experimental
+corner-shape
+Experimental
+corner-start-end-shape
+Experimental
+corner-start-start-shape
+Experimental
+corner-top-left-shape
+Experimental
+corner-top-right-shape
+Experimental
+corner-top-shape
+Experimental
+counter-*
+counter-increment
+counter-reset
+counter-set
+cursor
+cx
+cy
+d
+direction
+display
+dominant-baseline
+dynamic-range-limit
+empty-cells
+field-sizing
+fill-*
+fill
+fill-opacity
+fill-rule
+filter
+flex-*
+flex
+flex-basis
+flex-direction
+flex-flow
+flex-grow
+flex-shrink
+flex-wrap
+float
+flood-color
+flood-opacity
+font-*
+font
+font-family
+font-feature-settings
+font-kerning
+font-language-override
+font-optical-sizing
+font-palette
+font-size
+font-size-adjust
+font-smooth
+Non-standard
+font-stretch
+font-style
+font-synthesis
+font-synthesis-position
+Experimental
+font-synthesis-small-caps
+font-synthesis-style
+font-synthesis-weight
+font-variant
+font-variant-alternates
+font-variant-caps
+font-variant-east-asian
+font-variant-emoji
+font-variant-ligatures
+font-variant-numeric
+font-variant-position
+font-variation-settings
+font-weight
+forced-color-adjust
+gap
+grid-*
+grid
+grid-area
+grid-auto-columns
+grid-auto-flow
+grid-auto-rows
+grid-column
+grid-column-end
+grid-column-start
+grid-row
+grid-row-end
+grid-row-start
+grid-template
+grid-template-areas
+grid-template-columns
+grid-template-rows
+hanging-punctuation
+height
+hyphenate-character
+hyphenate-limit-chars
+hyphens
+image-*
+image-orientation
+image-rendering
+image-resolution
+Experimental
+initial-letter
+inline-size
+inset-*
+inset
+inset-block
+inset-block-end
+inset-block-start
+inset-inline
+inset-inline-end
+inset-inline-start
+interactivity
+Experimental
+interest-*
+interest-delay
+Experimental
+interest-delay-end
+Experimental
+interest-delay-start
+Experimental
+interpolate-size
+Experimental
+isolation
+justify-*
+justify-content
+justify-items
+justify-self
+left
+letter-spacing
+lighting-color
+line-*
+line-break
+line-clamp
+line-height
+line-height-step
+Experimental
+list-*
+list-style
+list-style-image
+list-style-position
+list-style-type
+margin-*
+margin
+margin-block
+margin-block-end
+margin-block-start
+margin-bottom
+margin-inline
+margin-inline-end
+margin-inline-start
+margin-left
+margin-right
+margin-top
+margin-trim
+Experimental
+marker-*
+marker
+marker-end
+marker-mid
+marker-start
+mask-*
+mask
+mask-border
+mask-border-mode
+mask-border-outset
+mask-border-repeat
+mask-border-slice
+mask-border-source
+mask-border-width
+mask-clip
+mask-composite
+mask-image
+mask-mode
+mask-origin
+mask-position
+mask-repeat
+mask-size
+mask-type
+math-*
+math-depth
+math-shift
+math-style
+max-*
+max-block-size
+max-height
+max-inline-size
+max-width
+min-*
+min-block-size
+min-height
+min-inline-size
+min-width
+mix-blend-mode
+object-*
+object-fit
+object-position
+object-view-box
+Experimental
+offset-*
+offset
+offset-anchor
+offset-distance
+offset-path
+offset-position
+offset-rotate
+opacity
+order
+orphans
+outline-*
+outline
+outline-color
+outline-offset
+outline-style
+outline-width
+overflow-*
+overflow
+overflow-anchor
+overflow-block
+overflow-clip-margin
+overflow-inline
+overflow-wrap
+overflow-x
+overflow-y
+overlay
+Experimental
+overscroll-*
+overscroll-behavior
+overscroll-behavior-block
+overscroll-behavior-inline
+overscroll-behavior-x
+overscroll-behavior-y
+padding-*
+padding
+padding-block
+padding-block-end
+padding-block-start
+padding-bottom
+padding-inline
+padding-inline-end
+padding-inline-start
+padding-left
+padding-right
+padding-top
+page-*
+page
+page-break-after
+Deprecated
+page-break-before
+Deprecated
+page-break-inside
+Deprecated
+paint-order
+perspective
+perspective-origin
+place-*
+place-content
+place-items
+place-self
+pointer-events
+position-*
+position
+position-anchor
+position-area
+position-try
+position-try-fallbacks
+position-try-order
+position-visibility
+print-color-adjust
+quotes
+r
+reading-flow
+Experimental
+reading-order
+Experimental
+resize
+right
+rotate
+row-gap
+ruby-*
+ruby-align
+ruby-overhang
+ruby-position
+rx
+ry
+scale
+scroll-*
+scroll-behavior
+scroll-margin
+scroll-margin-block
+scroll-margin-block-end
+scroll-margin-block-start
+scroll-margin-bottom
+scroll-margin-inline
+scroll-margin-inline-end
+scroll-margin-inline-start
+scroll-margin-left
+scroll-margin-right
+scroll-margin-top
+scroll-marker-group
+Experimental
+scroll-padding
+scroll-padding-block
+scroll-padding-block-end
+scroll-padding-block-start
+scroll-padding-bottom
+scroll-padding-inline
+scroll-padding-inline-end
+scroll-padding-inline-start
+scroll-padding-left
+scroll-padding-right
+scroll-padding-top
+scroll-snap-align
+scroll-snap-stop
+scroll-snap-type
+scroll-target-group
+Experimental
+scroll-timeline
+scroll-timeline-axis
+scroll-timeline-name
+scrollbar-*
+scrollbar-color
+scrollbar-gutter
+scrollbar-width
+shape-*
+shape-image-threshold
+shape-margin
+shape-outside
+shape-rendering
+speak-as
+Experimental
+stop-color
+stop-opacity
+stroke-*
+stroke
+stroke-dasharray
+stroke-dashoffset
+stroke-linecap
+stroke-linejoin
+stroke-miterlimit
+stroke-opacity
+stroke-width
+tab-size
+table-layout
+text-*
+text-align
+text-align-last
+text-anchor
+text-autospace
+text-box
+text-box-edge
+text-box-trim
+text-combine-upright
+text-decoration
+text-decoration-color
+text-decoration-inset
+Experimental
+text-decoration-line
+text-decoration-skip
+Experimental
+text-decoration-skip-ink
+text-decoration-style
+text-decoration-thickness
+text-emphasis
+text-emphasis-color
+text-emphasis-position
+text-emphasis-style
+text-indent
+text-justify
+text-orientation
+text-overflow
+text-rendering
+text-shadow
+text-size-adjust
+Experimental
+text-spacing-trim
+Experimental
+text-transform
+text-underline-offset
+text-underline-position
+text-wrap
+text-wrap-mode
+text-wrap-style
+timeline-scope
+top
+touch-action
+transform-*
+transform
+transform-box
+transform-origin
+transform-style
+transition-*
+transition
+transition-behavior
+transition-delay
+transition-duration
+transition-property
+transition-timing-function
+translate
+unicode-bidi
+user-modify
+Non-standard
+Deprecated
+user-select
+vector-effect
+vertical-align
+view-*
+view-timeline
+view-timeline-axis
+view-timeline-inset
+view-timeline-name
+view-transition-class
+view-transition-name
+visibility
+white-space
+white-space-collapse
+widows
+width
+will-change
+word-break
+word-spacing
+writing-mode
+x
+y
+z-index
+zoom
+Selectors
+& nesting selector
+Attribute selectors
+Class selectors
+ID selectors
+Keyframe selectors
+Namespace separator
+Selector list
+Type selectors
+Universal selectors
+Combinators
+Child combinator
+Column combinator
+Experimental
+Descendant combinator
+Next-sibling combinator
+Subsequent-sibling combinator
+Pseudo-classes
+:-moz-*
+:-moz-broken
+Non-standard
+Deprecated
+:-moz-drag-over
+Non-standard
+:-moz-first-node
+Experimental
+Non-standard
+:-moz-handler-blocked
+Non-standard
+:-moz-handler-crashed
+Non-standard
+:-moz-handler-disabled
+Non-standard
+:-moz-last-node
+Experimental
+Non-standard
+:-moz-loading
+Non-standard
+:-moz-locale-dir(ltr)
+Non-standard
+:-moz-locale-dir(rtl)
+Non-standard
+:-moz-only-whitespace
+Non-standard
+:-moz-submit-invalid
+Non-standard
+:-moz-suppressed
+Non-standard
+:-moz-user-disabled
+Non-standard
+:-moz-window-inactive
+Non-standard
+:active-*
+:active
+:active-view-transition
+:active-view-transition-type()
+:any-link
+:autofill
+:blank
+Experimental
+:buffering
+:checked
+:current
+Experimental
+:default
+:defined
+:dir()
+:disabled
+:empty
+:enabled
+:first-*
+:first
+:first-child
+:first-of-type
+:focus-*
+:focus
+:focus-visible
+:focus-within
+:fullscreen
+:future
+:has-slotted
+:has()
+:heading
+Experimental
+:heading()
+Experimental
+:host
+:host-context()
+Deprecated
+:host()
+:hover
+:in-range
+:indeterminate
+:interest-source
+Experimental
+:interest-target
+Experimental
+:invalid
+:is()
+:lang()
+:last-child
+:last-of-type
+:left
+:link
+:local-link
+Experimental
+:modal
+:muted
+:not()
+:nth-*
+:nth-child()
+:nth-last-child()
+:nth-last-of-type()
+:nth-of-type()
+:only-child
+:only-of-type
+:open
+:optional
+:out-of-range
+:past
+:paused
+:picture-in-picture
+:placeholder-shown
+:playing
+:popover-open
+:read-only
+:read-write
+:required
+:right
+:root
+:scope
+:seeking
+:stalled
+:state()
+:target-*
+:target
+:target-after
+Experimental
+:target-before
+Experimental
+:target-current
+Experimental
+:user-invalid
+:user-valid
+:valid
+:visited
+:volume-locked
+:where()
+Pseudo-elements
+::-moz-*
+::-moz-color-swatch
+Non-standard
+::-moz-focus-inner
+Non-standard
+Deprecated
+::-moz-list-bullet
+Experimental
+Non-standard
+::-moz-list-number
+Experimental
+Non-standard
+::-moz-meter-bar
+Non-standard
+::-moz-progress-bar
+Experimental
+Non-standard
+::-moz-range-progress
+Non-standard
+::-moz-range-thumb
+Non-standard
+::-moz-range-track
+Non-standard
+::-webkit-*
+::-webkit-inner-spin-button
+Non-standard
+::-webkit-meter-bar
+Non-standard
+Deprecated
+::-webkit-meter-even-less-good-value
+Non-standard
+::-webkit-meter-inner-element
+Non-standard
+::-webkit-meter-optimum-value
+Non-standard
+::-webkit-meter-suboptimum-value
+Non-standard
+::-webkit-progress-bar
+Non-standard
+::-webkit-progress-inner-element
+Non-standard
+::-webkit-progress-value
+Non-standard
+::-webkit-scrollbar
+Non-standard
+::-webkit-search-cancel-button
+Non-standard
+::-webkit-search-results-button
+Non-standard
+::-webkit-slider-runnable-track
+Non-standard
+::-webkit-slider-thumb
+Non-standard
+::after
+::backdrop
+::before
+::checkmark
+Experimental
+::column
+Experimental
+::cue
+::details-content
+::file-selector-button
+::first-letter
+::first-line
+::grammar-error
+::highlight()
+::marker
+::part()
+::picker-icon
+Experimental
+::picker()
+Experimental
+::placeholder
+::scroll-*
+::scroll-button()
+Experimental
+::scroll-marker
+Experimental
+::scroll-marker-group
+Experimental
+::search-text
+Experimental
+::selection
+::slotted()
+::spelling-error
+::target-text
+::view-*
+::view-transition
+::view-transition-group()
+::view-transition-image-pair()
+::view-transition-new()
+::view-transition-old()
+At-rules
+@charset
+@color-profile
+@container
+@counter-style
+@custom-media
+Experimental
+@document
+Non-standard
+Deprecated
+@font-face
+@font-feature-values
+@font-palette-values
+@function
+Experimental
+@import
+@keyframes
+@layer
+@media
+@namespace
+@page
+@position-try
+@property
+@scope
+@starting-style
+@supports
+@view-transition
+Values
+!important
+fit-content
+inherit
+initial
+max-content
+min-content
+revert
+revert-layer
+rule-list
+unset
+Types
+<absolute-size>
+<alpha-value>
+<angle-percentage>
+<angle>
+<axis>
+<baseline-position>
+<basic-shape>
+<blend-mode>
+<box-edge>
+<calc-keyword>
+<calc-sum>
+<color-interpolation-method>
+<color>
+<content-distribution>
+<content-position>
+<corner-shape-value>
+Experimental
+<custom-ident>
+<dashed-function>
+Experimental
+<dashed-ident>
+<dimension>
+<display-box>
+<display-inside>
+<display-internal>
+<display-legacy>
+<display-listitem>
+<display-outside>
+<easing-function>
+<filter-function>
+<flex>
+<frequency-percentage>
+<frequency>
+<generic-family>
+<gradient>
+<hex-color>
+<hue-interpolation-method>
+<hue>
+<ident>
+<image>
+<integer>
+<length-percentage>
+<length>
+<line-style>
+<named-color>
+<number>
+<overflow-position>
+<overflow>
+<percentage>
+<position-area>
+<position>
+<ratio>
+<relative-size>
+<resolution>
+<self-position>
+<shape>
+Deprecated
+<string>
+<system-color>
+<text-edge>
+<time-percentage>
+<time>
+<timeline-range-name>
+<transform-function>
+<url>
+Functions
+-moz-image-rect
+Non-standard
+Deprecated
+abs()
+acos()
+anchor-size()
+anchor()
+asin()
+atan()
+atan2()
+attr()
+blur()
+brightness()
+calc-size()
+Experimental
+calc()
+circle()
+clamp()
+color-mix()
+color()
+conic-gradient()
+contrast-color()
+contrast()
+cos()
+counter()
+counters()
+cross-fade()
+cubic-bezier()
+device-cmyk()
+drop-shadow()
+dynamic-range-limit-mix()
+Experimental
+element()
+Experimental
+ellipse()
+env()
+exp()
+fit-content()
+grayscale()
+hsl()
+hue-rotate()
+hwb()
+hypot()
+if()
+Experimental
+image-set()
+image()
+inset()
+invert()
+lab()
+lch()
+light-dark()
+linear-gradient()
+linear()
+log()
+matrix()
+matrix3d()
+max()
+min()
+minmax()
+mod()
+oklab()
+oklch()
+opacity()
+paint()
+path()
+perspective()
+polygon()
+pow()
+progress()
+radial-gradient()
+ray()
+rect()
+rem()
+repeat()
+repeating-conic-gradient()
+repeating-linear-gradient()
+repeating-radial-gradient()
+rgb()
+rotate()
+rotate3d()
+rotateX()
+rotateY()
+rotateZ()
+round()
+saturate()
+scale()
+scale3d()
+scaleX()
+scaleY()
+scaleZ()
+sepia()
+shape()
+sibling-count()
+sibling-index()
+sign()
+sin()
+skew()
+skewX()
+skewY()
+sqrt()
+steps()
+superellipse()
+Experimental
+symbols()
+tan()
+translate()
+translate3d()
+translateX()
+translateY()
+translateZ()
+type()
+Experimental
+url()
+var()
+xywh()
+Your blueprint for a better internet.
+MDN
+About
+Blog
+Mozilla careers
+Advertise with us
+MDN Plus
+Product help
+Contribute
+MDN Community
+Community resources
+Writing guidelines
+MDN Discord
+MDN on GitHub
+Developers
+Web technologies
+Learn web development
+Guides
+Tutorials
+Glossary
+Hacks blog
+Website Privacy Notice
+Telemetry Settings
+Legal
+Community Participation Guidelines
+Visit
+Mozilla Corporation’s
+not-for-profit parent, the
+Mozilla Foundation
+.
+Portions of this content are ©1998–2026 by individual mozilla.org contributors. Content available under
+a Creative Commons license
+.
