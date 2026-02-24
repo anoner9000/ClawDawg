@@ -254,7 +254,11 @@ def cmd_update(args: argparse.Namespace) -> int:
             ok, report_path, detail = _run_rembrandt_verify(args.task_id, task_message, base_sha=base_sha)
             if not ok:
                 event["state"] = "error"
-                fail_ctx = _verify_failure_context(report_path)
+                fail_ctx = ""
+                try:
+                    fail_ctx = _verify_failure_context(report_path)
+                except Exception:
+                    fail_ctx = ""
                 suffix = f" {fail_ctx}" if fail_ctx else ""
                 event["summary"] = f"completion_blocked_by_verify_gate:{detail or 'verify_failed'}{suffix}"
                 if report_path:
