@@ -34,8 +34,6 @@ if [[ -z "${TEXT// }" ]]; then
 fi
 
 # Required env for telegram_send.sh
-: "${TELEGRAM_BOT_TOKEN:?TELEGRAM_BOT_TOKEN required}"
-: "${TELEGRAM_CHAT_ID:?TELEGRAM_CHAT_ID required}"
 export TEXT
 
 echo "== dispatch through enforced executor-comm telegram_send.sh =="
