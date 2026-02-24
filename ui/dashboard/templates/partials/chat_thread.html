@@ -1,0 +1,17 @@
+{% if messages %}
+<ul class="chat-thread">
+  {% for m in messages %}
+  <li class="chat-msg {% if m.mine %}chat-msg-out{% else %}chat-msg-in{% endif %}">
+    <div class="chat-msg-head">
+      <span class="chat-msg-actor">{{ m.actor }}</span>
+      <span class="chat-msg-ts">{{ m.ts }}</span>
+    </div>
+    <p class="chat-msg-body">{{ m.body }}</p>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="chat-empty">
+  <p>No messages yet for {{ selected_agent }}.</p>
+</div>
+{% endif %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel-section chat-shell">
+  <h2 class="section-title">Agent Chat</h2>
+  {% if agents %}
+  <form class="chat-controls" method="get" action="/chat">
+    <label class="chat-label" for="chat-agent">Agent</label>
+    <select class="chat-select" id="chat-agent" name="agent" onchange="this.form.submit()">
+      {% for a in agents %}
+      <option value="{{ a }}" {% if a == selected_agent %}selected{% endif %}>{{ a }}</option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <form
+    class="chat-compose"
+    hx-post="/actions/chat-send"
+    hx-target="#chat-thread"
+    hx-swap="innerHTML"
+    hx-on::after-request="this.querySelector('textarea').value=''"
+  >
+    <input type="hidden" name="agent" value="{{ selected_agent }}" />
+    <input type="hidden" name="sender" value="operator" />
+    <label class="chat-label" for="chat-message-box">Message</label>
+    <div class="chat-compose-row">
+      <textarea
+        id="chat-message-box"
+        class="chat-input"
+        name="message"
+        rows="4"
+        placeholder="Type a direct message to {{ selected_agent }}..."
+        aria-label="Message text"
+        required
+      ></textarea>
+      <button class="chat-send-btn" type="submit">Send</button>
+    </div>
+  </form>
+
+  <div
+    id="chat-thread"
+    hx-get="/partials/chat-thread?agent={{ selected_agent }}"
+    hx-trigger="load, every {{ poll_agents_s }}s"
+    hx-swap="innerHTML"
+    role="log"
+    aria-live="polite"
+    aria-relevant="additions"
+  >
+    {% with selected_agent=selected_agent, messages=messages %}
+    {% include "partials/chat_thread.html" %}
+    {% endwith %}
+  </div>
+  {% else %}
+  <p class="muted">No filesystem-backed agents were discovered.</p>
+  {% endif %}
+</section>
+{% endblock %}

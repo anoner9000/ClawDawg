@@ -1,0 +1,32 @@
+<section class="overview-gauges">
+  <h2>Overview</h2>
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <h3>Agent Health</h3>
+      <p><strong>{{ summary.agent_health_pct }}%</strong> healthy</p>
+      <p class="muted">{{ summary.agent_healthy }} / {{ summary.agent_total }} agents</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Task Completion</h3>
+      <p><strong>{{ summary.task_done_pct }}%</strong> completed</p>
+      <p class="muted">{{ summary.task_done }} / {{ summary.task_total }} tasks</p>
+    </article>
+    <article class="kpi-card">
+      <h3>Active Tasks</h3>
+      <p><strong>{{ summary.task_active }}</strong> in progress</p>
+      <p class="muted">{{ summary.task_blocked }} blocked/error</p>
+    </article>
+  </div>
+
+  <h3>Task State Mix</h3>
+  <ul class="state-bars">
+    {% for row in summary.state_bars %}
+    <li>
+      <span>{{ row.label }} ({{ row.value }})</span>
+      <div class="bar-track">
+        <div class="bar-fill tone-{{ row.tone }}" style="width: {{ row.pct }}%;"></div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
