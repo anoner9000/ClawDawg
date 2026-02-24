@@ -22,13 +22,29 @@ SCAN_PREFIXES=(
   "doctrine/"
 )
 
+
+# Allowlist: files that may mention governance keywords as documentation/examples
+ALLOWLIST_FILES=(
+  "docs/governance/"
+  "doctrine/"
+  "agents/"        # runbooks may show event examples; they are not executable governance
+)
 # High-signal governance keywords/patterns
 # (Tune after report if needed.)
-PATTERN='(risk[_ -]?tier|proof[_ -]?policy|proof[_ -]?receipt|execution[_ -]?receipt|state[ =:]*complete|TASK_UPDATE|PASS|FAIL|authority|authz|merge[_ -]?gate|policy[_ -]?gate|custodian-only|verification|preflight|investigation-gate|CodeRabbit)'
+PATTERN='(risk_policy\.yml|risk[_ -]?policy|risk[_ -]?tier|proof_policy\.yml|proof[_ -]?policy|proof[_ -]?receipt|execution[_ -]?receipt|merge[_ -]?gate|policy[_ -]?gate|authority|authz|coderabbit|review[_ -]?agent|require_coderabbit|shepherd_merge|wait_for_check_runs|telegram|sendMessage|api\.telegram)'
 
 is_allowed_path() {
   local p="$1"
   for pref in "${ALLOWED_PREFIXES[@]}"; do
+    [[ "$p" == "$pref"* ]] && return 0
+  done
+  return 1
+}
+
+
+is_allowlisted_path() {
+  local p="$1"
+  for pref in "${ALLOWLIST_FILES[@]}"; do
     [[ "$p" == "$pref"* ]] && return 0
   done
   return 1
@@ -50,7 +66,7 @@ while IFS= read -r line; do
   [[ -z "$line" ]] && continue
   file="${line%%:*}"
   file="${file#./}"
-  if is_allowed_path "$file"; then
+  if is_allowed_path "$file" || is_allowlisted_path "$file"; then
     continue
   fi
   echo "$line"

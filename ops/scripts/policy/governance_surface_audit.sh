@@ -5,7 +5,7 @@ ROOT="${1:-.}"
 OUT="docs/governance/GOVERNANCE_SURFACE_REPORT.md"
 mkdir -p docs/governance
 
-PATTERN='(risk[_ -]?tier|risk_policy|proof_policy|proof[_ -]?receipt|execution[_ -]?receipt|state[ =:]*complete|TASK_UPDATE|PASS|FAIL|authority|authz|merge[_ -]?gate|policy[_ -]?gate|verification|preflight|investigation-gate|CodeRabbit|telegram|sendMessage)'
+PATTERN='(risk_policy\.yml|risk[_ -]?policy|risk[_ -]?tier|proof_policy\.yml|proof[_ -]?policy|proof[_ -]?receipt|execution[_ -]?receipt|merge[_ -]?gate|policy[_ -]?gate|authority|authz|coderabbit|review[_ -]?agent|require_coderabbit|shepherd_merge|wait_for_check_runs|telegram|sendMessage|api\.telegram)'
 
 {
   echo "# Governance Surface Report"
