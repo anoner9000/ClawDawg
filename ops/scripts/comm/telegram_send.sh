@@ -20,7 +20,25 @@ fi
 : "${TELEGRAM_CHAT_ID:?TELEGRAM_CHAT_ID required}"
 : "${TEXT:?TEXT required}"
 
+
 ROOT="${ROOT:-$HOME/.openclaw/workspace}"
+RUNTIME_DIR="${RUNTIME_DIR:-$HOME/.openclaw/runtime}"
+CRED_DIR="${CRED_DIR:-$RUNTIME_DIR/credentials}"
+
+TOKEN_FILE="$CRED_DIR/telegram_bot_token"
+CHAT_FILE="$CRED_DIR/telegram_chat_id"
+
+# Load creds from files if env is not set
+if [[ -z "${TELEGRAM_BOT_TOKEN:-}" && -f "$TOKEN_FILE" ]]; then
+  TELEGRAM_BOT_TOKEN="$(tr -d '
+' < "$TOKEN_FILE")"
+  export TELEGRAM_BOT_TOKEN
+fi
+if [[ -z "${TELEGRAM_CHAT_ID:-}" && -f "$CHAT_FILE" ]]; then
+  TELEGRAM_CHAT_ID="$(tr -d '
+' < "$CHAT_FILE")"
+  export TELEGRAM_CHAT_ID
+fi
 REC_DIR="$ROOT/tasks/$TASK_ID/receipts"
 mkdir -p "$REC_DIR"
 
