@@ -42,3 +42,6 @@ ui/dashboard/node_modules/
 **/__pycache__/
 .ruff_cache/
 ui/dashboard/static/*.bundle.*
+
+# Local-only stash/patch backups
+local/*.patch
