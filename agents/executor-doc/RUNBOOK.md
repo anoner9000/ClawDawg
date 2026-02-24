@@ -1,3 +1,3 @@
 # executor-doc — RUNBOOK
-- Never emit `state=complete`.
+- Never emit task completion events.
 - Must write `tasks/<task_id>/receipts/EXECUTION_RECEIPT.json`.
