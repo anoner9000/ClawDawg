@@ -2,8 +2,10 @@
 set -euo pipefail
 
 PORT="${CLAWDAWGUI_PORT:-8791}"
+HOST="${CLAWDAWGUI_HOST:-127.0.0.1}"
 ROOT="$HOME/.openclaw/workspace"
 PY="$ROOT/.venv/bin/python"
+export OPENCLAW_UI_DRY_RUN="${OPENCLAW_UI_DRY_RUN:-0}"
 PID_FILE="$HOME/.openclaw/runtime/var/clawdawgui.pid"
 WATCH_PID_FILE="$HOME/.openclaw/runtime/var/clawdawgui.watch.pid"
 MODE_FILE="$HOME/.openclaw/runtime/var/clawdawgui.mode"
@@ -14,10 +16,24 @@ mkdir -p "$(dirname "$PID_FILE")" "$(dirname "$LOG_FILE")" "$(dirname "$WATCH_LO
 
 port_pids() {
   ss -ltnp 2>/dev/null \
-    | awk -v port=":$PORT" '$4 ~ port {print}' \
+    | awk -v needle="${HOST}:${PORT}" '$4 == needle {print}' \
     | grep -oE 'pid=[0-9]+' \
     | cut -d= -f2 \
     | sort -u
+}
+
+wait_for_listener() {
+  local i
+  for i in {1..25}; do
+    local pids
+    pids="$(port_pids || true)"
+    if [[ -n "$pids" ]]; then
+      echo "$pids" | head -n 1
+      return 0
+    fi
+    sleep 0.1
+  done
+  return 1
 }
 
 clear_stale_port_holders() {
@@ -77,14 +93,15 @@ start() {
   fi
   clear_stale_port_holders
   cd "$ROOT"
-  nohup "$PY" -m uvicorn ui.dashboard.app:app --host 0.0.0.0 --port "$PORT" >>"$LOG_FILE" 2>&1 </dev/null &
-  echo "$!" > "$PID_FILE"
-  echo "normal" > "$MODE_FILE"
-  sleep 1
-  if is_running; then
-    echo "clawdawgui started (pid $(cat "$PID_FILE")) on http://127.0.0.1:$PORT"
+  nohup "$PY" -m uvicorn ui.dashboard.app:app --host "$HOST" --port "$PORT" >>"$LOG_FILE" 2>&1 </dev/null &
+  sleep 0.2
+  if pid="$(wait_for_listener)"; then
+    echo "$pid" > "$PID_FILE"
+    echo "normal" > "$MODE_FILE"
+    echo "clawdawgui started (pid $pid) on http://$HOST:$PORT"
   else
-    echo "failed to start clawdawgui"
+    echo "failed to start clawdawgui (no listener on $HOST:$PORT)"
+    tail -n 80 "$LOG_FILE" || true
     return 1
   fi
 }
@@ -104,14 +121,15 @@ start_dev() {
   nohup env PNPM_STORE_DIR="$HOME/.local/share/pnpm/store/v10" pnpm run watch >>"$WATCH_LOG_FILE" 2>&1 </dev/null &
   echo "$!" > "$WATCH_PID_FILE"
   cd "$ROOT"
-  nohup "$PY" -m uvicorn ui.dashboard.app:app --host 0.0.0.0 --port "$PORT" --reload >>"$LOG_FILE" 2>&1 </dev/null &
-  echo "$!" > "$PID_FILE"
-  echo "dev" > "$MODE_FILE"
-  sleep 1
-  if is_running; then
-    echo "clawdawgui started in dev mode (pid $(cat "$PID_FILE")) on http://127.0.0.1:$PORT"
+  nohup "$PY" -m uvicorn ui.dashboard.app:app --host "$HOST" --port "$PORT" --reload >>"$LOG_FILE" 2>&1 </dev/null &
+  sleep 0.2
+  if pid="$(wait_for_listener)"; then
+    echo "$pid" > "$PID_FILE"
+    echo "dev" > "$MODE_FILE"
+    echo "clawdawgui started in dev mode (pid $pid) on http://$HOST:$PORT"
   else
-    echo "failed to start clawdawgui dev mode"
+    echo "failed to start clawdawgui dev mode (no listener on $HOST:$PORT)"
+    tail -n 80 "$LOG_FILE" || true
     return 1
   fi
 }
@@ -143,6 +161,7 @@ stop() {
     echo "clawdawgui watcher stopped"
   fi
   rm -f "$WATCH_PID_FILE" "$MODE_FILE"
+  clear_stale_port_holders || true
   return 0
 }
 
