@@ -1,0 +1,25 @@
+name: agent-boundary-gate
+
+on:
+  pull_request:
+    branches: [ master, main ]
+
+permissions:
+  contents: read
+
+jobs:
+  boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Agent boundary audit (custodian-only complete)
+        run: |
+          set -euo pipefail
+          python3 ops/scripts/policy/agent_boundary_audit.py
