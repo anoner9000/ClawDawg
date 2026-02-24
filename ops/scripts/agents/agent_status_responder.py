@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 import json
 import os
 import tempfile
@@ -442,7 +443,15 @@ def main() -> int:
     sp.add_argument("--live", action="store_true")
     sp.set_defaults(func=cmd_respond_check)
 
-    args = ap.parse_args()
+    args = ap.p
+
+    # HARD BLOCK: only custodian may emit TASK_UPDATE state=complete
+    # This enforces Agent Topology v2 at runtime emission point.
+    if getattr(args, "state", None) == "complete":
+        if getattr(args, "agent", None) != "custodian":
+            print("FAIL: Only custodian may emit state=complete (agent-topology v2 hard block).", file=sys.stderr)
+            sys.exit(2)
+arse_args()
     args.bus = args.bus.expanduser()
     return args.func(args)
 

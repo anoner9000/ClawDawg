@@ -2,7 +2,10 @@ name: agent-boundary-gate
 
 on:
   pull_request:
-    branches: [ master, main ]
+  push:
+    branches:
+      - master
+      - main
 
 permissions:
   contents: read
@@ -17,9 +20,19 @@ jobs:
       - name: Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Agent boundary audit (custodian-only complete)
+      - name: Agent boundary audit
         run: |
           set -euo pipefail
-          python3 ops/scripts/policy/agent_boundary_audit.py
+          python3 ops/scripts/agents/agent_boundary_audit.py
+
+      - name: Runtime emission hard-block present
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path("ops/scripts/agents/agent_status_responder.py").read_text(encoding="utf-8", errors="replace")
+          assert "Only custodian may emit state=complete" in s, "Missing hard-block for state=complete in agent_status_responder.py"
+          print("OK: hard-block string present")
+          PY
