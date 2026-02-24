@@ -187,6 +187,31 @@ def _run_rembrandt_verify(task_id: str, message: str, base_sha: str = "") -> tup
                 pass
 
 
+def _verify_failure_context(report_path: str) -> str:
+    if not report_path:
+        return ""
+    p = Path(report_path)
+    if not p.exists():
+        return ""
+    try:
+        rep = json.loads(p.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        return ""
+    checks = rep.get("checks") or {}
+    if not isinstance(checks, dict):
+        return ""
+    base_css_source = str(checks.get("base_css_source") or "").strip()
+    compiled_css_source = str(checks.get("compiled_css_source") or "").strip()
+    if not base_css_source and not compiled_css_source:
+        return ""
+    parts: list[str] = []
+    if base_css_source:
+        parts.append(f"base_css_source={base_css_source}")
+    if compiled_css_source:
+        parts.append(f"compiled_css_source={compiled_css_source}")
+    return " ".join(parts)
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     event = build_base(args.agent, "STATUS", args.task_id, args.summary, not args.live)
     event["status"] = args.status
@@ -229,7 +254,9 @@ def cmd_update(args: argparse.Namespace) -> int:
             ok, report_path, detail = _run_rembrandt_verify(args.task_id, task_message, base_sha=base_sha)
             if not ok:
                 event["state"] = "error"
-                event["summary"] = f"completion_blocked_by_verify_gate:{detail or 'verify_failed'}"
+                fail_ctx = _verify_failure_context(report_path)
+                suffix = f" {fail_ctx}" if fail_ctx else ""
+                event["summary"] = f"completion_blocked_by_verify_gate:{detail or 'verify_failed'}{suffix}"
                 if report_path:
                     event["details_path"] = report_path
             else:
