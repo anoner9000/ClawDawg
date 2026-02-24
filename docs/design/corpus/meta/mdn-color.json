@@ -1,0 +1,14 @@
+{
+  "id": "mdn-color",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_colors",
+  "topic": "color",
+  "fetched_at": "2026-02-23T17:41:14Z",
+  "ok": true,
+  "status_code": 200,
+  "content_type": "text/html",
+  "bytes": 287357,
+  "sha256": "e28b6d45a63d678ac56104d1952504adaca34586717432df05e38f8ae33da2bb",
+  "raw_path": "corpus/raw/mdn-color.html",
+  "text_path": "corpus/text/mdn-color.txt",
+  "meta_path": "corpus/meta/mdn-color.json"
+}

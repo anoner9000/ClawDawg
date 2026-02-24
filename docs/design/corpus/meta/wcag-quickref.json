@@ -1,0 +1,14 @@
+{
+  "id": "wcag-quickref",
+  "url": "https://www.w3.org/WAI/WCAG22/quickref/",
+  "topic": "accessibility",
+  "fetched_at": "2026-02-23T17:41:14Z",
+  "ok": true,
+  "status_code": 200,
+  "content_type": "text/html; charset=utf-8",
+  "bytes": 456994,
+  "sha256": "ed61b139cdf28bff4393801a7476f0238f837aa91cda1418faa6bda162f34cd3",
+  "raw_path": "corpus/raw/wcag-quickref.html",
+  "text_path": "corpus/text/wcag-quickref.txt",
+  "meta_path": "corpus/meta/wcag-quickref.json"
+}

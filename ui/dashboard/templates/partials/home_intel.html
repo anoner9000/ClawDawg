@@ -1,0 +1,187 @@
+<section class="panel-section intel-grid">
+  <article id="governed-actions-history" class="intel-card intel-card-wide">
+    <h3 class="section-title">Agent SLA</h3>
+    <div class="sla-strip">
+      {% for row in intel.sla_rows %}
+      <div class="sla-chip {{ 'stale' if row.stale else 'ok' }}" data-agent="{{ row.agent }}" data-age-min="{{ row.age_min }}">
+        <p><strong>{{ row.agent }}</strong> · {{ row.status }}</p>
+        <p>Seen: {{ row.last_seen }}</p>
+        <p>Age: {{ row.age_min }}m · Chat RTT: {{ row.latency_s }}s</p>
+      </div>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="intel-card">
+    <h3 class="section-title">Alert Center</h3>
+    <div class="alert-list">
+      {% for a in intel.alerts %}
+      <div class="alert-item {{ a.level }}" data-alert-id="{{ a.id }}">
+        <p><strong>{{ a.title }}</strong> <span class="muted">({{ a.source }})</span></p>
+        <p>{{ a.detail }}</p>
+        <div class="alert-actions">
+          <button type="button" class="action-btn alert-ack">Ack</button>
+          <button type="button" class="action-btn alert-snooze">Snooze 10m</button>
+        </div>
+      </div>
+      {% else %}
+      <p class="muted">No active alerts.</p>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="intel-card intel-card-tall">
+    <h3 class="section-title">Latest Activity</h3>
+    <ul class="activity-feed">
+      {% for ev in intel.activity %}
+      <li>
+        <p><strong>{{ ev.actor }}</strong> · {{ ev.type }}{% if ev.target %} → {{ ev.target }}{% endif %} <span class="muted">({{ ev.source }})</span></p>
+        <p>{{ ev.summary }}</p>
+        <span>{{ ev.ts }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="intel-card">
+    <h3 class="section-title">Agent Network</h3>
+    <div id="agent-graph" data-graph-edges='{{ intel.graph_edges | tojson }}'></div>
+  </article>
+
+  <article class="intel-card">
+    <h3 class="section-title">Change Viewer</h3>
+    <div id="change-viewer" data-metrics='{{ intel.metrics | tojson }}'>
+      <p>Agents: <strong data-k="agents">{{ intel.metrics.agents }}</strong></p>
+      <p>Tasks: <strong data-k="tasks">{{ intel.metrics.tasks }}</strong></p>
+      <p>Bus Events: <strong data-k="events">{{ intel.metrics.events }}</strong></p>
+      <p>Alerts: <strong data-k="alerts">{{ intel.metrics.alerts }}</strong></p>
+      <p class="muted" id="change-delta">Delta: n/a</p>
+    </div>
+  </article>
+
+  <article class="intel-card">
+    <h3 class="section-title">Notification Rules</h3>
+    <div class="notify-rules">
+      <label><input id="notify-enabled" type="checkbox" /> Enable browser notifications</label>
+      <label for="notify-stale-min">Stale threshold (minutes)</label>
+      <input id="notify-stale-min" type="number" min="5" step="1" value="15" />
+      <p class="muted">Rule: notify when any agent age exceeds threshold.</p>
+      <p class="muted">Governance: local browser only, no external webhook delivery.</p>
+    </div>
+  </article>
+
+  <article class="intel-card">
+    <h3 class="section-title">Governance Status</h3>
+    <div class="notify-rules">
+      <p>
+        Policy:
+        <strong>{{ "enabled" if intel.governance.enabled else "disabled" }}</strong>
+      </p>
+      <p>
+        Required scope:
+        <strong>{{ intel.governance.required_scope }}</strong>
+      </p>
+      <p>
+        Session scopes:
+        <strong>{{ (intel.governance.scopes | join(", ")) if intel.governance.scopes else "none" }}</strong>
+      </p>
+      <p>
+        Governed actions:
+        <strong>{{ "allowed" if intel.governance.actions_allowed else "blocked" }}</strong>
+      </p>
+      <p class="muted">Audit sink: {{ intel.governance.audit_sink }}</p>
+    </div>
+  </article>
+
+  <article class="intel-card intel-card-tall">
+    <h3 class="section-title">Custodian Audit Inbox</h3>
+    <ul class="activity-feed">
+      {% for row in intel.custodian_audit_inbox %}
+      <li>
+        <p>
+          <strong>{{ row.summary }}</strong>
+          <span class="muted">({{ row.result }}{% if row.reason %} · {{ row.reason }}{% endif %})</span>
+        </p>
+        {% if row.message %}
+        <p>{{ row.message }}</p>
+        {% endif %}
+        <span>{{ row.ts }} · actor: {{ row.actor }}</span>
+      </li>
+      {% else %}
+      <li>
+        <p class="muted">No governed-action audits for Custodian yet.</p>
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article id="governed-actions-history" class="intel-card intel-card-wide">
+    <h3 class="section-title">Governed Actions History</h3>
+    <div class="notify-rules">
+      <label for="gov-filter-result">Filter result</label>
+      <select id="gov-filter-result" class="chat-select">
+        <option value="">All</option>
+        {% for opt in intel.governed_result_options %}
+        <option value="{{ opt }}">{{ opt }}</option>
+        {% endfor %}
+      </select>
+      <label for="gov-filter-reason">Filter reason</label>
+      <select id="gov-filter-reason" class="chat-select">
+        <option value="">All</option>
+        {% for opt in intel.governed_reason_options %}
+        <option value="{{ opt }}">{{ opt }}</option>
+        {% endfor %}
+      </select>
+      <a class="action-btn" href="/api/audit/governed-actions.csv" target="_blank" rel="noopener">Export CSV</a>
+    </div>
+    <div class="table-wrap">
+      <table class="task-table" id="governed-history-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Result</th>
+            <th>Reason</th>
+            <th>Run ID</th>
+            <th>Detail</th>
+            <th>Custodian Ack</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in intel.governed_history %}
+          <tr data-governed-result="{{ row.result }}" data-governed-reason="{{ row.reason }}">
+            <td>{{ row.ts }}</td>
+            <td>{{ row.result }}</td>
+            <td>{{ row.reason or "—" }}</td>
+            <td><code>{{ row.run_id or "—" }}</code></td>
+            <td>{{ row.detail or "—" }}</td>
+            <td>
+              {% if row.run_id and not row.acked %}
+              <form
+                hx-post="/actions/custodian-ack"
+                hx-target="this"
+                hx-swap="outerHTML"
+              >
+                <input type="hidden" name="run_id" value="{{ row.run_id }}" />
+                <input type="hidden" name="note" value="Acknowledged from dashboard history table" />
+                <button type="submit" class="action-btn">Ack</button>
+              </form>
+              {% elif row.acked %}
+              <span class="ok">ACK</span>
+              <div class="muted">
+                {{ row.ack_actor or "custodian" }}{% if row.ack_ts %} · {{ row.ack_ts }}{% endif %}
+              </div>
+              {% else %}
+              <span class="muted">n/a</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="muted">No governed action records yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>

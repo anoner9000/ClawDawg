@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PORT="${CLAWDAWGUI_PORT:-8791}"
+ROOT="$HOME/.openclaw/workspace"
+PY="$ROOT/.venv/bin/python"
+PID_FILE="$HOME/.openclaw/runtime/var/clawdawgui.pid"
+WATCH_PID_FILE="$HOME/.openclaw/runtime/var/clawdawgui.watch.pid"
+MODE_FILE="$HOME/.openclaw/runtime/var/clawdawgui.mode"
+LOG_FILE="$HOME/.openclaw/runtime/logs/clawdawgui.log"
+WATCH_LOG_FILE="$HOME/.openclaw/runtime/logs/clawdawgui.watch.log"
+
+mkdir -p "$(dirname "$PID_FILE")" "$(dirname "$LOG_FILE")" "$(dirname "$WATCH_LOG_FILE")"
+
+port_pids() {
+  ss -ltnp 2>/dev/null \
+    | awk -v port=":$PORT" '$4 ~ port {print}' \
+    | grep -oE 'pid=[0-9]+' \
+    | cut -d= -f2 \
+    | sort -u
+}
+
+clear_stale_port_holders() {
+  local pids
+  pids="$(port_pids || true)"
+  [[ -n "$pids" ]] || return 0
+  while read -r p; do
+    [[ -n "$p" ]] || continue
+    kill "$p" 2>/dev/null || true
+  done <<< "$pids"
+  sleep 1
+  pids="$(port_pids || true)"
+  [[ -n "$pids" ]] || return 0
+  while read -r p; do
+    [[ -n "$p" ]] || continue
+    kill -9 "$p" 2>/dev/null || true
+  done <<< "$pids"
+}
+
+is_running() {
+  if [[ ! -f "$PID_FILE" ]]; then
+    return 1
+  fi
+  local pid
+  pid="$(cat "$PID_FILE" 2>/dev/null || true)"
+  [[ -n "$pid" ]] || return 1
+  kill -0 "$pid" 2>/dev/null
+}
+
+is_watch_running() {
+  if [[ ! -f "$WATCH_PID_FILE" ]]; then
+    return 1
+  fi
+  local pid
+  pid="$(cat "$WATCH_PID_FILE" 2>/dev/null || true)"
+  [[ -n "$pid" ]] || return 1
+  kill -0 "$pid" 2>/dev/null
+}
+
+mode() {
+  if [[ -f "$MODE_FILE" ]]; then
+    cat "$MODE_FILE"
+    return
+  fi
+  echo "normal"
+}
+
+start() {
+  if is_running; then
+    local m
+    m="$(mode)"
+    if [[ "$m" == "normal" ]]; then
+      echo "clawdawgui already running (pid $(cat "$PID_FILE"))"
+      return 0
+    fi
+    stop || true
+  fi
+  clear_stale_port_holders
+  cd "$ROOT"
+  nohup "$PY" -m uvicorn ui.dashboard.app:app --host 0.0.0.0 --port "$PORT" >>"$LOG_FILE" 2>&1 </dev/null &
+  echo "$!" > "$PID_FILE"
+  echo "normal" > "$MODE_FILE"
+  sleep 1
+  if is_running; then
+    echo "clawdawgui started (pid $(cat "$PID_FILE")) on http://127.0.0.1:$PORT"
+  else
+    echo "failed to start clawdawgui"
+    return 1
+  fi
+}
+
+start_dev() {
+  if is_running; then
+    local m
+    m="$(mode)"
+    if [[ "$m" == "dev" ]]; then
+      echo "clawdawgui already running (pid $(cat "$PID_FILE")) in dev mode"
+      return 0
+    fi
+    stop || true
+  fi
+  clear_stale_port_holders
+  cd "$ROOT/ui/dashboard"
+  nohup env PNPM_STORE_DIR="$HOME/.local/share/pnpm/store/v10" pnpm run watch >>"$WATCH_LOG_FILE" 2>&1 </dev/null &
+  echo "$!" > "$WATCH_PID_FILE"
+  cd "$ROOT"
+  nohup "$PY" -m uvicorn ui.dashboard.app:app --host 0.0.0.0 --port "$PORT" --reload >>"$LOG_FILE" 2>&1 </dev/null &
+  echo "$!" > "$PID_FILE"
+  echo "dev" > "$MODE_FILE"
+  sleep 1
+  if is_running; then
+    echo "clawdawgui started in dev mode (pid $(cat "$PID_FILE")) on http://127.0.0.1:$PORT"
+  else
+    echo "failed to start clawdawgui dev mode"
+    return 1
+  fi
+}
+
+stop() {
+  if ! is_running; then
+    echo "clawdawgui is not running"
+    rm -f "$PID_FILE"
+  else
+    local pid
+    pid="$(cat "$PID_FILE")"
+    kill "$pid" 2>/dev/null || true
+    sleep 1
+    if kill -0 "$pid" 2>/dev/null; then
+      kill -9 "$pid" 2>/dev/null || true
+    fi
+    rm -f "$PID_FILE"
+    echo "clawdawgui stopped"
+  fi
+
+  if is_watch_running; then
+    local wpid
+    wpid="$(cat "$WATCH_PID_FILE")"
+    kill "$wpid" 2>/dev/null || true
+    sleep 1
+    if kill -0 "$wpid" 2>/dev/null; then
+      kill -9 "$wpid" 2>/dev/null || true
+    fi
+    echo "clawdawgui watcher stopped"
+  fi
+  rm -f "$WATCH_PID_FILE" "$MODE_FILE"
+  return 0
+}
+
+status() {
+  if is_running; then
+    local m
+    m="$(mode)"
+    if [[ "$m" == "dev" ]] && is_watch_running; then
+      echo "running (pid $(cat "$PID_FILE")) [dev+watch] on http://127.0.0.1:$PORT"
+    else
+      echo "running (pid $(cat "$PID_FILE")) [$m] on http://127.0.0.1:$PORT"
+    fi
+  else
+    echo "stopped"
+    return 1
+  fi
+}
+
+logs() {
+  tail -n 80 "$LOG_FILE"
+  if [[ -f "$WATCH_LOG_FILE" ]]; then
+    echo "--- watcher ---"
+    tail -n 40 "$WATCH_LOG_FILE"
+  fi
+}
+
+case "${1:-}" in
+  start) start ;;
+  dev) start_dev ;;
+  prod)
+    stop || true
+    start
+    ;;
+  stop) stop ;;
+  restart)
+    m="$(mode)"
+    stop || true
+    if [[ "$m" == "dev" ]]; then
+      start_dev
+    else
+      start
+    fi
+    ;;
+  status) status ;;
+  logs) logs ;;
+  *)
+    echo "usage: $0 {start|dev|prod|stop|restart|status|logs}"
+    exit 2
+    ;;
+esac

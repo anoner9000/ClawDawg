@@ -30,3 +30,7 @@ __pycache__/
 # Investigation gate outputs (generated)
 **/validation.ok
 **/adjudication.json
+
+# python bytecode
+__pycache__/
+*.py[cod]

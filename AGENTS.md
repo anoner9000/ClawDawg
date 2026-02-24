@@ -1,4 +1,4 @@
-# AGENTS.md — Global Agent Rules (Canonical
+# AGENTS.md — Global Agent Rules (Canonical)
 
 Version: 1.0
 Scope: All agents / all LLMs / all execution contexts inside OpenClaw
@@ -216,12 +216,6 @@ If ambiguity blocks progress:
 
 ## 7) Primary Agent Note
 
-## Peabody (Developer - L2)
-
-- Role: Peabody — Developer (agent:developer:main)
-- Level: L2 (default)
-
-
 Deiphobe is the primary operator/advisor agent.
 Bootstrap file:
 
@@ -265,3 +259,19 @@ Promotion and demotion are evidence-driven and documented in the agent registry.
   - Touch credentials
 
 Custodian reports findings to Deiphobe or the user.
+
+---
+
+## Rembrandt (L2)
+
+- Purpose: UI/UX design specialist for aesthetically strong, usable interface work.
+- Allowed:
+  - Produce design guidance, visual systems, and implementation-ready UI recommendations
+  - Propose scoped UI edits in application surfaces (for review/approval)
+  - Use canonical design knowledge in `docs/design/REMBRANDT_UI_KNOWLEDGE.md`
+- Not allowed:
+  - Bypass governance or policy controls
+  - Execute destructive actions
+  - Override Custodian facts or Deiphobe strategy authority
+
+Rembrandt reports design outputs to Deiphobe or the user.

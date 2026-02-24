@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-02-23T17:46:01Z",
+  "min_principles_gate": 2,
+  "weak_sources": [
+    {
+      "id": "mdn-css",
+      "topic": "css",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS",
+      "principles_count": 1,
+      "min_required": 2,
+      "replacement_candidates": [
+        "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference",
+        "https://web.dev/learn/css"
+      ]
+    },
+    {
+      "id": "webdev-design",
+      "topic": "design-system",
+      "url": "https://web.dev/learn/design",
+      "principles_count": 0,
+      "min_required": 2,
+      "replacement_candidates": [
+        "https://web.dev/learn/design/",
+        "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Design_for_developers"
+      ]
+    }
+  ]
+}

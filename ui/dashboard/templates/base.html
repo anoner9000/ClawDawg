@@ -4,21 +4,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>OpenClaw Control Plane</title>
-    <link rel="stylesheet" href="/static/app.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jim+Nightshade&family=Quintessential&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+    <link rel="stylesheet" href="/static/app.bundle.css?v={{ asset_version('app.bundle.css') }}" />
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script type="module" src="/static/dashboard.bundle.js?v={{ asset_version('dashboard.bundle.js') }}"></script>
   </head>
   <body>
-    <header>
-      <h1>OpenClaw Control Plane</h1>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/agents">Agents</a>
-        <a href="/tasks">Tasks</a>
-        <a href="/receipts">Receipts</a>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+      <div class="brand">
+        <p class="eyebrow">Situation Monitor</p>
+        <h1>ClawDawg Command Center</h1>
+      </div>
+      <nav class="site-nav">
+        <a class="{{ 'active' if request and request.url.path == '/' else '' }}" href="/">Home</a>
+        <a class="{{ 'active' if request and request.url.path.startswith('/agents') else '' }}" href="/agents">Agents</a>
+        <a class="{{ 'active' if request and request.url.path.startswith('/tasks') else '' }}" href="/tasks">Tasks</a>
+        <a class="{{ 'active' if request and request.url.path.startswith('/chat') else '' }}" href="/chat">Chat</a>
+        <a class="{{ 'active' if request and request.url.path.startswith('/receipts') else '' }}" href="/receipts">Receipts</a>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle day/night theme">
+          <i data-lucide="sun-moon"></i>
+          <span>Theme</span>
+        </button>
       </nav>
     </header>
-    <main>
+    <main id="main-content" class="page-shell">
       {% block content %}{% endblock %}
     </main>
+    <button id="theme-toggle-fab" class="theme-toggle-fab" type="button" aria-label="Toggle day/night theme">
+      <i data-lucide="moon-star"></i>
+      <span>Day/Night</span>
+    </button>
   </body>
 </html>

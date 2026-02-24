@@ -94,10 +94,16 @@ else
 fi
 
 for s in \
-  ops/scripts/ledger/token_today_totals.sh \
-  ops/scripts/ledger/token_month_totals.sh
- do
-  [[ -x "$ROOT/$s" ]] && ok "$s executable" || err "$s missing or not executable"
+  ops/scripts/telemetry/token_today_totals.sh \
+  ops/scripts/telemetry/token_month_totals.sh
+do
+  if [[ -x "$ROOT/$s" ]]; then
+    ok "$s executable"
+  elif [[ -f "$ROOT/${s}.DISABLED" ]]; then
+    warn "${s}.DISABLED present (ledger totals intentionally disabled)"
+  else
+    err "$s missing"
+  fi
 done
 
 # -------------------------------------------------------------------
@@ -137,7 +143,7 @@ fi
 
 # -------------------------------------------------------------------
 section "Agent layout"
-for a in deiphobe scribe custodian; do
+for a in deiphobe scribe custodian rembrandt; do
   [[ -d "$ROOT/agents/$a" ]] && ok "agent/$a present" || err "agent/$a missing"
 done
 
@@ -190,7 +196,7 @@ fi
 # -------------------------------------------------------------------
 section "Agent roster (canonical)"
 active_agents=()
-preferred_agents=(deiphobe scribe custodian)
+preferred_agents=(deiphobe scribe custodian rembrandt)
 
 # First, add preferred agents in canonical order when SOUL.md exists.
 for a in "${preferred_agents[@]}"; do

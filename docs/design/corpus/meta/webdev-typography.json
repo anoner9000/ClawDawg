@@ -1,0 +1,14 @@
+{
+  "id": "webdev-typography",
+  "url": "https://web.dev/learn/design/typography",
+  "topic": "typography",
+  "fetched_at": "2026-02-23T17:41:14Z",
+  "ok": true,
+  "status_code": 200,
+  "content_type": "text/html; charset=utf-8",
+  "bytes": 138217,
+  "sha256": "99557c7e0a0486f08542f8f57b7e4a6597d0d1cb99a26519f9cc8e8d66f921b4",
+  "raw_path": "corpus/raw/webdev-typography.html",
+  "text_path": "corpus/text/webdev-typography.txt",
+  "meta_path": "corpus/meta/webdev-typography.json"
+}

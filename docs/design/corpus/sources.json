@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "description": "Approved web-design corpus sources for Rembrandt (governed allowlist).",
+  "allowed_domains": [
+    "w3.org",
+    "developer.mozilla.org",
+    "web.dev",
+    "a11yproject.com",
+    "w3schools.com",
+    "fonts.google.com"
+  ],
+  "sources": [
+    {
+      "id": "wcag-22",
+      "url": "https://www.w3.org/TR/WCAG22/",
+      "topic": "accessibility"
+    },
+    {
+      "id": "wcag-quickref",
+      "url": "https://www.w3.org/WAI/WCAG22/quickref/",
+      "topic": "accessibility"
+    },
+    {
+      "id": "mdn-css",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS",
+      "topic": "css"
+    },
+    {
+      "id": "mdn-color",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_colors",
+      "topic": "color"
+    },
+    {
+      "id": "mdn-fonts",
+      "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Web_fonts",
+      "topic": "typography"
+    },
+    {
+      "id": "mdn-animation",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animations/Using_CSS_animations",
+      "topic": "motion"
+    },
+    {
+      "id": "webdev-design",
+      "url": "https://web.dev/learn/design",
+      "topic": "design-system"
+    },
+    {
+      "id": "webdev-accessibility",
+      "url": "https://web.dev/learn/accessibility",
+      "topic": "accessibility"
+    },
+    {
+      "id": "webdev-color",
+      "url": "https://web.dev/learn/design/color",
+      "topic": "color"
+    },
+    {
+      "id": "webdev-layout",
+      "url": "https://web.dev/learn/design/layout",
+      "topic": "layout"
+    },
+    {
+      "id": "webdev-typography",
+      "url": "https://web.dev/learn/design/typography",
+      "topic": "typography"
+    },
+    {
+      "id": "webdev-motion",
+      "url": "https://web.dev/learn/design/animation",
+      "topic": "motion"
+    },
+    {
+      "id": "a11y-project-checklist",
+      "url": "https://www.a11yproject.com/checklist/",
+      "topic": "accessibility"
+    },
+    {
+      "id": "google-fonts-knowledge",
+      "url": "https://fonts.google.com/knowledge",
+      "topic": "typography"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "mdn-animation",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animations/Using_CSS_animations",
+  "topic": "motion",
+  "fetched_at": "2026-02-23T17:41:14Z",
+  "ok": true,
+  "status_code": 200,
+  "content_type": "text/html",
+  "bytes": 309643,
+  "sha256": "c715f38741a5cd8502ddb2c258c68f033f0a432b789a19c296e9836256ff59b0",
+  "raw_path": "corpus/raw/mdn-animation.html",
+  "text_path": "corpus/text/mdn-animation.txt",
+  "meta_path": "corpus/meta/mdn-animation.json"
+}

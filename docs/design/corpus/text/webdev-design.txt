@@ -1,0 +1,258 @@
+Learn Responsive Design  |  web.dev
+Skip to main content
+Resources
+Web Platform
+Dive into the web platform, at your pace.
+HTML
+CSS
+JavaScript
+User experience
+Learn how to build better user experiences.
+Performance
+Accessibility
+Identity
+Learn
+Get up to speed on web development.
+Learn HTML
+Learn CSS
+Learn JavaScript
+Learn AI
+Learn Performance
+Learn Accessibility
+More courses
+Additional resources
+Explore content collections, patterns, and more.
+AI and the web
+Explore
+PageSpeed Insights
+Patterns
+Podcasts & shows
+Developer Newsletter
+About web.dev
+Baseline
+How to use Baseline
+Blog
+Case Studies
+/
+Sign in
+Resources
+AI
+Privacy
+Accessibility
+HTML
+Images
+Responsive Design
+Forms
+PWA
+CSS
+Performance
+Testing
+JavaScript
+Resources
+More
+AI
+Privacy
+Accessibility
+HTML
+Images
+Responsive Design
+Forms
+PWA
+CSS
+Performance
+Testing
+JavaScript
+Baseline
+How to use Baseline
+Blog
+Case Studies
+Web Platform
+HTML
+CSS
+JavaScript
+User experience
+Performance
+Accessibility
+Identity
+Learn
+Learn HTML
+Learn CSS
+Learn JavaScript
+Learn AI
+Learn Performance
+Learn Accessibility
+More courses
+Additional resources
+AI and the web
+Explore
+PageSpeed Insights
+Patterns
+Podcasts & shows
+Developer Newsletter
+About web.dev
+Chrome is back at Google I/O May 19-20!
+Register now
+web.dev
+Resources
+Responsive Design
+Stay organized with collections
+Save and categorize content based on your preferences.
+Learn Responsive Design
+A course exploring all aspects of responsive design. Learn how to make sites that look great and work well for everyone.
+Go back
+check_circle
+Welcome to Learn Responsive Design!
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+A course exploring all aspects of responsive design. Learn how to make sites that look great and work well for everyone.
+Read article
+check_circle
+Introduction
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Find out where responsive design came from.
+Read article
+check_circle
+Media queries
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Adapt your designs to different screen sizes using CSS media queries.
+Read article
+check_circle
+Internationalization
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Prepare your designs for different languages and writing modes.
+Read article
+check_circle
+Macro layouts
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Design page layouts using a choice of CSS techniques.
+Read article
+check_circle
+Micro layouts
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Build flexible components that can be placed anywhere.
+Read article
+check_circle
+Typography
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Make your text legible and beautiful, no matter where it appears.
+Read article
+check_circle
+Responsive images
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Give your visitors the most appropriate images for their devices and screens.
+Read article
+check_circle
+The picture element
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Exercise more creative control over your images.
+Read article
+check_circle
+Icons
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Use SVG for scalable responsive iconography.
+Read article
+check_circle
+Theming
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Adapt your designs to match user preferences such as a dark mode.
+Read article
+check_circle
+Accessibility
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Ensure that your website is available to everyone.
+Read article
+check_circle
+Interaction
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Prepare your pages for different input mechanisms; mouse, keyboard, and touch.
+Read article
+check_circle
+User interface patterns
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Consider some common UI elements that adapt to different screen sizes.
+Read article
+check_circle
+Media features
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+A round-up of all the ways that media features let you respond to devices and preferences.
+Read article
+check_circle
+Screen configurations
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Prepare your content for devices with multiple screens.
+Read article
+check_circle
+Conclusion and next steps
+keyboard_arrow_down
+keyboard_arrow_up
+subject
+Article
+Further resources to help you take your next steps.
+Read article
+[[["Easy to understand","easyToUnderstand","thumb-up"],["Solved my problem","solvedMyProblem","thumb-up"],["Other","otherUp","thumb-up"]],[["Missing the information I need","missingTheInformationINeed","thumb-down"],["Too complicated / too many steps","tooComplicatedTooManySteps","thumb-down"],["Out of date","outOfDate","thumb-down"],["Samples / code issue","samplesCodeIssue","thumb-down"],["Other","otherDown","thumb-down"]],[],[],[]]
+web.dev
+web.dev
+We want to help you build beautiful, accessible, fast, and secure websites that work cross-browser, and for all of your users. This site is our home for content to help you on that journey, written by members of the Chrome team, and external experts.
+Contribute
+File a bug
+See open issues
+Related Content
+Chrome for Developers
+Chromium updates
+Case studies
+Podcasts & shows
+Follow
+@ChromiumDev on X
+YouTube
+Chrome for Developers on LinkedIn
+RSS
+Terms
+Privacy
+Manage cookies

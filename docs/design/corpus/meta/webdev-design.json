@@ -1,0 +1,14 @@
+{
+  "id": "webdev-design",
+  "url": "https://web.dev/learn/design",
+  "topic": "design-system",
+  "fetched_at": "2026-02-23T17:41:14Z",
+  "ok": true,
+  "status_code": 200,
+  "content_type": "text/html; charset=utf-8",
+  "bytes": 131244,
+  "sha256": "8aea6fc17eb5ba3424bbee7f11d555d4423178b9b8fe4ec533267378838015f4",
+  "raw_path": "corpus/raw/webdev-design.html",
+  "text_path": "corpus/text/webdev-design.txt",
+  "meta_path": "corpus/meta/webdev-design.json"
+}

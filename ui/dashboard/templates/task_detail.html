@@ -10,6 +10,14 @@
 </p>
 <p><strong>State:</strong> {{ parsed.state }}</p>
 <p><strong>Bus events:</strong> {{ parsed.bus_events }}</p>
+{% if parsed.state == "error" and failed_checks %}
+<h3>Verify Failed Checks</h3>
+<ul>
+  {% for check in failed_checks %}
+  <li><code>{{ check }}</code></li>
+  {% endfor %}
+</ul>
+{% endif %}
 <h3>Latest by Agent</h3>
 <ul>
   {% for item in parsed.latest_by_agent %}

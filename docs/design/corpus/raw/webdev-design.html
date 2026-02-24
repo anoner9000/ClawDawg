@@ -1,0 +1,4666 @@
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html 
+      lang="en"
+      dir="ltr">
+  <head>
+    <meta name="google-signin-client-id" content="157101835696-ooapojlodmuabs2do2vuhhnf90bccmoi.apps.googleusercontent.com"><meta name="google-signin-scope"
+          content="profile email https://www.googleapis.com/auth/developerprofiles https://www.googleapis.com/auth/developerprofiles.award https://www.googleapis.com/auth/devprofiles.full_control.firstparty"><meta property="og:site_name" content="web.dev">
+    <meta property="og:type" content="website"><meta name="theme-color" content="#3740ff"><meta charset="utf-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+
+    <link rel="manifest" href="/_pwa/web/manifest.json"
+          crossorigin="use-credentials">
+    <link rel="preconnect" href="//www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="//fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="//fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="//apis.google.com" crossorigin>
+    <link rel="preconnect" href="//www.google-analytics.com" crossorigin><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Google+Sans:400,500|Roboto:400,400italic,500,500italic,700,700italic|Roboto+Mono:400,500,700&display=swap">
+      <link rel="stylesheet"
+            href="//fonts.googleapis.com/css2?family=Material+Icons&family=Material+Symbols+Outlined&display=block"><link rel="stylesheet" href="https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/css/app.css">
+      
+        <link rel="stylesheet" href="https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/css/dark-theme.css" disabled>
+      <link rel="shortcut icon" href="https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/images/favicon.png">
+    <link rel="apple-touch-icon" href="https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/images/touchicon-180.png"><link rel="canonical" href="https://web.dev/learn/design"><link rel="search" type="application/opensearchdescription+xml"
+            title="web.dev" href="https://web.dev/s/opensearch.xml">
+      <link rel="alternate" hreflang="en"
+          href="https://web.dev/learn/design" /><link rel="alternate" hreflang="x-default" href="https://web.dev/learn/design" /><link rel="alternate" hreflang="en-cn"
+          href="https://web.developers.google.cn/learn/design" /><link rel="alternate" hreflang="x-default" href="https://web.developers.google.cn/learn/design" /><title>Learn Responsive Design &nbsp;|&nbsp; web.dev</title>
+
+<meta property="og:title" content="Learn Responsive Design &nbsp;|&nbsp; web.dev"><meta name="description" content="A course exploring all aspects of responsive design. Learn how to make sites that look great and work well for everyone.">
+  <meta property="og:description" content="A course exploring all aspects of responsive design. Learn how to make sites that look great and work well for everyone."><meta property="og:url" content="https://web.dev/learn/design"><meta property="og:image" content="https://web.dev/learn/design/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="675"><meta property="og:locale" content="en"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://web.dev/static/images/social-wide.jpg"><meta name="twitter:site" content="@ChromiumDev">
+    
+      <link rel="stylesheet" href="/extras.css"></head>
+  <body class="color-scheme--light"
+        template="playlist"
+        theme="web-theme"
+        type="playlist"
+        
+        appearance
+        
+        layout="full"
+        
+        
+        
+        
+        
+        
+        pending>
+  
+    <devsite-progress type="indeterminate" id="app-progress"></devsite-progress>
+  
+  
+    <a href="#main-content" class="skip-link button">
+      
+      Skip to main content
+    </a>
+    <section class="devsite-wrapper">
+      <devsite-cookie-notification-bar></devsite-cookie-notification-bar><devsite-header role="banner">
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="devsite-header--inner" data-nosnippet>
+  <div class="devsite-top-logo-row-wrapper-wrapper">
+    <div class="devsite-top-logo-row-wrapper">
+      <div class="devsite-top-logo-row">
+        <button type="button" id="devsite-hamburger-menu"
+          class="devsite-header-icon-button button-flat material-icons gc-analytics-event"
+          data-category="Site-Wide Custom Events"
+          data-label="Navigation menu button"
+          visually-hidden
+          aria-label="Open menu">
+        </button>
+        
+<div class="devsite-product-name-wrapper">
+
+  <a href="/" class="devsite-site-logo-link gc-analytics-event"
+   data-category="Site-Wide Custom Events" data-label="Site logo" track-type="globalNav"
+   track-name="webDev" track-metadata-position="nav"
+   track-metadata-eventDetail="nav">
+  
+  <picture>
+    
+    <source srcset="https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/images/lockup-dark-theme.svg"
+            media="(prefers-color-scheme: dark)"
+            class="devsite-dark-theme">
+    
+    <img src="https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/images/lockup.svg" class="devsite-site-logo" alt="web.dev">
+  </picture>
+  
+</a>
+
+
+
+</div>
+        <div class="devsite-top-logo-row-middle">
+          <div class="devsite-header-upper-tabs">
+            
+              
+              
+  <devsite-tabs class="upper-tabs">
+
+    <nav class="devsite-tabs-wrapper" aria-label="Upper tabs">
+      
+        
+          <tab class="devsite-dropdown
+    devsite-dropdown-full
+    devsite-active
+    
+    ">
+  
+    <a href="https://web.dev/learn"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn"
+    
+       track-type="nav"
+       track-metadata-position="nav - resources"
+       track-metadata-module="primary nav"
+       aria-label="Resources, selected" 
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Resources"
+         
+           track-name="resources"
+         
+       >
+    Resources
+  
+    </a>
+    
+      <button
+         aria-haspopup="menu"
+         aria-expanded="false"
+         aria-label="Dropdown menu for Resources"
+         track-type="nav"
+         track-metadata-eventdetail="https://web.dev/learn"
+         track-metadata-position="nav - resources"
+         track-metadata-module="primary nav"
+         
+          
+            data-category="Site-Wide Custom Events"
+          
+            data-label="Tab: Resources"
+          
+            track-name="resources"
+          
+        
+         class="devsite-tabs-dropdown-toggle devsite-icon devsite-icon-arrow-drop-down"></button>
+    
+  
+  <div class="devsite-tabs-dropdown" role="menu" aria-label="submenu" hidden>
+    <div class="devsite-tabs-dropdown-content">
+      
+      
+        <div class="devsite-tabs-dropdown-column
+                    ">
+          
+            <ul class="devsite-tabs-dropdown-section
+                       build-icon web-dev-subnav">
+              
+                <li class="devsite-nav-title" role="heading" tooltip>Web Platform</li>
+              
+              
+                <li class="devsite-nav-description">Dive into the web platform, at your pace.
+</li>
+              
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/html"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/html"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="web platform"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      HTML
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/css"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/css"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="web platform"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      CSS
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/javascript"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/javascript"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="web platform"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      JavaScript
+                    </div>
+                    
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </div>
+      
+        <div class="devsite-tabs-dropdown-column
+                    ">
+          
+            <ul class="devsite-tabs-dropdown-section
+                       build-icon web-dev-subnav">
+              
+                <li class="devsite-nav-title" role="heading" tooltip>User experience</li>
+              
+              
+                <li class="devsite-nav-description">Learn how to build better user experiences.
+</li>
+              
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/performance"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/performance"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="user experience"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Performance
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/accessibility"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/accessibility"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="user experience"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Accessibility
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/identity"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/identity"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="user experience"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Identity
+                    </div>
+                    
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </div>
+      
+        <div class="devsite-tabs-dropdown-column
+                    ">
+          
+            <ul class="devsite-tabs-dropdown-section
+                       productivity-icon web-dev-subnav">
+              
+                <li class="devsite-nav-title" role="heading" tooltip>Learn</li>
+              
+              
+                <li class="devsite-nav-description">Get up to speed on web development.</li>
+              
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/html"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/html"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn HTML
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/css"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/css"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn CSS
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/javascript"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/javascript"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn JavaScript
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/ai"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/ai"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn AI
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/performance"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/performance"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn Performance
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/accessibility"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/accessibility"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn Accessibility
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      More courses
+                    </div>
+                    
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </div>
+      
+        <div class="devsite-tabs-dropdown-column
+                    ">
+          
+            <ul class="devsite-tabs-dropdown-section
+                       experience-icon web-dev-subnav">
+              
+                <li class="devsite-nav-title" role="heading" tooltip>Additional resources</li>
+              
+              
+                <li class="devsite-nav-description">Explore content collections, patterns, and more.</li>
+              
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/explore/ai"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/explore/ai"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      AI and the web
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/explore"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/explore"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Explore
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://pagespeed.web.dev/"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://pagespeed.web.dev/"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      PageSpeed Insights
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/patterns"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/patterns"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Patterns
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/shows"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/shows"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Podcasts &amp; shows
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/newsletter"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/newsletter"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Developer Newsletter
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/about"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/about"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      About web.dev
+                    </div>
+                    
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </div>
+      
+    </div>
+  </div>
+</tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/baseline"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/baseline"
+    
+       track-type="nav"
+       track-metadata-position="nav - baseline"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Baseline"
+         
+           track-name="baseline"
+         
+       >
+    Baseline
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/how-to-use-baseline"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/how-to-use-baseline"
+    
+       track-type="nav"
+       track-metadata-position="nav - how to use baseline"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: How to use Baseline"
+         
+           track-name="how to use baseline"
+         
+       >
+    How to use Baseline
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/blog"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/blog"
+    
+       track-type="nav"
+       track-metadata-position="nav - blog"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Blog"
+         
+           track-name="blog"
+         
+       >
+    Blog
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/case-studies"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/case-studies"
+    
+       track-type="nav"
+       track-metadata-position="nav - case studies"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Case Studies"
+         
+           track-name="case studies"
+         
+       >
+    Case Studies
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+    </nav>
+
+  </devsite-tabs>
+
+            
+           </div>
+          
+<devsite-search
+    enable-signin
+    enable-search
+    enable-suggestions
+      enable-query-completion
+    
+    enable-search-summaries
+    project-name="web.dev"
+    tenant-name="web.dev"
+    
+    
+    
+    
+    
+    >
+  <form class="devsite-search-form" action="https://web.dev/s/results" method="GET">
+    <div class="devsite-search-container">
+      <button type="button"
+              search-open
+              class="devsite-search-button devsite-header-icon-button button-flat material-icons"
+              
+              aria-label="Open search"></button>
+      <div class="devsite-searchbox">
+        <input
+          aria-activedescendant=""
+          aria-autocomplete="list"
+          
+          aria-label="Search"
+          aria-expanded="false"
+          aria-haspopup="listbox"
+          autocomplete="off"
+          class="devsite-search-field devsite-search-query"
+          name="q"
+          
+          placeholder="Search"
+          role="combobox"
+          type="text"
+          value=""
+          >
+          <div class="devsite-search-image material-icons" aria-hidden="true">
+            
+              <svg class="devsite-search-ai-image" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_6641_386)">
+                    <path d="M19.6 21L13.3 14.7C12.8 15.1 12.225 15.4167 11.575 15.65C10.925 15.8833 10.2333 16 9.5 16C7.68333 16 6.14167 15.375 4.875 14.125C3.625 12.8583 3 11.3167 3 9.5C3 7.68333 3.625 6.15 4.875 4.9C6.14167 3.63333 7.68333 3 9.5 3C10.0167 3 10.5167 3.05833 11 3.175C11.4833 3.275 11.9417 3.43333 12.375 3.65L10.825 5.2C10.6083 5.13333 10.3917 5.08333 10.175 5.05C9.95833 5.01667 9.73333 5 9.5 5C8.25 5 7.18333 5.44167 6.3 6.325C5.43333 7.19167 5 8.25 5 9.5C5 10.75 5.43333 11.8167 6.3 12.7C7.18333 13.5667 8.25 14 9.5 14C10.6667 14 11.6667 13.625 12.5 12.875C13.35 12.1083 13.8417 11.15 13.975 10H15.975C15.925 10.6333 15.7833 11.2333 15.55 11.8C15.3333 12.3667 15.05 12.8667 14.7 13.3L21 19.6L19.6 21ZM17.5 12C17.5 10.4667 16.9667 9.16667 15.9 8.1C14.8333 7.03333 13.5333 6.5 12 6.5C13.5333 6.5 14.8333 5.96667 15.9 4.9C16.9667 3.83333 17.5 2.53333 17.5 0.999999C17.5 2.53333 18.0333 3.83333 19.1 4.9C20.1667 5.96667 21.4667 6.5 23 6.5C21.4667 6.5 20.1667 7.03333 19.1 8.1C18.0333 9.16667 17.5 10.4667 17.5 12Z" fill="#5F6368"/>
+                  </g>
+                <defs>
+                <clipPath id="clip0_6641_386">
+                <rect width="24" height="24" fill="white"/>
+                </clipPath>
+                </defs>
+              </svg>
+            
+          </div>
+          <div class="devsite-search-shortcut-icon-container" aria-hidden="true">
+            <kbd class="devsite-search-shortcut-icon">/</kbd>
+          </div>
+      </div>
+    </div>
+  </form>
+  <button type="button"
+          search-close
+          class="devsite-search-button devsite-header-icon-button button-flat material-icons"
+          
+          aria-label="Close search"></button>
+</devsite-search>
+
+        </div>
+
+        
+
+          
+
+          
+
+          
+
+          <devsite-appearance-selector></devsite-appearance-selector>
+
+          
+
+          
+
+        
+
+        
+          <devsite-user 
+                        
+                        
+                          enable-profiles
+                        
+                        
+                        id="devsite-user">
+            
+              
+              <span class="button devsite-top-button" aria-hidden="true" visually-hidden>Sign in</span>
+            
+          </devsite-user>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="devsite-collapsible-section
+    ">
+    <div class="devsite-header-background">
+      
+        
+          <div class="devsite-product-id-row"
+           >
+            <div class="devsite-product-description-row">
+              
+                
+                <div class="devsite-product-id">
+                  
+                  
+                  
+                    <ul class="devsite-breadcrumb-list"
+  >
+  
+  <li class="devsite-breadcrumb-item
+             ">
+    
+    
+    
+      
+        
+  <a href="https://web.dev/learn"
+      
+        class="devsite-breadcrumb-link gc-analytics-event"
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Lower Header"
+      
+        data-value="1"
+      
+        track-type="globalNav"
+      
+        track-name="breadcrumb"
+      
+        track-metadata-position="1"
+      
+        track-metadata-eventdetail=""
+      
+    >
+    
+          Resources
+        
+  </a>
+  
+      
+    
+  </li>
+  
+</ul>
+                </div>
+                
+              
+              
+            </div>
+            
+          </div>
+          
+        
+      
+      
+        <div class="devsite-doc-set-nav-row">
+          
+          
+            
+            
+  <devsite-tabs class="lower-tabs">
+
+    <nav class="devsite-tabs-wrapper" aria-label="Lower tabs">
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/ai"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/ai"
+    
+       track-type="nav"
+       track-metadata-position="nav - ai"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: AI"
+         
+           track-name="ai"
+         
+       >
+    AI
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/privacy"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/privacy"
+    
+       track-type="nav"
+       track-metadata-position="nav - privacy"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Privacy"
+         
+           track-name="privacy"
+         
+       >
+    Privacy
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/accessibility"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/accessibility"
+    
+       track-type="nav"
+       track-metadata-position="nav - accessibility"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Accessibility"
+         
+           track-name="accessibility"
+         
+       >
+    Accessibility
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/html"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/html"
+    
+       track-type="nav"
+       track-metadata-position="nav - html"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: HTML"
+         
+           track-name="html"
+         
+       >
+    HTML
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/images"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/images"
+    
+       track-type="nav"
+       track-metadata-position="nav - images"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Images"
+         
+           track-name="images"
+         
+       >
+    Images
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  class="devsite-active">
+            
+    <a href="https://web.dev/learn/design"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/design"
+    
+       track-type="nav"
+       track-metadata-position="nav - responsive design"
+       track-metadata-module="primary nav"
+       aria-label="Responsive Design, selected" 
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Responsive Design"
+         
+           track-name="responsive design"
+         
+       >
+    Responsive Design
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/forms"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/forms"
+    
+       track-type="nav"
+       track-metadata-position="nav - forms"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Forms"
+         
+           track-name="forms"
+         
+       >
+    Forms
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/pwa"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/pwa"
+    
+       track-type="nav"
+       track-metadata-position="nav - pwa"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: PWA"
+         
+           track-name="pwa"
+         
+       >
+    PWA
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/css"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/css"
+    
+       track-type="nav"
+       track-metadata-position="nav - css"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: CSS"
+         
+           track-name="css"
+         
+       >
+    CSS
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/performance"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/performance"
+    
+       track-type="nav"
+       track-metadata-position="nav - performance"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Performance"
+         
+           track-name="performance"
+         
+       >
+    Performance
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/testing"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/testing"
+    
+       track-type="nav"
+       track-metadata-position="nav - testing"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Testing"
+         
+           track-name="testing"
+         
+       >
+    Testing
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/learn/javascript"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/learn/javascript"
+    
+       track-type="nav"
+       track-metadata-position="nav - javascript"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: JavaScript"
+         
+           track-name="javascript"
+         
+       >
+    JavaScript
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+    </nav>
+
+  </devsite-tabs>
+
+          
+          
+        </div>
+      
+    </div>
+  </div>
+
+</div>
+
+
+
+  
+
+  
+</devsite-header>
+      <devsite-book-nav scrollbars hidden>
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="devsite-book-nav-filter"
+     hidden>
+  <span class="filter-list-icon material-icons" aria-hidden="true"></span>
+  <input type="text"
+         placeholder="Filter"
+         
+         aria-label="Type to filter"
+         role="searchbox">
+  
+  <span class="filter-clear-button hidden"
+        data-title="Clear filter"
+        aria-label="Clear filter"
+        role="button"
+        tabindex="0"></span>
+</div>
+
+<nav class="devsite-book-nav devsite-nav nocontent"
+     aria-label="Side menu">
+  <div class="devsite-mobile-header">
+    <button type="button"
+            id="devsite-close-nav"
+            class="devsite-header-icon-button button-flat material-icons gc-analytics-event"
+            data-category="Site-Wide Custom Events"
+            data-label="Close navigation"
+            aria-label="Close navigation">
+    </button>
+    <div class="devsite-product-name-wrapper">
+
+  <a href="/" class="devsite-site-logo-link gc-analytics-event"
+   data-category="Site-Wide Custom Events" data-label="Site logo" track-type="globalNav"
+   track-name="webDev" track-metadata-position="nav"
+   track-metadata-eventDetail="nav">
+  
+  <picture>
+    
+    <source srcset="https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/images/lockup-dark-theme.svg"
+            media="(prefers-color-scheme: dark)"
+            class="devsite-dark-theme">
+    
+    <img src="https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/images/lockup.svg" class="devsite-site-logo" alt="web.dev">
+  </picture>
+  
+</a>
+
+
+</div>
+  </div>
+
+  <div class="devsite-book-nav-wrapper">
+    <div class="devsite-mobile-nav-top">
+      
+        <ul class="devsite-nav-list">
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/learn"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              devsite-nav-active"
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Resources"
+      
+        track-name="resources"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Resources"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Resources
+   </span>
+    
+  
+  </a>
+  
+
+  
+    <ul class="devsite-nav-responsive-tabs devsite-nav-has-menu
+               ">
+      
+<li class="devsite-nav-item">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Resources"
+      
+        track-name="resources"
+      
+    >
+  
+    <span class="devsite-nav-text" tooltip menu="Resources">
+      More
+   </span>
+    
+    <span class="devsite-nav-icon material-icons" data-icon="forward"
+          menu="Resources">
+    </span>
+    
+  
+  </span>
+  
+
+</li>
+
+    </ul>
+  
+              
+                <ul class="devsite-nav-responsive-tabs">
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/ai"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: AI"
+      
+        track-name="ai"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: AI"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      AI
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/privacy"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Privacy"
+      
+        track-name="privacy"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Privacy"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Privacy
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/accessibility"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Accessibility"
+      
+        track-name="accessibility"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Accessibility"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Accessibility
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/html"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: HTML"
+      
+        track-name="html"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: HTML"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      HTML
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/images"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Images"
+      
+        track-name="images"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Images"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Images
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/design"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              devsite-nav-active"
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Responsive Design"
+      
+        track-name="responsive design"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Responsive Design"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip menu="_book">
+      Responsive Design
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/forms"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Forms"
+      
+        track-name="forms"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Forms"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Forms
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/pwa"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: PWA"
+      
+        track-name="pwa"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: PWA"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      PWA
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/css"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: CSS"
+      
+        track-name="css"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: CSS"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      CSS
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/performance"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Performance"
+      
+        track-name="performance"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Performance"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Performance
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/testing"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Testing"
+      
+        track-name="testing"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Testing"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Testing
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                    
+                    
+                    
+                    <li class="devsite-nav-item">
+                      
+  
+  <a href="/learn/javascript"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: JavaScript"
+      
+        track-name="javascript"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: JavaScript"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      JavaScript
+   </span>
+    
+  
+  </a>
+  
+
+  
+                    </li>
+                  
+                </ul>
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/baseline"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Baseline"
+      
+        track-name="baseline"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Baseline"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Baseline
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/how-to-use-baseline"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: How to use Baseline"
+      
+        track-name="how to use baseline"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: How to use Baseline"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      How to use Baseline
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/blog"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Blog"
+      
+        track-name="blog"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Blog"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Blog
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/case-studies"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Case Studies"
+      
+        track-name="case studies"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Case Studies"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Case Studies
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+          
+          
+        </ul>
+      
+    </div>
+    
+      <div class="devsite-mobile-nav-bottom">
+        
+        
+          
+    
+      
+      <ul class="devsite-nav-list" menu="Resources"
+          aria-label="Side menu" hidden>
+        
+          
+            
+              
+<li class="devsite-nav-item devsite-nav-heading">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      Web Platform
+   </span>
+    
+  
+  </span>
+  
+
+</li>
+
+            
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/html"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: HTML"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      HTML
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/css"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: CSS"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      CSS
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/javascript"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: JavaScript"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      JavaScript
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+          
+        
+          
+            
+              
+<li class="devsite-nav-item devsite-nav-heading">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      User experience
+   </span>
+    
+  
+  </span>
+  
+
+</li>
+
+            
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/performance"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Performance"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Performance
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/accessibility"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Accessibility"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Accessibility
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/identity"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Identity"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Identity
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+          
+        
+          
+            
+              
+<li class="devsite-nav-item devsite-nav-heading">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn
+   </span>
+    
+  
+  </span>
+  
+
+</li>
+
+            
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/html"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn HTML"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn HTML
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/css"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn CSS"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn CSS
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/javascript"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn JavaScript"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn JavaScript
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/ai"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn AI"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn AI
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/performance"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn Performance"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn Performance
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/accessibility"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn Accessibility"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn Accessibility
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: More courses"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      More courses
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+          
+        
+          
+            
+              
+<li class="devsite-nav-item devsite-nav-heading">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      Additional resources
+   </span>
+    
+  
+  </span>
+  
+
+</li>
+
+            
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/explore/ai"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: AI and the web"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      AI and the web
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/explore"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Explore"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Explore
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="https://pagespeed.web.dev/"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: PageSpeed Insights"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      PageSpeed Insights
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/patterns"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Patterns"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Patterns
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/shows"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Podcasts &amp;amp; shows"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Podcasts &amp;amp; shows
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/newsletter"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Developer Newsletter"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Developer Newsletter
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/about"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: About web.dev"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      About web.dev
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+          
+        
+      </ul>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+        
+        
+          
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+        
+      </div>
+    
+  </div>
+</nav>
+        
+      </devsite-book-nav>
+      <section id="gc-wrapper">
+        <main role="main" id="main-content" class="devsite-main-content"
+            
+              
+              
+            >
+          <div class="devsite-sidebar">
+            <div class="devsite-sidebar-content">
+                
+                <devsite-toc class="devsite-nav"
+                            role="navigation"
+                            aria-label="On this page"
+                            depth="2"
+                            scrollbars
+                  disabled></devsite-toc>
+                <devsite-recommendations-sidebar class="nocontent devsite-nav">
+                </devsite-recommendations-sidebar>
+            </div>
+          </div>
+          <devsite-content>
+            
+              
+
+
+
+
+
+
+
+
+
+
+
+
+<article class="devsite-article">
+  
+  
+  
+    <div class="devsite-banner devsite-banner-announcement nocontent"
+      
+        
+      >
+      <div class="devsite-banner-message">
+        <div class="devsite-banner-message-text">
+          Chrome is back at Google I/O May 19-20! <a href="https://io.google/2026/?utm_source=web&utm_medium=embedded_marketing&utm_campaign=web-dev&utm_content=">Register now</a>
+        </div>
+      </div>
+    </div>
+  
+  
+  
+
+  <div class="devsite-article-meta nocontent" role="navigation">
+    
+    
+    <ul class="devsite-breadcrumb-list"
+  
+    aria-label="Breadcrumb">
+  
+  <li class="devsite-breadcrumb-item
+             ">
+    
+    
+    
+      
+        
+  <a href="https://web.dev/"
+      
+        class="devsite-breadcrumb-link gc-analytics-event"
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Breadcrumbs"
+      
+        data-value="1"
+      
+        track-type="globalNav"
+      
+        track-name="breadcrumb"
+      
+        track-metadata-position="1"
+      
+        track-metadata-eventdetail="web.dev"
+      
+    >
+    
+          web.dev
+        
+  </a>
+  
+      
+    
+  </li>
+  
+  <li class="devsite-breadcrumb-item
+             ">
+    
+      
+      <div class="devsite-breadcrumb-guillemet material-icons" aria-hidden="true"></div>
+    
+    
+    
+      
+        
+  <a href="https://web.dev/learn"
+      
+        class="devsite-breadcrumb-link gc-analytics-event"
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Breadcrumbs"
+      
+        data-value="2"
+      
+        track-type="globalNav"
+      
+        track-name="breadcrumb"
+      
+        track-metadata-position="2"
+      
+        track-metadata-eventdetail=""
+      
+    >
+    
+          Resources
+        
+  </a>
+  
+      
+    
+  </li>
+  
+  <li class="devsite-breadcrumb-item
+             ">
+    
+      
+      <div class="devsite-breadcrumb-guillemet material-icons" aria-hidden="true"></div>
+    
+    
+    
+      
+        
+  <a href="https://web.dev/learn/design"
+      
+        class="devsite-breadcrumb-link gc-analytics-event"
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Breadcrumbs"
+      
+        data-value="3"
+      
+        track-type="globalNav"
+      
+        track-name="breadcrumb"
+      
+        track-metadata-position="3"
+      
+        track-metadata-eventdetail=""
+      
+    >
+    
+          Responsive Design
+        
+  </a>
+  
+      
+    
+  </li>
+  
+</ul>
+    
+  </div>
+  <devsite-actions hidden data-nosnippet><devsite-feature-tooltip
+      ack-key="AckCollectionsBookmarkTooltipDismiss"
+      analytics-category="Site-Wide Custom Events"
+      analytics-action-show="Callout Profile displayed"
+      analytics-action-close="Callout Profile dismissed"
+      analytics-label="Create Collection Callout"
+      class="devsite-page-bookmark-tooltip nocontent"
+      dismiss-button="true"
+      id="devsite-collections-dropdown"
+      
+      dismiss-button-text="Dismiss"
+
+      
+      close-button-text="Got it">
+
+    
+    
+      <devsite-bookmark></devsite-bookmark>
+    
+
+    <span slot="popout-heading">
+      
+      Stay organized with collections
+    </span>
+    <span slot="popout-contents">
+      
+      Save and categorize content based on your preferences.
+    </span>
+  </devsite-feature-tooltip>
+    <devsite-llm-tools></devsite-llm-tools></devsite-actions>
+  
+    
+  
+
+  <devsite-toc class="devsite-nav"
+    depth="2"
+    devsite-toc-embedded
+    disabled>
+  </devsite-toc>
+  
+    
+  <div class="devsite-article-body clearfix
+  ">
+
+  
+    
+<devsite-playlist>
+
+  <div class="devsite-playlist--header">
+    <div class="devsite-playlist--inner">
+      <div class="devsite-playlist--header-details">
+        <div class="devsite-playlist--header-details-info">
+          <h1 class="devsite-playlist-title">Learn Responsive Design</h1>
+          <div class="devsite-playlist-details"></div>
+          <p>
+            A course exploring all aspects of responsive design. Learn how to make sites that look great and work well for everyone.<br>
+            <a class="button devsite-playlist-return-button gc-analytics-event"
+                data-category="devsite-playlist: go back button"
+                hidden>
+              
+              Go back
+            </a>
+          </p>
+          <div class="devsite-playlist-summary">
+            <div>
+            </div>
+            <div class="devsite-playlist-summary-details">
+              &nbsp;
+            </div>
+            <div>
+            </div>
+          </div>
+        </div>
+        <div class="devsite-playlist--header-badge-info">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <div class="devsite-playlist--sections">
+    <div class="devsite-playlist--sections-container" hidden>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/welcome"
+            path="https://web.dev/learn/design/welcome"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Welcome to Learn Responsive Design!
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  A course exploring all aspects of responsive design. Learn how to make sites that look great and work well for everyone.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/welcome" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/welcome">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/intro"
+            path="https://web.dev/learn/design/intro"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Introduction
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Find out where responsive design came from.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/intro" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/intro">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/media-queries"
+            path="https://web.dev/learn/design/media-queries"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Media queries
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Adapt your designs to different screen sizes using CSS media queries.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/media-queries" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/media-queries">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/internationalization"
+            path="https://web.dev/learn/design/internationalization"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Internationalization
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Prepare your designs for different languages and writing modes.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/internationalization" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/internationalization">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/macro-layouts"
+            path="https://web.dev/learn/design/macro-layouts"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Macro layouts
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Design page layouts using a choice of CSS techniques.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/macro-layouts" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/macro-layouts">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/micro-layouts"
+            path="https://web.dev/learn/design/micro-layouts"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Micro layouts
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Build flexible components that can be placed anywhere.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/micro-layouts" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/micro-layouts">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/typography"
+            path="https://web.dev/learn/design/typography"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Typography
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Make your text legible and beautiful, no matter where it appears.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/typography" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/typography">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/responsive-images"
+            path="https://web.dev/learn/design/responsive-images"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Responsive images
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Give your visitors the most appropriate images for their devices and screens.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/responsive-images" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/responsive-images">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/picture-element"
+            path="https://web.dev/learn/design/picture-element"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    The picture element
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Exercise more creative control over your images.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/picture-element" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/picture-element">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/icons"
+            path="https://web.dev/learn/design/icons"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Icons
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Use SVG for scalable responsive iconography.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/icons" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/icons">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/theming"
+            path="https://web.dev/learn/design/theming"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Theming
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Adapt your designs to match user preferences such as a dark mode.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/theming" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/theming">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/accessibility"
+            path="https://web.dev/learn/design/accessibility"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Accessibility
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Ensure that your website is available to everyone.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/accessibility" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/accessibility">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/interaction"
+            path="https://web.dev/learn/design/interaction"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Interaction
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Prepare your pages for different input mechanisms; mouse, keyboard, and touch.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/interaction" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/interaction">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/ui-patterns"
+            path="https://web.dev/learn/design/ui-patterns"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    User interface patterns
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Consider some common UI elements that adapt to different screen sizes.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/ui-patterns" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/ui-patterns">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/media-features"
+            path="https://web.dev/learn/design/media-features"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Media features
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  A round-up of all the ways that media features let you respond to devices and preferences.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/media-features" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/media-features">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/screen-configurations"
+            path="https://web.dev/learn/design/screen-configurations"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Screen configurations
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Prepare your content for devices with multiple screens.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/screen-configurations" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/screen-configurations">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+        <div class="devsite-playlist--section"
+          
+            type="article"
+          
+          
+            id="article-https://web.dev/learn/design/conclusion"
+            path="https://web.dev/learn/design/conclusion"
+          >
+          <div class="devsite-playlist--inner">
+            
+              <div class="devsite-playlist--item-top">
+                <div class="devsite-playlist--item-top-index">
+                  <span class="num"></span>
+                  <i class="material-icons" aria-hidden="true">check_circle</i>
+                  <devsite-spinner size="30" single-color="#aecbfa"></devsite-spinner>
+                </div>
+                <div class="devsite-playlist--item-top-title">
+                  <h2>
+                    Conclusion and next steps
+                  </h2>
+                </div>
+                <div class="devsite-playlist--item-top-controls">
+                  <button class="toggle gc-analytics-event"
+                      data-category="devsite-playlist: toggle button">
+                    
+                    <i class="material-icons arrow--down" aria-label="Show more details.">keyboard_arrow_down</i>
+                    
+                    <i class="material-icons arrow--up" aria-label="Show fewer details.">keyboard_arrow_up</i>
+                  </button>
+                </div>
+              </div>
+              <div class="devsite-playlist--item--meta">
+                
+                
+                
+                  <i class="material-icons" aria-hidden="true">subject</i>
+                  
+                  Article
+                
+                
+                
+                
+
+                
+              </div>
+              <div class="devsite-playlist--item--content">
+                <p>
+                
+                  Further resources to help you take your next steps.
+                
+                </p>
+              </div>
+              <div class="devsite-playlist--item--actions">
+                
+                
+                  <a href="https://web.dev/learn/design/conclusion" target="_blank"
+                      class="button button-primary button-returnto playlist-article gc-analytics-event"
+                      data-category="devsite-playlist: read article button"
+                      data-label="path: https://web.dev/learn/design/conclusion">
+                    
+                    Read article
+                  </a>
+                
+                
+                
+                
+              </div>
+            
+          </div>
+        </div>
+      
+      </div>
+  </div>
+
+  <div class="devsite-playlist--footer">
+    <devsite-thumb-rating position="main" disable-categories></devsite-thumb-rating>
+  </div>
+</devsite-playlist>
+  
+
+  
+</div>
+
+  
+    
+    
+    
+  
+
+  <div class="devsite-floating-action-buttons"></div></article>
+
+
+
+<devsite-notification
+>
+</devsite-notification>
+
+
+  
+<div class="devsite-content-data">
+  
+  
+    <template class="devsite-content-data-template">
+      [[["Easy to understand","easyToUnderstand","thumb-up"],["Solved my problem","solvedMyProblem","thumb-up"],["Other","otherUp","thumb-up"]],[["Missing the information I need","missingTheInformationINeed","thumb-down"],["Too complicated / too many steps","tooComplicatedTooManySteps","thumb-down"],["Out of date","outOfDate","thumb-down"],["Samples / code issue","samplesCodeIssue","thumb-down"],["Other","otherDown","thumb-down"]],[],[],[]]
+    </template>
+  
+</div>
+            
+          </devsite-content>
+        </main>
+        <devsite-footer-promos class="devsite-footer">
+          
+            
+          
+        </devsite-footer-promos>
+        <devsite-footer-linkboxes class="devsite-footer">
+          
+            
+<nav class="devsite-footer-linkboxes nocontent" aria-label="Footer links">
+  
+  <ul class="devsite-footer-linkboxes-list">
+    
+    <li class="devsite-footer-linkbox wd-footer-promo">
+    <h3 class="devsite-footer-linkbox-heading no-link">web.dev</h3>
+      <ul class="devsite-footer-linkbox-list">
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <h3 class="devsite-footer-linkbox-heading no-link">
+          
+            web.dev
+          
+          </h3>
+          
+          
+          <div class="devsite-footer-linkbox-description">We want to help you build beautiful, accessible, fast, and secure websites that work cross-browser, and for all of your users. This site is our home for content to help you on that journey, written by members of the Chrome team, and external experts.</div>
+          
+        </li>
+        
+      </ul>
+    </li>
+    
+    <li class="devsite-footer-linkbox ">
+    <h3 class="devsite-footer-linkbox-heading no-link">Contribute</h3>
+      <ul class="devsite-footer-linkbox-list">
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://issuetracker.google.com/issues/new?component=1400680&amp;template=1857359"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 1)"
+            >
+            
+          
+            File a bug
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://issuetracker.google.com/issues?q=status:open%20componentid:1400680&amp;s=created_time:desc"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 2)"
+            >
+            
+              
+              
+            
+          
+            See open issues
+          
+          </a>
+          
+          
+        </li>
+        
+      </ul>
+    </li>
+    
+    <li class="devsite-footer-linkbox ">
+    <h3 class="devsite-footer-linkbox-heading no-link">Related Content</h3>
+      <ul class="devsite-footer-linkbox-list">
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://developer.chrome.com/"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 1)"
+            >
+            
+          
+            Chrome for Developers
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://blog.chromium.org/"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 2)"
+            >
+            
+          
+            Chromium updates
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="/case-studies"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 3)"
+            >
+            
+          
+            Case studies
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="/shows"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 4)"
+            >
+            
+              
+              
+            
+          
+            Podcasts &amp; shows
+          
+          </a>
+          
+          
+        </li>
+        
+      </ul>
+    </li>
+    
+    <li class="devsite-footer-linkbox ">
+    <h3 class="devsite-footer-linkbox-heading no-link">Follow</h3>
+      <ul class="devsite-footer-linkbox-list">
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://twitter.com/ChromiumDev"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 1)"
+            >
+            
+          
+            @ChromiumDev on X
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://www.youtube.com/user/ChromeDevelopers"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 2)"
+            >
+            
+          
+            YouTube
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://www.linkedin.com/showcase/chrome-for-developers"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 3)"
+            >
+            
+          
+            Chrome for Developers on LinkedIn
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="/static/blog/feed.xml"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 4)"
+            >
+            
+              
+              
+            
+          
+            RSS
+          
+          </a>
+          
+          
+        </li>
+        
+      </ul>
+    </li>
+    
+  </ul>
+  
+</nav>
+          
+        </devsite-footer-linkboxes>
+        <devsite-footer-utility class="devsite-footer">
+          
+            
+
+<div class="devsite-footer-utility nocontent">
+  
+
+  
+  <nav class="devsite-footer-utility-links" aria-label="Utility links">
+    
+    <ul class="devsite-footer-utility-list">
+      
+      <li class="devsite-footer-utility-item
+                 ">
+        
+        
+        <a class="devsite-footer-utility-link gc-analytics-event"
+           href="//policies.google.com/terms"
+           data-category="Site-Wide Custom Events"
+           data-label="Footer Terms link"
+         >
+          Terms
+        </a>
+        
+      </li>
+      
+      <li class="devsite-footer-utility-item
+                 ">
+        
+        
+        <a class="devsite-footer-utility-link gc-analytics-event"
+           href="//policies.google.com/privacy"
+           data-category="Site-Wide Custom Events"
+           data-label="Footer Privacy link"
+         >
+          Privacy
+        </a>
+        
+      </li>
+      
+      <li class="devsite-footer-utility-item
+                 glue-cookie-notification-bar-control">
+        
+        
+        <a class="devsite-footer-utility-link gc-analytics-event"
+           href="#"
+           data-category="Site-Wide Custom Events"
+           data-label="Footer Manage cookies link"
+         
+           aria-hidden="true"
+         >
+          Manage cookies
+        </a>
+        
+      </li>
+      
+    </ul>
+    
+    
+  </nav>
+</div>
+          
+        </devsite-footer-utility>
+        <devsite-panel>
+          
+        </devsite-panel>
+        
+      </section></section>
+    <devsite-sitemask></devsite-sitemask>
+    <devsite-snackbar></devsite-snackbar>
+    <devsite-tooltip ></devsite-tooltip>
+    <devsite-heading-link></devsite-heading-link>
+    <devsite-analytics>
+      
+        <script type="application/json" analytics>[]</script>
+<script type="application/json" tag-management>{&#34;at&#34;: &#34;True&#34;, &#34;ga4&#34;: [], &#34;ga4p&#34;: [], &#34;gtm&#34;: [{&#34;id&#34;: &#34;GTM-MZWCJPP&#34;, &#34;purpose&#34;: 0}], &#34;parameters&#34;: {&#34;internalUser&#34;: &#34;False&#34;, &#34;language&#34;: {&#34;machineTranslated&#34;: &#34;False&#34;, &#34;requested&#34;: &#34;en&#34;, &#34;served&#34;: &#34;en&#34;}, &#34;pageType&#34;: &#34;playlist&#34;, &#34;projectName&#34;: &#34;web.dev&#34;, &#34;signedIn&#34;: &#34;False&#34;, &#34;tenant&#34;: &#34;web&#34;, &#34;recommendations&#34;: {&#34;sourcePage&#34;: &#34;&#34;, &#34;sourceType&#34;: 0, &#34;sourceRank&#34;: 0, &#34;sourceIdenticalDescriptions&#34;: 0, &#34;sourceTitleWords&#34;: 0, &#34;sourceDescriptionWords&#34;: 0, &#34;experiment&#34;: &#34;&#34;}, &#34;experiment&#34;: {&#34;ids&#34;: &#34;&#34;}}}</script>
+      
+    </devsite-analytics>
+    
+      <devsite-badger></devsite-badger>
+    
+    
+    
+    
+<script nonce="FsMk7qpL87rB3CGyv6m5XMDhA8dRma">
+  
+  (function(d,e,v,s,i,t,E){d['GoogleDevelopersObject']=i;
+    t=e.createElement(v);t.async=1;t.src=s;E=e.getElementsByTagName(v)[0];
+    E.parentNode.insertBefore(t,E);})(window, document, 'script',
+    'https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/js/app_loader.js', '[27,"en",null,"/js/devsite_app_module.js","https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74","https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web","https://web-dot-devsite-v2-prod-3p.appspot.com",1,null,["/_pwa/web/manifest.json","https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/images/video-placeholder.svg","https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/images/favicon.png","https://www.gstatic.com/devrel-devsite/prod/v6354840cae73aa45f3e40a8ec5209ce3124df6c4b8954a70edb0e5167c965c74/web/images/lockup.svg","https://fonts.googleapis.com/css?family=Google+Sans:400,500|Roboto:400,400italic,500,500italic,700,700italic|Roboto+Mono:400,500,700&display=swap"],1,null,[1,6,8,12,14,17,21,25,50,52,63,70,75,76,80,87,91,92,93,97,98,100,101,102,103,104,105,107,108,109,110,112,113,116,117,118,120,122,124,125,126,127,129,130,131,132,133,134,135,136,138,140,141,147,148,149,151,152,156,157,158,159,161,163,164,168,169,170,179,180,182,183,186,191,193,196],"AIzaSyCNm9YxQumEXwGJgTDjxoxXK6m1F-9720Q","AIzaSyCc76DZePGtoyUjqKrLdsMGk_ry7sljLbY","web.dev","AIzaSyB9bqgQ2t11WJsOX8qNsCQ6U-w91mmqF-I","AIzaSyAdYnStPdzjcJJtQ0mvIaeaMKj7_t6J_Fg",null,null,null,["CloudShell__cloud_shell_button","Profiles__enable_developer_profile_pages_as_content","Profiles__enable_dashboard_curated_recommendations","Profiles__require_profile_eligibility_for_signin","DevPro__enable_developer_subscriptions","Search__enable_ai_eligibility_checks","Profiles__enable_recognition_badges","DevPro__enable_google_one_card","DevPro__remove_eu_tax_intake_form","CloudShell__cloud_code_overflow_menu","Concierge__enable_actions_menu","Cloud__cache_serialized_dynamic_content","EngEduTelemetry__enable_engedu_telemetry","Profiles__enable_awarding_url","Search__enable_suggestions_from_borg","DevPro__enable_code_assist","Profiles__enable_purchase_prompts","Concierge__enable_pushui","Profiles__enable_completecodelab_endpoint","Profiles__enable_user_type","Profiles__enable_callout_notifications","MiscFeatureFlags__enable_variable_operator_index_yaml","Search__enable_page_map","DevPro__enable_google_payments_buyflow","Cloud__enable_legacy_calculator_redirect","DevPro__enable_free_benefits","DevPro__enable_nvidia_credits_card","DevPro__enable_firebase_workspaces_card","Concierge__enable_remove_info_panel_tags","MiscFeatureFlags__enable_variable_operator","MiscFeatureFlags__gdp_dashboard_reskin_enabled","Profiles__enable_join_program_group_endpoint","Profiles__enable_developer_profile_benefits_ui_redesign","Analytics__enable_devpro_interaction_logging","DevPro__enable_cloud_innovators_plus","Profiles__enable_profile_collections","Profiles__enable_playlist_community_acl","MiscFeatureFlags__remove_cross_domain_tracking_params","DevPro__enable_vertex_credit_card","TpcFeatures__proxy_prod_host","Concierge__enable_devsite_llm_tools","MiscFeatureFlags__enable_firebase_utm","Profiles__enable_auto_apply_credits","OnSwitch__enable","Profiles__enable_completequiz_endpoint","Cloud__enable_cloud_dlp_service","Search__enable_dynamic_content_confidential_banner","TpcFeatures__enable_unmirrored_page_left_nav","Cloud__fast_free_trial","Profiles__enable_public_developer_profiles","SignIn__enable_l1_signup_flow","MiscFeatureFlags__developers_footer_dark_image","MiscFeatureFlags__enable_explicit_template_dependencies","Profiles__enable_release_notes_notifications","DevPro__enable_devpro_offers","MiscFeatureFlags__enable_view_transitions","MiscFeatureFlags__fix_lower_breadcrumbs","MiscFeatureFlags__enable_framebox_badge_methods","MiscFeatureFlags__emergency_css","Profiles__enable_developer_profiles_callout","Cloud__enable_cloudx_experiment_ids","MiscFeatureFlags__enable_project_variables","MiscFeatureFlags__enable_explain_this_code","Profiles__enable_complete_playlist_endpoint","Cloud__enable_cloud_shell_fte_user_flow","MiscFeatureFlags__developers_footer_image","Cloud__enable_free_trial_server_call","Cloud__enable_llm_concierge_chat","DevPro__enable_embed_profile_creation","MiscFeatureFlags__enable_llms_txt","Search__enable_ai_search_summaries_for_all","BookNav__enable_tenant_cache_key","Cloud__enable_cloud_shell","DevPro__enable_google_payments","DevPro__enable_enterprise","DevPro__enable_g1_integration","Profiles__enable_stripe_subscription_management","Profiles__enable_page_saving","MiscFeatureFlags__enable_appearance_cookies","Analytics__enable_clearcut_logging","Experiments__reqs_query_experiments"],null,null,"AIzaSyA58TaKli1DculwmAmbpzLVGuWc8eCQgQc","https://developerscontentserving-pa.googleapis.com","AIzaSyDWBU60w0P9hEkr29kkksYs8Z7gvZ8u_wc","https://developerscontentsearch-pa.googleapis.com",2,4,null,"https://developerprofiles-pa.googleapis.com",[27,"web","web.dev","web.dev",null,"web-dot-devsite-v2-prod-3p.appspot.com",null,null,[null,null,null,null,null,null,null,null,null,null,null,[1],null,null,null,null,null,null,[1],null,null,null,null,[1,null,1],[1,1,null,1,1],null,null,null,null,null,[1]],null,[38,null,null,null,null,null,"/images/lockup.svg","/images/touchicon-180.png",null,null,null,1,1,null,null,null,null,null,null,null,null,2,null,null,null,"/images/lockup-dark-theme.svg",[]],[],null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,[[],[1,1]],[[null,null,null,null,null,["GTM-MZWCJPP"],null,null,null,null,null,[["GTM-MZWCJPP",1]],1]],null,4],null,null,1,1,"https://developerscontentinsights-pa.googleapis.com","AIzaSyC11xEGtFhkmSh_iF6l_itbxnFz2GrIBOg","AIzaSyAXJ10nRF73mmdSDINgkCNX5bbd2KPcWm8","https://developers.googleapis.com",null,null,"AIzaSyCjP0KOnHfv8mwe38sfzZJMOnqE3HvrD4A",null,null,"https://developers.googleapis.com"]')
+  
+</script>
+
+    <devsite-a11y-announce></devsite-a11y-announce>
+  </body>
+</html>

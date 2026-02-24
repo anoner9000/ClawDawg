@@ -1,0 +1,14 @@
+{
+  "id": "webdev-accessibility",
+  "url": "https://web.dev/learn/accessibility",
+  "topic": "accessibility",
+  "fetched_at": "2026-02-23T17:41:14Z",
+  "ok": true,
+  "status_code": 200,
+  "content_type": "text/html; charset=utf-8",
+  "bytes": 142421,
+  "sha256": "fcb7d3509008c81f059c30dbed44ba92da046be7acb2d22649a366d9e6ade7b3",
+  "raw_path": "corpus/raw/webdev-accessibility.html",
+  "text_path": "corpus/text/webdev-accessibility.txt",
+  "meta_path": "corpus/meta/webdev-accessibility.json"
+}
