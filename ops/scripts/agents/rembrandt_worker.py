@@ -283,6 +283,59 @@ def _write_report(report_path: Path, report: dict[str, Any]) -> None:
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
 
 
+def _collect_failed_checks(run_mode: str, strict_requested: bool, checks: dict[str, Any]) -> list[str]:
+    """
+    Return all failing strict verify gates for debugging.
+    Keep fail_reason ladder semantics separate.
+    """
+    if run_mode != "verify" or not strict_requested:
+        return []
+
+    failed: list[str] = []
+
+    if not checks.get("style_only_change_set_ok", True):
+        failed.append("style_only_gate:changed_files_out_of_scope")
+
+    if not checks.get("theme_source_changed_ok", True):
+        failed.append("theme_source_gate:no_theme_source_changes")
+
+    if not checks.get("component_coverage_ok", True):
+        miss = checks.get("component_coverage_missing") or []
+        if isinstance(miss, list) and miss:
+            failed.append(f"coverage_gate:missing_components:{','.join(str(x) for x in miss)}")
+        else:
+            failed.append("coverage_gate:missing_components")
+
+    if not checks.get("base_css_source_ok", True):
+        failed.append("radical_delta_gate:missing_base_css")
+
+    if not checks.get("token_var_presence_ok", True):
+        failed.append("radical_delta_gate:missing_token_vars")
+
+    if not checks.get("base_token_var_presence_ok", True):
+        failed.append("radical_delta_gate:missing_base_token_vars")
+
+    if not checks.get("font_scale_delta_ok", True):
+        failed.append("radical_delta_gate:font_scale")
+
+    if not checks.get("radii_changed_ok", True):
+        failed.append("radical_delta_gate:radii")
+
+    if not checks.get("accent_changed_ok", True):
+        failed.append("radical_delta_gate:accent")
+
+    if not checks.get("bg_changed_ok", True):
+        failed.append("radical_delta_gate:backgrounds")
+
+    if checks.get("dashboard_pages_found", 1) <= 0:
+        failed.append("dashboard_pages_gate:none_found")
+
+    if not checks.get("build_css_ok", True):
+        failed.append(f"css_build_gate:{checks.get('build_css_reason', 'build_failed')}")
+
+    return failed
+
+
 def run_rembrandt_task(
     task_id: str,
     message: str,
@@ -466,10 +519,13 @@ def run_rembrandt_task(
         else:
             fail_reason = "unknown_gate"
 
+    failed_checks = _collect_failed_checks(run_mode, contract.strict_requested, checks)
+
     result: dict[str, Any] = {
         "task_id": task_id,
         "state": state,
         "fail_reason": fail_reason,
+        "failed_checks": failed_checks,
         "strict_contract_requested": contract.strict_requested,
         "run_mode": run_mode,
         "diff_base_used": diff_base_used,
