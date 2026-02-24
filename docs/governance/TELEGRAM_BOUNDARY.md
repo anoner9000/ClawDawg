@@ -10,3 +10,8 @@ Enforcement:
 
 Migration:
 - Cron jobs must enqueue or dispatch to `executor-comm` rather than calling Telegram directly.
+
+## Step 2 wiring
+- Cron calls: `ops/scripts/comm/dispatch_briefing_send.sh`
+- Dispatcher derives message TEXT from the briefings module and calls:
+  - `ops/scripts/comm/telegram_send.sh` (enforced executor-comm + receipts)

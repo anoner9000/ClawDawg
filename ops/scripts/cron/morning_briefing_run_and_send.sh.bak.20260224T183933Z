@@ -9,4 +9,4 @@ mkdir -p "$LOG_DIR"
 "$WS/scripts/heartbeat_aggregator.sh"
 
 # 2) Send the latest response to Telegram
-"$WS/ops/scripts/comm/dispatch_briefing_send.sh"
+"$WS/modules/briefings/scripts/telegram_send_latest_briefing.sh"
