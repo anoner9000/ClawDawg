@@ -28,7 +28,7 @@ OUT_JSON="$REC_DIR/telegram_send_result.json"
 RECEIPT_JSON="$REC_DIR/EXECUTION_RECEIPT.json"
 
 echo "== sending telegram message =="
-python3 - <<'PY'
+python3 - <<'PY' > "$OUT_JSON"
 import json, os, sys, urllib.parse, urllib.request
 token=os.environ["TELEGRAM_BOT_TOKEN"]
 chat=os.environ["TELEGRAM_CHAT_ID"]
@@ -45,7 +45,7 @@ try:
 except Exception as e:
     print(json.dumps({"ok": False, "error": str(e)}))
     sys.exit(3)
-PY > "$OUT_JSON"
+PY
 
 echo "== build execution receipt (v2) =="
 python3 - <<'PY'
