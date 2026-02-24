@@ -109,3 +109,16 @@ nudge 2026-02-20T21:33:47-06:00
 - Added `agent-boundary-gate` workflow to enforce canonical-agent boundaries in CI.
 - Added runtime hard-block so only `custodian` can emit completion events.
 - Added governance surface/report checks and topology documentation alignment.
+
+## agent-boundary-gate Workflow Update
+
+- Added a new CI step:
+  - `Syntax check agent_status_responder`
+  - Runs: `python3 -m py_compile ops/scripts/agents/agent_status_responder.py`
+- Purpose: prevent syntax/indentation regressions from breaking runtime enforcement logic.
+- No change to workflow triggers.
+- No change to enforcement semantics.
+- No change to risk-tier logic.
+
+Rationale:
+A recent indentation error in `agent_status_responder.py` caused runtime hard-block enforcement to fail at import time. This guard ensures future syntax errors are caught in CI before merge.
