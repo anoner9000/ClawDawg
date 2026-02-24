@@ -94,3 +94,26 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# --- GLOBAL_COMPLETE_SCAN ---
+# Prevent any direct completion emission outside responder
+import subprocess, sys
+
+def scan_for_illegal_complete():
+    cmd = [
+        "rg",
+        "--line-number",
+        "--glob", "!ops/scripts/agents/agent_status_responder.py",
+        r'"state"\s*:\s*"complete"|TASK_UPDATE.*complete'
+    ]
+    try:
+        out = subprocess.run(cmd, capture_output=True, text=True)
+        if out.stdout.strip():
+            print("FAIL: direct completion construction detected outside responder:")
+            print(out.stdout)
+            sys.exit(2)
+    except FileNotFoundError:
+        print("WARNING: ripgrep not found; skipping global complete scan")
+
+scan_for_illegal_complete()
