@@ -1,0 +1,17 @@
+<section class="task-drawer-panel">
+  <h3>Task {{ task_id }}</h3>
+  <p><strong>State:</strong> {{ drawer.state }}</p>
+  <p><strong>Bus events:</strong> {{ drawer.bus_events }}</p>
+  {% if drawer.timed_out %}<p class="warn">CLI timed out.</p>{% endif %}
+  {% if drawer.truncated %}<p class="warn">CLI output truncated.</p>{% endif %}
+  {% if drawer.cli_error %}<p class="warn">CLI returned an error.</p>{% endif %}
+
+  <h4>Latest by Agent</h4>
+  <ul>
+    {% for row in latest_human %}
+    <li><strong>{{ row.agent }}</strong>: {{ row.message }}</li>
+    {% else %}
+    <li>(none)</li>
+    {% endfor %}
+  </ul>
+</section>
