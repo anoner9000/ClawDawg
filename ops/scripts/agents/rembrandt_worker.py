@@ -55,13 +55,13 @@ COMPILED_CSS_CANDIDATES = [
     "ui/dashboard/static/app.css",
 ]
 COMPONENT_PATTERNS = {
-    "navigation": [".site-header", ".site-nav", " nav "],
-    "buttons": [".action-btn", ".theme-toggle", "button"],
+    "navigation": [r"\bnav\b", r"\.site-header\b", r"\.site-nav\b", r"\[data-nav\]"],
+    "buttons": [r"\bbutton\b", r"\.action-btn\b", r"\.theme-toggle\b", r"\.btn\b"],
     "cards_panels": [".panel-section", ".overview-card", ".agent-card", ".task-drawer", ".card"],
-    "tables": [".task-table", ".table", "table"],
-    "forms_inputs": ["input", "select", "textarea", ".field"],
+    "tables": [r"\btable\b", r"\.task-table\b", r"\.table\b"],
+    "forms_inputs": [r"\binput\b", r"\bselect\b", r"\btextarea\b", r"\.field\b"],
     "badges_tags": [".badge", ".tag", ".pill", ".status"],
-    "charts": [".chart", ".sparkline", "svg"],
+    "charts": [r"\.chart\b", r"\.sparkline\b", r"\bsvg\b"],
 }
 
 
@@ -192,6 +192,18 @@ def _git_changed_files(base_ref: str = "HEAD") -> list[str]:
     return sorted(files)
 
 
+def _normalize_changed_files_for_gates(changed_files: list[str]) -> list[str]:
+    out: list[str] = []
+    for f in changed_files:
+        rel = (f or "").strip()
+        if not rel:
+            continue
+        if rel.endswith(".map"):
+            continue
+        out.append(rel)
+    return out
+
+
 def _theme_source_changed(changed_files: list[str]) -> bool:
     return any((f or "").strip() in THEME_SOURCE_FILES for f in changed_files)
 
@@ -225,10 +237,10 @@ def _read_compiled_css_at_base(base_ref: str) -> tuple[str, str]:
 
 
 def _component_coverage(css_text: str) -> dict[str, bool]:
-    lc = (css_text or "").lower()
+    txt = css_text or ""
     out: dict[str, bool] = {}
     for target, pats in COMPONENT_PATTERNS.items():
-        out[target] = any(p.lower() in lc for p in pats)
+        out[target] = any(bool(re.search(p, txt, flags=re.I)) for p in pats)
     return out
 
 
@@ -299,7 +311,8 @@ def run_rembrandt_task(
 
     diff_base_used = (base_sha or "").strip() or diff_base
     # In preflight mode, no mutation is expected yet.
-    changed_files = [] if run_mode == "preflight" else _git_changed_files(diff_base_used)
+    changed_files_raw = [] if run_mode == "preflight" else _git_changed_files(diff_base_used)
+    changed_files = _normalize_changed_files_for_gates(changed_files_raw)
 
     checks: dict[str, Any] = {
         "contract_directives_ok": _contract_directives_ok(contract.directives) if contract.strict_requested else True,
@@ -339,17 +352,28 @@ def run_rembrandt_task(
             "rm-night-accent",
         ]
         checks["token_var_presence_ok"] = all(k in curr_vars for k in required_var_keys)
+        checks["base_token_var_presence_ok"] = all(k in base_vars for k in required_var_keys)
         fs_cur = _parse_float_token(curr_vars.get("rm-font-scale", ""))
         fs_base = _parse_float_token(base_vars.get("rm-font-scale", ""))
-        checks["font_scale_delta_ok"] = bool(fs_cur is not None and fs_base is not None and fs_cur >= (fs_base * 1.2))
+        checks["font_scale_delta_ok"] = bool(
+            checks["base_token_var_presence_ok"]
+            and fs_cur is not None and fs_base is not None and fs_cur >= (fs_base * 1.2)
+        )
         rad_cur = _parse_float_token(curr_vars.get("rm-panel-radius", ""))
         rad_base = _parse_float_token(base_vars.get("rm-panel-radius", ""))
-        checks["radii_changed_ok"] = bool(rad_cur is not None and rad_base is not None and abs(rad_cur - rad_base) >= 2.0)
+        checks["radii_changed_ok"] = bool(
+            checks["base_token_var_presence_ok"]
+            and rad_cur is not None and rad_base is not None and abs(rad_cur - rad_base) >= 2.0
+        )
         checks["accent_changed_ok"] = bool(
+            checks["base_token_var_presence_ok"]
+            and
             curr_vars.get("rm-day-accent", "") != base_vars.get("rm-day-accent", "")
             and curr_vars.get("rm-night-accent", "") != base_vars.get("rm-night-accent", "")
         )
         checks["bg_changed_ok"] = bool(
+            checks["base_token_var_presence_ok"]
+            and
             curr_vars.get("rm-day-bg", "") != base_vars.get("rm-day-bg", "")
             and curr_vars.get("rm-night-bg", "") != base_vars.get("rm-night-bg", "")
         )
@@ -361,6 +385,7 @@ def run_rembrandt_task(
         checks["component_coverage_missing"] = []
         checks["component_coverage_ok"] = True
         checks["token_var_presence_ok"] = True
+        checks["base_token_var_presence_ok"] = True
         checks["font_scale_delta_ok"] = True
         checks["radii_changed_ok"] = True
         checks["accent_changed_ok"] = True
@@ -419,6 +444,8 @@ def run_rembrandt_task(
             fail_reason = f"coverage_gate:missing_components:{miss}"
         elif run_mode != "preflight" and contract.strict_requested and not checks["token_var_presence_ok"]:
             fail_reason = "radical_delta_gate:missing_token_vars"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["base_token_var_presence_ok"]:
+            fail_reason = "radical_delta_gate:missing_base_token_vars"
         elif run_mode != "preflight" and contract.strict_requested and not checks["font_scale_delta_ok"]:
             fail_reason = "radical_delta_gate:font_scale"
         elif run_mode != "preflight" and contract.strict_requested and not checks["radii_changed_ok"]:
@@ -443,6 +470,7 @@ def run_rembrandt_task(
         "diff_base_used": diff_base_used,
         "received_directives": contract.directives,
         "changed_files": changed_files,
+        "changed_files_raw": changed_files_raw,
         "checks": checks,
         "report_path": str(report_path),
     }
