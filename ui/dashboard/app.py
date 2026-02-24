@@ -32,7 +32,6 @@ AGENT_ROLE_MAP = {
     "custodian": "System Integrity",
     "scribe": "Documentation Flow",
     "minion": "Automation Runner",
-    "peabody": "Policy Steward",
     "rembrandt": "Design Specialist",
 }
 
@@ -41,7 +40,6 @@ AGENT_ICON_MAP = {
     "custodian": "shield-check",
     "scribe": "notebook-pen",
     "minion": "bot",
-    "peabody": "scale",
     "rembrandt": "palette",
 }
 
@@ -54,7 +52,6 @@ AGENT_DESCRIPTION_MAP = {
     "custodian": "Custodian is the system-integrity monitor. It validates facts, checks policy/safety boundaries, and reports operational drift or risk.",
     "scribe": "Scribe handles documentation flow. It captures decisions, status, and handoffs so context stays consistent across sessions.",
     "minion": "Minion is the automation runner. It executes scripted operations, routes repeatable jobs, and reports machine-level outcomes.",
-    "peabody": "Peabody is the policy steward. It focuses on process compliance, review gates, and ensuring execution aligns with operating rules.",
     "rembrandt": "Rembrandt is the design specialist. It shapes visual systems, layout, typography, color, and motion to produce aesthetically strong, readable UI.",
 }
 TASK_ID_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
@@ -74,7 +71,6 @@ def _auto_reply_text(agent: str, message: str) -> str:
         "custodian": f"[auto] Custodian logged your message: \"{short}\". I can run a quick facts/compliance check path next.",
         "scribe": f"[auto] Scribe captured your note: \"{short}\". I can format this into a handoff-ready summary.",
         "minion": f"[auto] Minion queued your request: \"{short}\". I can convert this into an executable wrapper task.",
-        "peabody": f"[auto] Peabody received: \"{short}\". I can map this against policy gates and approval flow.",
         "rembrandt": f"[auto] Rembrandt received your message: \"{short}\". I can turn this into a concrete UI design direction and styling pass.",
     }
     return templates.get(agent, f"[auto] {agent} received your message: \"{short}\".")
