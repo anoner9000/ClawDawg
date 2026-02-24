@@ -22,6 +22,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Syntax check agent_status_responder
+        run: |
+          set -euo pipefail
+          python3 -m py_compile ops/scripts/agents/agent_status_responder.py
+
       - name: Agent boundary audit
         run: |
           set -euo pipefail
