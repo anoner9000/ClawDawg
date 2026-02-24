@@ -27,7 +27,7 @@ echo "== build TEXT from latest briefing =="
 TEXT="$("$MOD_SCRIPT" --print-text)"
 
 # Guardrails: refuse to send empty messages
-if [[ -z "${TEXT// }" ]]; then then
+if [[ -z "${TEXT// }" ]]; then
   echo "FAIL: briefing TEXT was empty. Migration requires module script to support print-text mode." >&2
   echo "HINT: update $MOD_SCRIPT to support --print-text and not send directly." >&2
   exit 3
