@@ -70,14 +70,91 @@ if [[ "$TELEGRAM_BOT_TOKEN" == *PASTE_YOUR_TELEGRAM_BOT_TOKEN_HERE* ]] || [[ "$T
   exit 1
 fi
 
-# Find latest response file
-latest="$(ls -t "$LOG_DIR"/llm_response_*.json 2>/dev/null | head -n 1 || true)"
+# Find latest VALID response file (skip error envelopes / empty extracts)
+latest=""
+skipped=0
+while IFS= read -r cand; do
+  # Fast skip: common error envelope payloads.
+  if ! python3 - "$cand" <<'PY' >/dev/null 2>&1
+import json,sys
+obj=json.load(open(sys.argv[1],"r",encoding="utf-8"))
+if isinstance(obj, dict) and ("error" in obj and "status" in obj) and len(obj.keys()) <= 4:
+    raise SystemExit(2)
+raise SystemExit(0)
+PY
+  then
+    skipped=$((skipped+1))
+    continue
+  fi
+
+  cand_text="$(LATEST_CANDIDATE="$cand" python3 - <<'PY'
+import json, os
+
+p=os.environ["LATEST_CANDIDATE"]
+obj=json.load(open(p, "r", encoding="utf-8"))
+
+texts=[]
+seen=set()
+
+def add(t):
+    if not isinstance(t, str):
+        return
+    t=t.strip()
+    if not t or t in seen:
+        return
+    seen.add(t)
+    texts.append(t)
+
+def walk_output(x):
+    if isinstance(x, dict):
+        c = x.get("content")
+        if isinstance(c, list):
+            for part in c:
+                if isinstance(part, dict):
+                    if "text" in part:
+                        add(part.get("text"))
+                    for v in part.values():
+                        walk_output(v)
+        if x.get("type") in ("output_text","text") and "text" in x:
+            add(x.get("text"))
+        for v in x.values():
+            walk_output(v)
+    elif isinstance(x, list):
+        for v in x:
+            walk_output(v)
+
+walk_output(obj.get("output", []))
+add(obj.get("output_text"))
+if isinstance(obj.get("response"), dict):
+    add(obj["response"].get("output_text"))
+choices = obj.get("choices")
+if isinstance(choices, list):
+    for ch in choices:
+        if isinstance(ch, dict):
+            msg = ch.get("message")
+            if isinstance(msg, dict):
+                add(msg.get("content"))
+
+print("\n\n".join(texts).strip())
+PY
+)"
+
+  if [[ -n "${cand_text// }" ]]; then
+    latest="$cand"
+    TEXT="$cand_text"
+    break
+  fi
+
+  skipped=$((skipped+1))
+done < <(ls -t "$LOG_DIR"/llm_response_*.json 2>/dev/null | head -n 80 || true)
+
 if [[ -z "$latest" ]]; then
-  echo "ERROR: No llm_response_*.json found in $LOG_DIR" >&2
+  echo "ERROR: No usable llm_response_*.json found in $LOG_DIR (skipped=$skipped)" >&2
   exit 1
 fi
 
 # Extract deduped output_text blocks from the response JSON
+if [[ -z "${TEXT:-}" ]]; then
 TEXT="$(python3 - <<PY
 import json
 p="$latest"
@@ -129,10 +206,12 @@ if isinstance(choices, list):
 print("\\n\\n".join(texts).strip())
 PY
 )"
+fi
 
 if [[ -z "${TEXT// }" ]]; then
   echo "ERROR: extracted TEXT was empty from $latest" >&2
   if [[ "${DEBUG:-0}" -eq 1 ]]; then
+    echo "DEBUG: selected_file=$latest skipped=$skipped" >&2
     echo "DEBUG: showing top-level keys and sample structure:" >&2
     python3 - <<PY
 import json
