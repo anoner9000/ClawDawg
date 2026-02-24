@@ -44,6 +44,25 @@ CONTRACT_REQUIRED_DIRECTIVES = {
 
 ALLOWED_SUFFIXES = (".css", ".scss", ".html")
 ALLOWED_PREFIX = "ui/dashboard/"
+THEME_SOURCE_FILES = {
+    "ui/dashboard/src/styles.scss",
+    "ui/dashboard/src/theme.scss",
+    "ui/dashboard/src/tokens.scss",
+    "ui/dashboard/templates/base.html",
+}
+COMPILED_CSS_CANDIDATES = [
+    "ui/dashboard/static/app.bundle.css",
+    "ui/dashboard/static/app.css",
+]
+COMPONENT_PATTERNS = {
+    "navigation": [".site-header", ".site-nav", " nav "],
+    "buttons": [".action-btn", ".theme-toggle", "button"],
+    "cards_panels": [".panel-section", ".overview-card", ".agent-card", ".task-drawer", ".card"],
+    "tables": [".task-table", ".table", "table"],
+    "forms_inputs": ["input", "select", "textarea", ".field"],
+    "badges_tags": [".badge", ".tag", ".pill", ".status"],
+    "charts": [".chart", ".sparkline", "svg"],
+}
 
 
 @dataclass
@@ -173,6 +192,64 @@ def _git_changed_files(base_ref: str = "HEAD") -> list[str]:
     return sorted(files)
 
 
+def _theme_source_changed(changed_files: list[str]) -> bool:
+    return any((f or "").strip() in THEME_SOURCE_FILES for f in changed_files)
+
+
+def _read_text(path: Path) -> str:
+    if not path.exists():
+        return ""
+    try:
+        return path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def _read_compiled_css_current() -> tuple[str, str]:
+    for rel in COMPILED_CSS_CANDIDATES:
+        p = WORKSPACE / rel
+        txt = _read_text(p)
+        if txt:
+            return rel, txt
+    return "", ""
+
+
+def _read_compiled_css_at_base(base_ref: str) -> tuple[str, str]:
+    if not base_ref:
+        return "", ""
+    for rel in COMPILED_CSS_CANDIDATES:
+        code, out = _run(["git", "show", f"{base_ref}:{rel}"])
+        if code == 0 and out.strip():
+            return rel, out
+    return "", ""
+
+
+def _component_coverage(css_text: str) -> dict[str, bool]:
+    lc = (css_text or "").lower()
+    out: dict[str, bool] = {}
+    for target, pats in COMPONENT_PATTERNS.items():
+        out[target] = any(p.lower() in lc for p in pats)
+    return out
+
+
+def _parse_rm_vars(css_text: str) -> dict[str, str]:
+    pairs = re.findall(r"--(rm-[a-z0-9_-]+)\s*:\s*([^;]+);", css_text or "", flags=re.I)
+    out: dict[str, str] = {}
+    for k, v in pairs:
+        out[k.strip().lower()] = v.strip()
+    return out
+
+
+def _parse_float_token(val: str) -> float | None:
+    m = re.search(r"([0-9]+(?:\.[0-9]+)?)", val or "")
+    if not m:
+        return None
+    try:
+        return float(m.group(1))
+    except ValueError:
+        return None
+
+
 def _contract_directives_ok(directives: dict[str, str]) -> bool:
     return all(str(directives.get(k, "")).lower() == v for k, v in CONTRACT_REQUIRED_DIRECTIVES.items())
 
@@ -238,6 +315,56 @@ def run_rembrandt_task(
         ),
         "run_mode": run_mode,
     }
+    if run_mode == "verify" and contract.strict_requested:
+        checks["theme_source_changed_ok"] = _theme_source_changed(changed_files)
+        css_rel, css_txt = _read_compiled_css_current()
+        checks["compiled_css_source"] = css_rel or "none"
+        coverage = _component_coverage(css_txt)
+        required_targets = ["navigation", "buttons", "cards_panels", "tables", "forms_inputs", "badges_tags"]
+        missing = [t for t in required_targets if not coverage.get(t, False)]
+        checks["component_coverage"] = coverage
+        checks["component_coverage_missing"] = missing
+        checks["component_coverage_ok"] = len(missing) == 0
+
+        base_rel, base_css = _read_compiled_css_at_base(diff_base_used)
+        checks["base_css_source"] = base_rel or "none"
+        curr_vars = _parse_rm_vars(css_txt)
+        base_vars = _parse_rm_vars(base_css)
+        required_var_keys = [
+            "rm-font-scale",
+            "rm-panel-radius",
+            "rm-day-bg",
+            "rm-night-bg",
+            "rm-day-accent",
+            "rm-night-accent",
+        ]
+        checks["token_var_presence_ok"] = all(k in curr_vars for k in required_var_keys)
+        fs_cur = _parse_float_token(curr_vars.get("rm-font-scale", ""))
+        fs_base = _parse_float_token(base_vars.get("rm-font-scale", ""))
+        checks["font_scale_delta_ok"] = bool(fs_cur is not None and fs_base is not None and fs_cur >= (fs_base * 1.2))
+        rad_cur = _parse_float_token(curr_vars.get("rm-panel-radius", ""))
+        rad_base = _parse_float_token(base_vars.get("rm-panel-radius", ""))
+        checks["radii_changed_ok"] = bool(rad_cur is not None and rad_base is not None and abs(rad_cur - rad_base) >= 2.0)
+        checks["accent_changed_ok"] = bool(
+            curr_vars.get("rm-day-accent", "") != base_vars.get("rm-day-accent", "")
+            and curr_vars.get("rm-night-accent", "") != base_vars.get("rm-night-accent", "")
+        )
+        checks["bg_changed_ok"] = bool(
+            curr_vars.get("rm-day-bg", "") != base_vars.get("rm-day-bg", "")
+            and curr_vars.get("rm-night-bg", "") != base_vars.get("rm-night-bg", "")
+        )
+    else:
+        checks["theme_source_changed_ok"] = True
+        checks["compiled_css_source"] = "none"
+        checks["base_css_source"] = "none"
+        checks["component_coverage"] = {}
+        checks["component_coverage_missing"] = []
+        checks["component_coverage_ok"] = True
+        checks["token_var_presence_ok"] = True
+        checks["font_scale_delta_ok"] = True
+        checks["radii_changed_ok"] = True
+        checks["accent_changed_ok"] = True
+        checks["bg_changed_ok"] = True
 
     # Strict requirements for dashboard-wide tasks
     if contract.strict_requested:
@@ -263,6 +390,13 @@ def run_rembrandt_task(
             and checks["style_only_change_set_ok"]
             and (checks["dashboard_pages_found"] > 0)
             and (True if run_mode == "preflight" else checks["build_css_ok"])
+            and (True if run_mode == "preflight" else checks["theme_source_changed_ok"])
+            and (True if run_mode == "preflight" else checks["component_coverage_ok"])
+            and (True if run_mode == "preflight" else checks["token_var_presence_ok"])
+            and (True if run_mode == "preflight" else checks["font_scale_delta_ok"])
+            and (True if run_mode == "preflight" else checks["radii_changed_ok"])
+            and (True if run_mode == "preflight" else checks["accent_changed_ok"])
+            and (True if run_mode == "preflight" else checks["bg_changed_ok"])
         )
 
     state = "complete" if strict_ok else "error"
@@ -278,6 +412,21 @@ def run_rembrandt_task(
             fail_reason = "scope_gate:not_dashboard_wide"
         elif run_mode != "preflight" and contract.strict_requested and not checks["style_only_change_set_ok"]:
             fail_reason = "style_only_gate:changed_files_out_of_scope"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["theme_source_changed_ok"]:
+            fail_reason = "theme_source_gate:no_theme_source_changes"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["component_coverage_ok"]:
+            miss = ",".join(checks.get("component_coverage_missing", []))
+            fail_reason = f"coverage_gate:missing_components:{miss}"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["token_var_presence_ok"]:
+            fail_reason = "radical_delta_gate:missing_token_vars"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["font_scale_delta_ok"]:
+            fail_reason = "radical_delta_gate:font_scale"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["radii_changed_ok"]:
+            fail_reason = "radical_delta_gate:radii"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["accent_changed_ok"]:
+            fail_reason = "radical_delta_gate:accent"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["bg_changed_ok"]:
+            fail_reason = "radical_delta_gate:backgrounds"
         elif contract.strict_requested and checks["dashboard_pages_found"] <= 0:
             fail_reason = "dashboard_pages_gate:none_found"
         elif run_mode != "preflight" and contract.strict_requested and not checks["build_css_ok"]:
