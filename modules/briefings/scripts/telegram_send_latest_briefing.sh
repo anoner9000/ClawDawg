@@ -4,6 +4,11 @@
 set -euo pipefail
 
 MODE="print"
+DEBUG=0
+if [[ "${1:-}" == "--debug" ]]; then
+  DEBUG=1
+  shift
+fi
 if [[ "${1:-}" == "--send" ]]; then
   MODE="send"
   shift
@@ -13,6 +18,7 @@ elif [[ "${1:-}" == "--print-text" ]]; then
 elif [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   cat <<'EOF'
 Usage:
+  telegram_send_latest_briefing.sh --debug --print-text
   telegram_send_latest_briefing.sh --print-text
   telegram_send_latest_briefing.sh --send
 
@@ -80,26 +86,68 @@ obj=json.load(open(p, "r", encoding="utf-8"))
 texts=[]
 seen=set()
 
-def walk(x):
+def add(t):
+    if not isinstance(t, str):
+        return
+    t=t.strip()
+    if not t:
+        return
+    if t in seen:
+        return
+    seen.add(t)
+    texts.append(t)
+
+def walk_output(x):
     if isinstance(x, dict):
-        if x.get("type")=="output_text" and isinstance(x.get("text"), str):
-            t=x["text"].strip()
-            if t and t not in seen:
-                seen.add(t)
-                texts.append(t)
+        c = x.get("content")
+        if isinstance(c, list):
+            for part in c:
+                if isinstance(part, dict):
+                    if "text" in part:
+                        add(part.get("text"))
+                    for v in part.values():
+                        walk_output(v)
+        if x.get("type") in ("output_text","text") and "text" in x:
+            add(x.get("text"))
         for v in x.values():
-            walk(v)
+            walk_output(v)
     elif isinstance(x, list):
         for v in x:
-            walk(v)
+            walk_output(v)
 
-walk(obj.get("output", []))
+walk_output(obj.get("output", []))
+add(obj.get("output_text"))
+if isinstance(obj.get("response"), dict):
+    add(obj["response"].get("output_text"))
+choices = obj.get("choices")
+if isinstance(choices, list):
+    for ch in choices:
+        if isinstance(ch, dict):
+            msg = ch.get("message")
+            if isinstance(msg, dict):
+                add(msg.get("content"))
 print("\\n\\n".join(texts).strip())
 PY
 )"
 
 if [[ -z "${TEXT// }" ]]; then
   echo "ERROR: extracted TEXT was empty from $latest" >&2
+  if [[ "${DEBUG:-0}" -eq 1 ]]; then
+    echo "DEBUG: showing top-level keys and sample structure:" >&2
+    python3 - <<PY
+import json
+p="$latest"
+obj=json.load(open(p,"r",encoding="utf-8"))
+print("keys:", sorted(list(obj.keys())))
+for k in ("output","response","output_text","choices"):
+    v=obj.get(k)
+    print(f"{k}: type={type(v).__name__}")
+    if isinstance(v, list):
+      print(f"{k}: len={len(v)}; first_type={type(v[0]).__name__ if v else 'n/a'}")
+    if isinstance(v, dict):
+      print(f"{k}: keys={sorted(list(v.keys()))[:40]}")
+PY
+  fi
   exit 2
 fi
 
