@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Proof Validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "validation_version",
+    "task_id",
+    "custodian",
+    "result",
+    "failures",
+    "validated_artifacts",
+    "timestamp_utc"
+  ],
+  "properties": {
+    "validation_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "custodian": { "type": "string", "const": "custodian" },
+    "result": { "type": "string", "enum": ["PASS", "FAIL"] },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string", "minLength": 1 },
+          "message": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "validated_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "timestamp_utc": { "type": "string", "format": "date-time" }
+  }
+}

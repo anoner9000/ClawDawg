@@ -1,0 +1,14 @@
+name: task-completion-proof-gate
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+jobs:
+  validate-completion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate completion proof gate
+        run: |
+          set -euo pipefail
+          python3 ops/scripts/policy/validate_task_completion.py --root .
