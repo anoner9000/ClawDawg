@@ -188,6 +188,7 @@ def run_rembrandt_task(
     report_dir: Path | None = None,
     diff_base: str = "HEAD",
     require_css_build: bool = True,
+    mode: str = "verify",
 ) -> dict[str, Any]:
     """
     Main entrypoint.
@@ -202,8 +203,12 @@ def run_rembrandt_task(
     scribe = _resolve_scribe_principles_source()
     pages = _dashboard_pages()
 
-    # Default safe values
-    changed_files = _git_changed_files(diff_base)
+    run_mode = (mode or "verify").strip().lower()
+    if run_mode not in {"preflight", "verify"}:
+        run_mode = "verify"
+
+    # In preflight mode, no mutation is expected yet.
+    changed_files = [] if run_mode == "preflight" else _git_changed_files(diff_base)
 
     checks: dict[str, Any] = {
         "contract_directives_ok": _contract_directives_ok(contract.directives) if contract.strict_requested else True,
@@ -212,7 +217,12 @@ def run_rembrandt_task(
         "scribe_source_path": scribe.path or "none",
         "scribe_source_searched": scribe.searched,
         "dashboard_pages_found": len(pages),
-        "style_only_change_set_ok": _is_style_only_change_set(changed_files) if contract.strict_requested else True,
+        "style_only_change_set_ok": (
+            True
+            if run_mode == "preflight"
+            else (_is_style_only_change_set(changed_files) if contract.strict_requested else True)
+        ),
+        "run_mode": run_mode,
     }
 
     # Strict requirements for dashboard-wide tasks
@@ -222,7 +232,7 @@ def run_rembrandt_task(
         checks["type_is_style_only"] = contract.directives.get("type", "") == "style-only"
 
     build_ok, build_reason = (True, "skipped")
-    if require_css_build and contract.strict_requested:
+    if run_mode == "verify" and require_css_build and contract.strict_requested:
         build_ok, build_reason = _compile_css()
     checks["build_css_ok"] = build_ok if contract.strict_requested else True
     checks["build_css_reason"] = build_reason
@@ -238,7 +248,7 @@ def run_rembrandt_task(
             and checks.get("type_is_style_only", False)
             and checks["style_only_change_set_ok"]
             and (checks["dashboard_pages_found"] > 0)
-            and checks["build_css_ok"]
+            and (True if run_mode == "preflight" else checks["build_css_ok"])
         )
 
     state = "complete" if strict_ok else "error"
@@ -252,11 +262,11 @@ def run_rembrandt_task(
             fail_reason = f"scribe_source_gate:{checks['scribe_source_reason']}"
         elif contract.strict_requested and not checks.get("scope_is_dashboard_wide", True):
             fail_reason = "scope_gate:not_dashboard_wide"
-        elif contract.strict_requested and not checks["style_only_change_set_ok"]:
+        elif run_mode != "preflight" and contract.strict_requested and not checks["style_only_change_set_ok"]:
             fail_reason = "style_only_gate:changed_files_out_of_scope"
         elif contract.strict_requested and checks["dashboard_pages_found"] <= 0:
             fail_reason = "dashboard_pages_gate:none_found"
-        elif contract.strict_requested and not checks["build_css_ok"]:
+        elif run_mode != "preflight" and contract.strict_requested and not checks["build_css_ok"]:
             fail_reason = f"css_build_gate:{checks['build_css_reason']}"
         else:
             fail_reason = "unknown_gate"
@@ -266,9 +276,11 @@ def run_rembrandt_task(
         "state": state,
         "fail_reason": fail_reason,
         "strict_contract_requested": contract.strict_requested,
+        "run_mode": run_mode,
         "received_directives": contract.directives,
         "changed_files": changed_files,
         "checks": checks,
+        "report_path": str(report_path),
     }
 
     _write_report(report_path, result)
@@ -286,10 +298,11 @@ def main() -> int:
     ap.add_argument("--task-id", required=True)
     ap.add_argument("--message-file", required=True)
     ap.add_argument("--diff-base", default="HEAD")
+    ap.add_argument("--mode", choices=["preflight", "verify"], default="verify")
     args = ap.parse_args()
 
     msg = Path(args.message_file).read_text(encoding="utf-8", errors="replace")
-    res = run_rembrandt_task(task_id=args.task_id, message=msg, diff_base=args.diff_base)
+    res = run_rembrandt_task(task_id=args.task_id, message=msg, diff_base=args.diff_base, mode=args.mode)
     print(json.dumps(res, indent=2, sort_keys=True))
     return 0 if res.get("state") == "complete" else 1
 

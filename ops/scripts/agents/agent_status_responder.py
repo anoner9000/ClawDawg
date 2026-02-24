@@ -5,12 +5,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import tempfile
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
 BUS_DEFAULT = Path("~/.openclaw/runtime/logs/team_bus.jsonl").expanduser()
 PERSIST_SCRIPT = Path("~/.openclaw/workspace/ops/scripts/agents/persist_status.sh").expanduser()
+REMBRANDT_WORKER = Path(__file__).with_name("rembrandt_worker.py")
 
 
 def ts_utc() -> str:
@@ -42,6 +45,84 @@ def build_base(agent: str, ev_type: str, task_id: str | None, summary: str, dry_
     }
 
 
+def _lookup_task_message(bus: Path, task_id: str, agent: str) -> str:
+    if not bus.exists():
+        return ""
+    lines = [ln for ln in bus.read_text(encoding="utf-8", errors="replace").splitlines() if ln.strip()]
+    for line in reversed(lines):
+        try:
+            ev = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if str(ev.get("task_id") or "") != task_id:
+            continue
+        et = str(ev.get("type") or "")
+        if et == "FORMAL_COMMAND_ISSUED" and str(ev.get("target_agent") or "") == agent:
+            return str(ev.get("message") or "")
+        if et == "CHAT" and str(ev.get("target_agent") or "") == agent and str(ev.get("actor") or "") == "operator":
+            return str(ev.get("message") or "")
+    return ""
+
+
+def _run_rembrandt_verify(task_id: str, message: str) -> tuple[bool, str, str]:
+    if not REMBRANDT_WORKER.exists():
+        return False, "", f"missing worker script: {REMBRANDT_WORKER}"
+    msg_file: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, prefix="rembrandt-verify-", suffix=".txt") as tf:
+            tf.write(message or "")
+            msg_file = Path(tf.name)
+        proc = subprocess.run(
+            [
+                "python3",
+                str(REMBRANDT_WORKER),
+                "--task-id",
+                task_id,
+                "--message-file",
+                str(msg_file),
+                "--mode",
+                "verify",
+                "--diff-base",
+                "HEAD",
+            ],
+            cwd=str(Path.cwd()),
+            env={**os.environ, "OPENCLAW_WORKSPACE": str(Path.cwd())},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        out = (proc.stdout or proc.stderr or "").strip()
+        report_path = ""
+        fail_reason = ""
+        for line in reversed(out.splitlines()):
+            txt = line.strip()
+            if not txt.startswith("{"):
+                continue
+            try:
+                obj = json.loads(txt)
+            except json.JSONDecodeError:
+                continue
+            fail_reason = str(obj.get("fail_reason") or "").strip()
+            rp = obj.get("report_path")
+            if isinstance(rp, str) and rp.strip():
+                report_path = rp.strip()
+            break
+        if not report_path:
+            ws = Path(os.environ.get("OPENCLAW_WORKSPACE", Path.cwd())).resolve()
+            guess = ws / ".openclaw" / "runtime" / "reports" / "rembrandt" / f"{task_id}.json"
+            report_path = str(guess)
+        detail = fail_reason or (out.splitlines()[-1] if out else "")
+        return proc.returncode == 0, report_path, detail
+    except Exception as e:
+        return False, "", str(e)
+    finally:
+        if msg_file is not None:
+            try:
+                msg_file.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     event = build_base(args.agent, "STATUS", args.task_id, args.summary, not args.live)
     event["status"] = args.status
@@ -70,7 +151,19 @@ def cmd_ack(args: argparse.Namespace) -> int:
 def cmd_update(args: argparse.Namespace) -> int:
     event = build_base(args.agent, "TASK_UPDATE", args.task_id, args.summary, not args.live)
     event["state"] = args.state
-    if args.details_path:
+    if args.agent == "rembrandt" and args.state == "complete":
+        task_message = _lookup_task_message(args.bus, args.task_id, "rembrandt")
+        if "strict_overhaul_contract=true" in (task_message or "").lower():
+            ok, report_path, detail = _run_rembrandt_verify(args.task_id, task_message)
+            if not ok:
+                event["state"] = "error"
+                event["summary"] = f"completion_blocked_by_verify_gate:{detail or 'verify_failed'}"
+                if report_path:
+                    event["details_path"] = report_path
+            else:
+                if report_path:
+                    event["details_path"] = report_path
+    if args.details_path and not event.get("details_path"):
         event["details_path"] = args.details_path
     if args.error_code:
         event["error_code"] = args.error_code

@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import tempfile
 from typing import Any
 import uuid
 import urllib.error
@@ -264,6 +265,62 @@ def _live_agent_reply(agent: str, message: str) -> tuple[bool, str, str]:
     if not text:
         return False, "", "empty model output"
     return True, text, ""
+
+
+def _should_run_rembrandt_worker(message: str) -> bool:
+    body = (message or "").lower()
+    return "strict_overhaul_contract=true" in body
+
+
+def _run_rembrandt_worker(task_id: str, message: str) -> tuple[bool, str, str]:
+    worker = WORKSPACE_BASE / "ops" / "scripts" / "agents" / "rembrandt_worker.py"
+    report_path = WORKSPACE_BASE / ".openclaw" / "runtime" / "reports" / "rembrandt" / f"{task_id}.json"
+    if not worker.exists():
+        return False, str(report_path), f"missing worker script: {worker}"
+
+    msg_file: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, prefix="rembrandt-msg-", suffix=".txt") as tf:
+            tf.write(message or "")
+            msg_file = Path(tf.name)
+
+        proc = subprocess.run(
+            [
+                "python3",
+                str(worker),
+                "--task-id",
+                task_id,
+                "--message-file",
+                str(msg_file),
+                "--mode",
+                "preflight",
+                "--diff-base",
+                "HEAD",
+            ],
+            cwd=str(WORKSPACE_BASE),
+            env={**os.environ, "OPENCLAW_WORKSPACE": str(WORKSPACE_BASE)},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        out = (proc.stdout or proc.stderr or "").strip()
+        fail_reason = ""
+        if report_path.exists():
+            try:
+                rep = json.loads(report_path.read_text(encoding="utf-8", errors="replace"))
+                fail_reason = str(rep.get("fail_reason") or "").strip()
+            except Exception:
+                fail_reason = ""
+        detail = fail_reason or (out.splitlines()[-1] if out else "")
+        return proc.returncode == 0, str(report_path), detail
+    except Exception as e:
+        return False, str(report_path), str(e)
+    finally:
+        if msg_file is not None:
+            try:
+                msg_file.unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 def asset_version(name: str) -> int:
@@ -1690,6 +1747,26 @@ def chat_send_action(request: Request, agent: str = Form(...), message: str = Fo
     if not body:
         return HTMLResponse("<div class='warn'>Message is empty.</div>")
     post_chat_message(target, body, sender=(sender.strip() or "operator"))
+
+    if target.strip().lower() == "rembrandt" and _should_run_rembrandt_worker(body):
+        gate_task_id = f"rembrandt-gate-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
+        gate_ok, report_path, detail = _run_rembrandt_worker(gate_task_id, body)
+        if gate_ok:
+            post_chat_reply_system(
+                target,
+                f"[governance] Rembrandt contract gate passed. task_id={gate_task_id} report={report_path}",
+            )
+        else:
+            reason = detail or "contract_gate_failed"
+            post_chat_reply_system(
+                target,
+                f"[governance] Rembrandt contract gate failed. task_id={gate_task_id} reason={reason} report={report_path}",
+            )
+            return templates.TemplateResponse(
+                "partials/chat_thread.html",
+                {"request": request, "selected_agent": target, "messages": read_chat_messages(target)},
+            )
+
     live_enabled = (os.environ.get("OPENCLAW_UI_CHAT_LIVE", "1").strip().lower() not in {"0", "false", "no"})
     if live_enabled:
         ok, reply_text, err = _live_agent_reply(target, body)
