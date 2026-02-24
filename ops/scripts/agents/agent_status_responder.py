@@ -128,6 +128,7 @@ def _ensure_task_base_sha(task_id: str, message: str) -> str:
 def _run_rembrandt_verify(task_id: str, message: str, base_sha: str = "") -> tuple[bool, str, str]:
     if not REMBRANDT_WORKER.exists():
         return False, "", f"missing worker script: {REMBRANDT_WORKER}"
+    guess = WORKSPACE_BASE / ".openclaw" / "runtime" / "reports" / "rembrandt" / f"{task_id}.json"
     msg_file: Path | None = None
     try:
         with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, prefix="rembrandt-verify-", suffix=".txt") as tf:
@@ -156,8 +157,19 @@ def _run_rembrandt_verify(task_id: str, message: str, base_sha: str = "") -> tup
             check=False,
         )
         out = (proc.stdout or proc.stderr or "").strip()
-        report_path = ""
+        report_path = str(guess)
         fail_reason = ""
+        # Prefer report JSON as the source of truth.
+        if guess.exists():
+            try:
+                rep = json.loads(guess.read_text(encoding="utf-8", errors="replace"))
+                fail_reason = str(rep.get("fail_reason") or "").strip()
+                rp = rep.get("report_path")
+                if isinstance(rp, str) and rp.strip():
+                    report_path = rp.strip()
+            except Exception:
+                pass
+        # Best-effort parse of worker stdout for extra resilience.
         for line in reversed(out.splitlines()):
             txt = line.strip()
             if not txt.startswith("{"):
@@ -171,10 +183,15 @@ def _run_rembrandt_verify(task_id: str, message: str, base_sha: str = "") -> tup
             if isinstance(rp, str) and rp.strip():
                 report_path = rp.strip()
             break
-        if not report_path:
-            ws = WORKSPACE_BASE
-            guess = ws / ".openclaw" / "runtime" / "reports" / "rembrandt" / f"{task_id}.json"
-            report_path = str(guess)
+        # Last chance: read report in case stdout parse was ambiguous and fail_reason still empty.
+        if not fail_reason and report_path:
+            rp = Path(report_path)
+            if rp.exists():
+                try:
+                    rep = json.loads(rp.read_text(encoding="utf-8", errors="replace"))
+                    fail_reason = str(rep.get("fail_reason") or "").strip()
+                except Exception:
+                    pass
         detail = fail_reason or (out.splitlines()[-1] if out else "")
         return proc.returncode == 0, report_path, detail
     except Exception as e:
@@ -210,6 +227,22 @@ def _verify_failure_context(report_path: str) -> str:
     if compiled_css_source:
         parts.append(f"compiled_css_source={compiled_css_source}")
     return " ".join(parts)
+
+
+def _verify_failed_checks_extra_count(report_path: str) -> int:
+    if not report_path:
+        return 0
+    p = Path(report_path)
+    if not p.exists():
+        return 0
+    try:
+        rep = json.loads(p.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        return 0
+    failed = rep.get("failed_checks") or []
+    if not isinstance(failed, list):
+        return 0
+    return max(0, len(failed) - 1)
 
 
 def cmd_status(args: argparse.Namespace) -> int:
@@ -255,12 +288,18 @@ def cmd_update(args: argparse.Namespace) -> int:
             if not ok:
                 event["state"] = "error"
                 fail_ctx = ""
+                extra_failed = 0
                 try:
                     fail_ctx = _verify_failure_context(report_path)
                 except Exception:
                     fail_ctx = ""
+                try:
+                    extra_failed = _verify_failed_checks_extra_count(report_path)
+                except Exception:
+                    extra_failed = 0
                 suffix = f" {fail_ctx}" if fail_ctx else ""
-                event["summary"] = f"completion_blocked_by_verify_gate:{detail or 'verify_failed'}{suffix}"
+                more_suffix = f" (+{extra_failed} more)" if extra_failed > 0 else ""
+                event["summary"] = f"completion_blocked_by_verify_gate:{detail or 'verify_failed'}{suffix}{more_suffix}"
                 if report_path:
                     event["details_path"] = report_path
             else:
