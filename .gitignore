@@ -48,3 +48,6 @@ local/*.patch
 
 # Avoid committing local backup artifacts
 ops/scripts/cron/*.bak.*
+
+# runtime task artifacts
+tasks/
