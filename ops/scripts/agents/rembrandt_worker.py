@@ -341,6 +341,7 @@ def run_rembrandt_task(
 
         base_rel, base_css = _read_compiled_css_at_base(diff_base_used)
         checks["base_css_source"] = base_rel or "none"
+        checks["base_css_source_ok"] = bool(base_rel)
         curr_vars = _parse_rm_vars(css_txt)
         base_vars = _parse_rm_vars(base_css)
         required_var_keys = [
@@ -381,6 +382,7 @@ def run_rembrandt_task(
         checks["theme_source_changed_ok"] = True
         checks["compiled_css_source"] = "none"
         checks["base_css_source"] = "none"
+        checks["base_css_source_ok"] = True
         checks["component_coverage"] = {}
         checks["component_coverage_missing"] = []
         checks["component_coverage_ok"] = True
@@ -417,6 +419,7 @@ def run_rembrandt_task(
             and (True if run_mode == "preflight" else checks["build_css_ok"])
             and (True if run_mode == "preflight" else checks["theme_source_changed_ok"])
             and (True if run_mode == "preflight" else checks["component_coverage_ok"])
+            and (True if run_mode == "preflight" else checks["base_css_source_ok"])
             and (True if run_mode == "preflight" else checks["token_var_presence_ok"])
             and (True if run_mode == "preflight" else checks["font_scale_delta_ok"])
             and (True if run_mode == "preflight" else checks["radii_changed_ok"])
@@ -442,6 +445,8 @@ def run_rembrandt_task(
         elif run_mode != "preflight" and contract.strict_requested and not checks["component_coverage_ok"]:
             miss = ",".join(checks.get("component_coverage_missing", []))
             fail_reason = f"coverage_gate:missing_components:{miss}"
+        elif run_mode != "preflight" and contract.strict_requested and not checks["base_css_source_ok"]:
+            fail_reason = "radical_delta_gate:missing_base_css"
         elif run_mode != "preflight" and contract.strict_requested and not checks["token_var_presence_ok"]:
             fail_reason = "radical_delta_gate:missing_token_vars"
         elif run_mode != "preflight" and contract.strict_requested and not checks["base_token_var_presence_ok"]:
