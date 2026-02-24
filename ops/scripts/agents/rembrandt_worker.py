@@ -152,13 +152,25 @@ def _is_style_only_change_set(changed_files: list[str]) -> bool:
 
 def _git_changed_files(base_ref: str = "HEAD") -> list[str]:
     """
-    Get changed files relative to base_ref (default HEAD).
-    Works for local runs; in CI you may pass base sha.
+    Get changed files using base...HEAD (triple-dot) plus working-tree/index deltas.
+    This keeps verify robust whether task changes are committed or still in working tree.
     """
-    code, out = _run(["git", "diff", "--name-only", base_ref])
-    if code != 0:
-        return []
-    return [ln.strip() for ln in out.splitlines() if ln.strip()]
+    files: set[str] = set()
+
+    def collect(args: list[str]) -> None:
+        code, out = _run(args)
+        if code != 0:
+            return
+        for ln in out.splitlines():
+            txt = ln.strip()
+            if txt:
+                files.add(txt)
+
+    if base_ref:
+        collect(["git", "diff", "--name-only", f"{base_ref}...HEAD"])
+    collect(["git", "diff", "--name-only", "--cached"])
+    collect(["git", "diff", "--name-only"])
+    return sorted(files)
 
 
 def _contract_directives_ok(directives: dict[str, str]) -> bool:
@@ -187,6 +199,7 @@ def run_rembrandt_task(
     message: str,
     report_dir: Path | None = None,
     diff_base: str = "HEAD",
+    base_sha: str | None = None,
     require_css_build: bool = True,
     mode: str = "verify",
 ) -> dict[str, Any]:
@@ -207,8 +220,9 @@ def run_rembrandt_task(
     if run_mode not in {"preflight", "verify"}:
         run_mode = "verify"
 
+    diff_base_used = (base_sha or "").strip() or diff_base
     # In preflight mode, no mutation is expected yet.
-    changed_files = [] if run_mode == "preflight" else _git_changed_files(diff_base)
+    changed_files = [] if run_mode == "preflight" else _git_changed_files(diff_base_used)
 
     checks: dict[str, Any] = {
         "contract_directives_ok": _contract_directives_ok(contract.directives) if contract.strict_requested else True,
@@ -277,6 +291,7 @@ def run_rembrandt_task(
         "fail_reason": fail_reason,
         "strict_contract_requested": contract.strict_requested,
         "run_mode": run_mode,
+        "diff_base_used": diff_base_used,
         "received_directives": contract.directives,
         "changed_files": changed_files,
         "checks": checks,
@@ -298,11 +313,18 @@ def main() -> int:
     ap.add_argument("--task-id", required=True)
     ap.add_argument("--message-file", required=True)
     ap.add_argument("--diff-base", default="HEAD")
+    ap.add_argument("--base-sha", default="")
     ap.add_argument("--mode", choices=["preflight", "verify"], default="verify")
     args = ap.parse_args()
 
     msg = Path(args.message_file).read_text(encoding="utf-8", errors="replace")
-    res = run_rembrandt_task(task_id=args.task_id, message=msg, diff_base=args.diff_base, mode=args.mode)
+    res = run_rembrandt_task(
+        task_id=args.task_id,
+        message=msg,
+        diff_base=args.diff_base,
+        base_sha=(args.base_sha or "").strip() or None,
+        mode=args.mode,
+    )
     print(json.dumps(res, indent=2, sort_keys=True))
     return 0 if res.get("state") == "complete" else 1
 

@@ -14,6 +14,8 @@ from pathlib import Path
 BUS_DEFAULT = Path("~/.openclaw/runtime/logs/team_bus.jsonl").expanduser()
 PERSIST_SCRIPT = Path("~/.openclaw/workspace/ops/scripts/agents/persist_status.sh").expanduser()
 REMBRANDT_WORKER = Path(__file__).with_name("rembrandt_worker.py")
+WORKSPACE_BASE = Path(os.environ.get("OPENCLAW_WORKSPACE", "~/.openclaw/workspace")).expanduser().resolve()
+REMBRANDT_TASK_META_DIR = Path("~/.openclaw/runtime/tasks/rembrandt").expanduser()
 
 
 def ts_utc() -> str:
@@ -64,7 +66,66 @@ def _lookup_task_message(bus: Path, task_id: str, agent: str) -> str:
     return ""
 
 
-def _run_rembrandt_verify(task_id: str, message: str) -> tuple[bool, str, str]:
+def _strict_contract_message(message: str) -> bool:
+    return "strict_overhaul_contract=true" in (message or "").lower()
+
+
+def _task_meta_path(task_id: str) -> Path:
+    return REMBRANDT_TASK_META_DIR / f"{task_id}.json"
+
+
+def _git_head_sha() -> str:
+    proc = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=str(WORKSPACE_BASE),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        return ""
+    return (proc.stdout or "").strip()
+
+
+def _load_task_meta(task_id: str) -> dict:
+    p = _task_meta_path(task_id)
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        return {}
+
+
+def _save_task_meta(task_id: str, meta: dict) -> None:
+    p = _task_meta_path(task_id)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _ensure_task_base_sha(task_id: str, message: str) -> str:
+    if not _strict_contract_message(message):
+        return ""
+    meta = _load_task_meta(task_id)
+    base_sha = str(meta.get("base_sha") or "").strip()
+    if base_sha:
+        return base_sha
+    head = _git_head_sha()
+    if not head:
+        return ""
+    _save_task_meta(
+        task_id,
+        {
+            "task_id": task_id,
+            "base_sha": head,
+            "created_at": ts_utc(),
+            "mode": "strict_contract",
+        },
+    )
+    return head
+
+
+def _run_rembrandt_verify(task_id: str, message: str, base_sha: str = "") -> tuple[bool, str, str]:
     if not REMBRANDT_WORKER.exists():
         return False, "", f"missing worker script: {REMBRANDT_WORKER}"
     msg_file: Path | None = None
@@ -72,21 +133,24 @@ def _run_rembrandt_verify(task_id: str, message: str) -> tuple[bool, str, str]:
         with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, prefix="rembrandt-verify-", suffix=".txt") as tf:
             tf.write(message or "")
             msg_file = Path(tf.name)
+        cmd = [
+            "python3",
+            str(REMBRANDT_WORKER),
+            "--task-id",
+            task_id,
+            "--message-file",
+            str(msg_file),
+            "--mode",
+            "verify",
+        ]
+        if base_sha:
+            cmd.extend(["--base-sha", base_sha])
+        else:
+            cmd.extend(["--diff-base", "HEAD"])
         proc = subprocess.run(
-            [
-                "python3",
-                str(REMBRANDT_WORKER),
-                "--task-id",
-                task_id,
-                "--message-file",
-                str(msg_file),
-                "--mode",
-                "verify",
-                "--diff-base",
-                "HEAD",
-            ],
-            cwd=str(Path.cwd()),
-            env={**os.environ, "OPENCLAW_WORKSPACE": str(Path.cwd())},
+            cmd,
+            cwd=str(WORKSPACE_BASE),
+            env={**os.environ, "OPENCLAW_WORKSPACE": str(WORKSPACE_BASE)},
             capture_output=True,
             text=True,
             check=False,
@@ -108,7 +172,7 @@ def _run_rembrandt_verify(task_id: str, message: str) -> tuple[bool, str, str]:
                 report_path = rp.strip()
             break
         if not report_path:
-            ws = Path(os.environ.get("OPENCLAW_WORKSPACE", Path.cwd())).resolve()
+            ws = WORKSPACE_BASE
             guess = ws / ".openclaw" / "runtime" / "reports" / "rembrandt" / f"{task_id}.json"
             report_path = str(guess)
         detail = fail_reason or (out.splitlines()[-1] if out else "")
@@ -140,6 +204,9 @@ def cmd_ack(args: argparse.Namespace) -> int:
     event = build_base(args.agent, "TASK_ACK", args.task_id, args.summary, not args.live)
     event["assigned_by"] = args.assigned_by
     event["owner"] = args.owner or args.agent
+    if args.agent == "rembrandt":
+        task_message = _lookup_task_message(args.bus, args.task_id, "rembrandt")
+        _ensure_task_base_sha(args.task_id, task_message)
     if args.eta:
         event["ETA"] = args.eta
     write_bus_event(args.bus, event)
@@ -151,10 +218,15 @@ def cmd_ack(args: argparse.Namespace) -> int:
 def cmd_update(args: argparse.Namespace) -> int:
     event = build_base(args.agent, "TASK_UPDATE", args.task_id, args.summary, not args.live)
     event["state"] = args.state
-    if args.agent == "rembrandt" and args.state == "complete":
+    if args.agent == "rembrandt":
         task_message = _lookup_task_message(args.bus, args.task_id, "rembrandt")
-        if "strict_overhaul_contract=true" in (task_message or "").lower():
-            ok, report_path, detail = _run_rembrandt_verify(args.task_id, task_message)
+        base_sha = _ensure_task_base_sha(args.task_id, task_message)
+    else:
+        task_message = ""
+        base_sha = ""
+    if args.agent == "rembrandt" and args.state == "complete":
+        if _strict_contract_message(task_message):
+            ok, report_path, detail = _run_rembrandt_verify(args.task_id, task_message, base_sha=base_sha)
             if not ok:
                 event["state"] = "error"
                 event["summary"] = f"completion_blocked_by_verify_gate:{detail or 'verify_failed'}"
