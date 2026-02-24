@@ -443,7 +443,7 @@ def main() -> int:
     sp.add_argument("--live", action="store_true")
     sp.set_defaults(func=cmd_respond_check)
 
-    args = ap.p
+    args = ap.parse_args()
 
     # HARD BLOCK: only custodian may emit TASK_UPDATE state=complete
     # This enforces Agent Topology v2 at runtime emission point.
@@ -451,8 +451,7 @@ def main() -> int:
         if getattr(args, "agent", None) != "custodian":
             print("FAIL: Only custodian may emit state=complete (agent-topology v2 hard block).", file=sys.stderr)
             sys.exit(2)
-arse_args()
-    args.bus = args.bus.expanduser()
+            args.bus = args.bus.expanduser()
     return args.func(args)
 
 
