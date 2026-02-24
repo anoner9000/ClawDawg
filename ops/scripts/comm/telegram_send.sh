@@ -1,6 +1,33 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+DEBUG=0
+if [[ "${1:-}" == "--debug" ]]; then DEBUG=1; shift; fi
+
+ROOT="${ROOT:-$HOME/.openclaw/workspace}"
+RUNTIME_DIR="${RUNTIME_DIR:-$HOME/.openclaw/runtime}"
+CRED_DIR="${CRED_DIR:-$RUNTIME_DIR/credentials}"
+
+TOKEN_FILE="$CRED_DIR/telegram_bot_token"
+CHAT_FILE="$CRED_DIR/telegram_chat_id"
+
+if [[ "${DEBUG:-0}" -eq 1 ]]; then
+  echo "DEBUG: CRED_DIR=$CRED_DIR" >&2
+  echo "DEBUG: TOKEN_FILE=$TOKEN_FILE exists=$([[ -f "$TOKEN_FILE" ]] && echo yes || echo no)" >&2
+  echo "DEBUG: CHAT_FILE=$CHAT_FILE exists=$([[ -f "$CHAT_FILE" ]] && echo yes || echo no)" >&2
+fi
+
+# Load creds from files if env is not set
+if [[ -z "${TELEGRAM_BOT_TOKEN:-}" && -f "$TOKEN_FILE" ]]; then
+  TELEGRAM_BOT_TOKEN="$(tr -d '\r\n' < "$TOKEN_FILE")"
+  export TELEGRAM_BOT_TOKEN
+fi
+if [[ -z "${TELEGRAM_CHAT_ID:-}" && -f "$CHAT_FILE" ]]; then
+  TELEGRAM_CHAT_ID="$(tr -d '\r\n' < "$CHAT_FILE")"
+  export TELEGRAM_CHAT_ID
+fi
+
+
 # Enforced boundary: ONLY executor-comm may send Telegram.
 : "${OPENCLAW_ACTOR:=${OPENCLAW_AGENT:-}}"
 if [[ "${OPENCLAW_ACTOR:-}" != "executor-comm" ]]; then
@@ -21,24 +48,8 @@ fi
 : "${TEXT:?TEXT required}"
 
 
-ROOT="${ROOT:-$HOME/.openclaw/workspace}"
-RUNTIME_DIR="${RUNTIME_DIR:-$HOME/.openclaw/runtime}"
-CRED_DIR="${CRED_DIR:-$RUNTIME_DIR/credentials}"
 
-TOKEN_FILE="$CRED_DIR/telegram_bot_token"
-CHAT_FILE="$CRED_DIR/telegram_chat_id"
 
-# Load creds from files if env is not set
-if [[ -z "${TELEGRAM_BOT_TOKEN:-}" && -f "$TOKEN_FILE" ]]; then
-  TELEGRAM_BOT_TOKEN="$(tr -d '
-' < "$TOKEN_FILE")"
-  export TELEGRAM_BOT_TOKEN
-fi
-if [[ -z "${TELEGRAM_CHAT_ID:-}" && -f "$CHAT_FILE" ]]; then
-  TELEGRAM_CHAT_ID="$(tr -d '
-' < "$CHAT_FILE")"
-  export TELEGRAM_CHAT_ID
-fi
 REC_DIR="$ROOT/tasks/$TASK_ID/receipts"
 mkdir -p "$REC_DIR"
 
