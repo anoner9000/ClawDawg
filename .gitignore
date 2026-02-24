@@ -34,3 +34,11 @@ __pycache__/
 # python bytecode
 __pycache__/
 *.py[cod]
+
+# hard local/runtime/build ignores
+.openclaw/
+.venv/
+ui/dashboard/node_modules/
+**/__pycache__/
+.ruff_cache/
+ui/dashboard/static/*.bundle.*
