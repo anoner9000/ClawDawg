@@ -27,6 +27,25 @@ mkdir -p "$REC_DIR"
 OUT_JSON="$REC_DIR/telegram_send_result.json"
 RECEIPT_JSON="$REC_DIR/EXECUTION_RECEIPT.json"
 
+
+echo "== validating bot token via getMe =="
+python3 - <<'PY2'
+import json, os, urllib.request
+token=os.environ["TELEGRAM_BOT_TOKEN"]
+url=f"https://api.telegram.org/bot{token}/getMe"
+try:
+    with urllib.request.urlopen(url, timeout=10) as r:
+        body=r.read().decode("utf-8", errors="replace")
+        obj=json.loads(body)
+        if not obj.get("ok"):
+            print("FAIL: invalid bot token:", body)
+            raise SystemExit(4)
+        print("OK: bot identity:", obj.get("result",{}).get("username"))
+except Exception as e:
+    print("FAIL: token validation error:", e)
+    raise SystemExit(4)
+PY2
+
 echo "== sending telegram message =="
 python3 - <<'PY' > "$OUT_JSON"
 import json, os, sys, urllib.parse, urllib.request
