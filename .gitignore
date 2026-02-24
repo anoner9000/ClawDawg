@@ -34,3 +34,20 @@ __pycache__/
 # python bytecode
 __pycache__/
 *.py[cod]
+
+# hard local/runtime/build ignores
+.openclaw/
+.venv/
+ui/dashboard/node_modules/
+**/__pycache__/
+.ruff_cache/
+ui/dashboard/static/*.bundle.*
+
+# Local-only stash/patch backups
+local/*.patch
+
+# Avoid committing local backup artifacts
+ops/scripts/cron/*.bak.*
+
+# runtime task artifacts
+tasks/

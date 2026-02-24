@@ -1,0 +1,16 @@
+name: governance-surface-gate
+
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+
+jobs:
+  governance-surface:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Governance surface gate (no policy logic outside allowed dirs)
+        run: |
+          set -euo pipefail
+          bash ops/scripts/policy/governance_surface_gate.sh .

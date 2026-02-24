@@ -1622,3 +1622,50 @@ td {
     grid-row: auto;
   }
 }
+
+/* REMBRANDT_AUTOGEN_START */
+:root {
+  --rm-font-scale: 1.24;
+  --rm-panel-radius: 14px;
+  --rm-day-bg: #f4f6f8;
+  --rm-night-bg: #0f171f;
+  --rm-day-accent: #0f766e;
+  --rm-night-accent: #6ee7d8;
+}
+
+html[data-theme="light"] body {
+  background: var(--rm-day-bg);
+}
+
+html[data-theme="dark"] body {
+  background: var(--rm-night-bg);
+}
+
+body {
+  font-size: calc(16px * var(--rm-font-scale));
+}
+
+.panel-section,
+.agent-card,
+.overview-card,
+.task-drawer {
+  border-radius: var(--rm-panel-radius);
+}
+
+.action-btn,
+button,
+.badge {
+  border-color: var(--rm-day-accent);
+}
+
+html[data-theme="dark"] .action-btn,
+html[data-theme="dark"] button,
+html[data-theme="dark"] .badge {
+  border-color: var(--rm-night-accent);
+}
+/* REMBRANDT_AUTOGEN_END */
+
+
+
+
+

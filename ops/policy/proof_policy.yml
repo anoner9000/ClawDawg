@@ -1,0 +1,35 @@
+policyVersion: 1
+proofPolicy:
+  enabled: true
+
+  # Any message containing these keywords is considered a "claim" that must be proven.
+  claimKeywords:
+    - verified
+    - confirmed
+    - committed
+    - patch
+    - patched
+    - fixed
+    - executed
+    - ran
+    - started
+    - listening
+    - running
+    - returns
+    - pid
+
+  # To be "proven", a message must include one of:
+  # - proof_receipt=/abs/path/to/receipt.json
+  # - an inline evidence section starting with evidenceBlockPrefix
+  requiresProofReceiptOrEvidenceBlock: true
+  proofReceiptToken: "proof_receipt="
+  evidenceBlockPrefix: "EVIDENCE:"
+
+  # Allowed claim-like words without proof IF message explicitly declares itself as non-claim.
+  # (This keeps planning/hypotheses from tripping the gate.)
+  allowIfContainsAny:
+    - "[plan]"
+    - "[hypothesis]"
+    - "[speculation]"
+    - "I think"
+    - "maybe"

@@ -103,3 +103,9 @@ This keeps merge behavior deterministic and contract-driven, independent of GitH
 coderabbit-head test 2026-02-20T21:33:21-06:00
 head-bump 2026-02-20T21:33:28-06:00
 nudge 2026-02-20T21:33:47-06:00
+
+## 2026-02-24 — Agent Topology v2 enforcement
+
+- Added `agent-boundary-gate` workflow to enforce canonical-agent boundaries in CI.
+- Added runtime hard-block so only `custodian` can emit completion events.
+- Added governance surface/report checks and topology documentation alignment.
