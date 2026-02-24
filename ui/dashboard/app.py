@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 from typing import Any
 import uuid
@@ -266,6 +267,10 @@ def _live_agent_reply(agent: str, message: str) -> tuple[bool, str, str]:
 def _should_run_rembrandt_worker(message: str) -> bool:
     body = (message or "").lower()
     return "strict_overhaul_contract=true" in body
+
+
+def _ui_dry_run() -> bool:
+    return (os.environ.get("OPENCLAW_UI_DRY_RUN", "0").strip().lower() in {"1", "true", "yes", "on"})
 
 
 def _run_rembrandt_worker(task_id: str, message: str) -> tuple[bool, str, str]:
@@ -1006,7 +1011,7 @@ def post_chat_message(agent: str, message: str, sender: str = "operator") -> Non
         "summary": message,
         "message": message,
         "channel": "ui_chat",
-        "dry_run": True,
+        "dry_run": _ui_dry_run(),
     }
     with TEAM_BUS.open("a", encoding="utf-8") as f:
         f.write(json.dumps(ev, ensure_ascii=False) + "\n")
@@ -1069,6 +1074,64 @@ def post_chat_reply_system(agent: str, message: str) -> None:
     }
     with TEAM_BUS.open("a", encoding="utf-8") as f:
         f.write(json.dumps(reply, ensure_ascii=False) + "\n")
+
+
+def _slug_for_task(message: str, limit: int = 48) -> str:
+    base = re.sub(r"[^a-z0-9]+", "-", (message or "").lower()).strip("-")
+    if not base:
+        return "task"
+    return base[:limit].strip("-") or "task"
+
+
+def post_formal_command_issued(request: Request, actor: str, target_agent: str, task_id: str, message: str) -> None:
+    TEAM_BUS.parent.mkdir(parents=True, exist_ok=True)
+    ev = {
+        "schema_version": "team_bus.v1.1",
+        "ts": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "type": "FORMAL_COMMAND_ISSUED",
+        "actor": actor,
+        "target_agent": target_agent,
+        "task_id": task_id,
+        "summary": f"Formal command routed to {target_agent}",
+        "message": message,
+        "channel": "ui_chat",
+        "dry_run": _ui_dry_run(),
+        "client_ip": (request.client.host if request and request.client else ""),
+    }
+    with TEAM_BUS.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(ev, ensure_ascii=False) + "\n")
+
+
+def dispatch_formal_command(task_id: str, target_agent: str, message: str, actor: str = "operator") -> tuple[bool, str]:
+    consumer = WORKSPACE_BASE / "ops" / "scripts" / "agents" / "mcp_formal_command_consumer.py"
+    if not consumer.exists():
+        return False, f"missing MCP consumer script: {consumer}"
+
+    cmd = [
+        sys.executable,
+        str(consumer),
+        "--task-id",
+        task_id,
+        "--target-agent",
+        target_agent,
+        "--actor",
+        actor,
+        "--message",
+        message,
+        "--live",
+    ]
+    try:
+        subprocess.Popen(
+            cmd,
+            cwd=str(WORKSPACE_BASE),
+            env={**os.environ, "OPENCLAW_WORKSPACE": str(WORKSPACE_BASE)},
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+    except OSError as e:
+        return False, str(e)
+    return True, ""
 
 
 def agent_profile_for(agent: str) -> dict:
@@ -1751,6 +1814,33 @@ def chat_send_action(request: Request, agent: str = Form(...), message: str = Fo
             post_chat_reply_system(
                 target,
                 f"[governance] Rembrandt contract gate passed. task_id={gate_task_id} report={report_path}",
+            )
+            formal_task_id = f"rembrandt-{_slug_for_task(body)}-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}"
+            post_formal_command_issued(
+                request=request,
+                actor=(sender.strip() or "operator"),
+                target_agent=target,
+                task_id=formal_task_id,
+                message=body,
+            )
+            dispatched, dispatch_err = dispatch_formal_command(
+                task_id=formal_task_id,
+                target_agent=target,
+                message=body,
+                actor=(sender.strip() or "operator"),
+            )
+            if not dispatched:
+                post_chat_reply_system(
+                    target,
+                    f"[system] Formal command dispatch failed: {dispatch_err}",
+                )
+            post_chat_reply_system(
+                target,
+                f"[governance] Formal command issued for strict contract. Task created: {formal_task_id} (in_process).",
+            )
+            return templates.TemplateResponse(
+                "partials/chat_thread.html",
+                {"request": request, "selected_agent": target, "messages": read_chat_messages(target)},
             )
         else:
             reason = detail or "contract_gate_failed"

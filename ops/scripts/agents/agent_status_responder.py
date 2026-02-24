@@ -87,6 +87,28 @@ def _git_head_sha() -> str:
     return (proc.stdout or "").strip()
 
 
+def _git_worktree_changes() -> list[str]:
+    files: set[str] = set()
+    for cmd in (
+        ["git", "diff", "--name-only", "--cached"],
+        ["git", "diff", "--name-only"],
+    ):
+        proc = subprocess.run(
+            cmd,
+            cwd=str(WORKSPACE_BASE),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if proc.returncode != 0:
+            continue
+        for ln in (proc.stdout or "").splitlines():
+            txt = ln.strip()
+            if txt:
+                files.add(txt)
+    return sorted(files)
+
+
 def _load_task_meta(task_id: str) -> dict:
     p = _task_meta_path(task_id)
     if not p.exists():
@@ -120,6 +142,7 @@ def _ensure_task_base_sha(task_id: str, message: str) -> str:
             "base_sha": head,
             "created_at": ts_utc(),
             "mode": "strict_contract",
+            "baseline_changed_files": _git_worktree_changes(),
         },
     )
     return head
@@ -151,7 +174,15 @@ def _run_rembrandt_verify(task_id: str, message: str, base_sha: str = "") -> tup
         proc = subprocess.run(
             cmd,
             cwd=str(WORKSPACE_BASE),
-            env={**os.environ, "OPENCLAW_WORKSPACE": str(WORKSPACE_BASE)},
+            env={
+                **os.environ,
+                "OPENCLAW_WORKSPACE": str(WORKSPACE_BASE),
+                "OPENCLAW_REM_IGNORE_CHANGED": ";".join(
+                    str(x).strip()
+                    for x in (_load_task_meta(task_id).get("baseline_changed_files") or [])
+                    if str(x).strip()
+                ),
+            },
             capture_output=True,
             text=True,
             check=False,

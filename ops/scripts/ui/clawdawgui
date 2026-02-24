@@ -83,6 +83,44 @@ is_watch_running() {
   kill -0 "$pid" 2>/dev/null
 }
 
+stop_watch_group() {
+  [[ -f "$WATCH_PID_FILE" ]] || return 0
+  local wpid
+  wpid="$(cat "$WATCH_PID_FILE" 2>/dev/null || true)"
+  [[ -n "$wpid" ]] || return 0
+
+  # If it's already dead, just clean pidfile.
+  if ! kill -0 "$wpid" 2>/dev/null; then
+    rm -f "$WATCH_PID_FILE"
+    return 0
+  fi
+
+  # setsid => kill the whole process group
+  kill -TERM "-$wpid" 2>/dev/null || true
+  sleep 0.3
+  if kill -0 "$wpid" 2>/dev/null; then
+    kill -KILL "-$wpid" 2>/dev/null || true
+  fi
+
+  local remain
+  remain="$(
+    ps -eo pid=,args= \
+      | rg "pnpm run watch|sass .*--watch|esbuild .*--watch" \
+      | awk '{print $1}' \
+      | while read -r pid; do
+          [[ -n "$pid" ]] || continue
+          cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
+          if [[ "$cwd" == "$ROOT/ui/dashboard" ]]; then
+            echo "$pid"
+          fi
+        done \
+      | wc -l
+  )"
+  echo "proof(stop_watch_group): remaining_dashboard_watchers=$remain" | tee -a "$LOG_FILE"
+
+  rm -f "$WATCH_PID_FILE"
+}
+
 cleanup_stale_dashboard_watchers() {
   local watch_dir
   watch_dir="$ROOT/ui/dashboard"
@@ -154,8 +192,58 @@ start_dev() {
   fi
   cleanup_stale_dashboard_watchers
   clear_stale_port_holders
+  "$ROOT/ops/scripts/ui/bootstrap_dashboard.sh" >>"$LOG_FILE" 2>&1
   cd "$ROOT/ui/dashboard"
-  nohup env PNPM_STORE_DIR="$HOME/.local/share/pnpm/store/v10" pnpm run watch >>"$WATCH_LOG_FILE" 2>&1 </dev/null &
+  nohup setsid env PNPM_STORE_DIR="$HOME/.local/share/pnpm/store/v10" pnpm run watch >>"$WATCH_LOG_FILE" 2>&1 </dev/null &
+  echo "$!" > "$WATCH_PID_FILE"
+  cd "$ROOT"
+  nohup "$PY" -m uvicorn ui.dashboard.app:app --host "$HOST" --port "$PORT" >>"$LOG_FILE" 2>&1 </dev/null &
+  local uv_supervisor_pid
+  uv_supervisor_pid="$!"
+  sleep 0.2
+  if pid="$(wait_for_listener)"; then
+    local code_root code_css code_js
+    code_root="$(curl --max-time 3 --connect-timeout 1 -sS -o /dev/null -w '%{http_code}' "http://$HOST:$PORT/" 2>/dev/null || printf '000')"
+    code_css="$(curl --max-time 3 --connect-timeout 1 -sS -o /dev/null -w '%{http_code}' "http://$HOST:$PORT/static/app.bundle.css" 2>/dev/null || printf '000')"
+    code_js="$(curl --max-time 3 --connect-timeout 1 -sS -o /dev/null -w '%{http_code}' "http://$HOST:$PORT/static/dashboard.bundle.js" 2>/dev/null || printf '000')"
+    echo "proof: root=$code_root css=$code_css js=$code_js" | tee -a "$LOG_FILE"
+    if [[ "$code_root" != "200" || "$code_css" != "200" || "$code_js" != "200" ]]; then
+      echo "failed to start clawdawgui dev mode (health check failed root=$code_root css=$code_css js=$code_js)"
+      kill "$uv_supervisor_pid" 2>/dev/null || true
+      clear_stale_port_holders || true
+      if [[ -f "$WATCH_PID_FILE" ]]; then
+        stop_watch_group
+      fi
+      rm -f "$PID_FILE" "$WATCH_PID_FILE" "$MODE_FILE"
+      tail -n 80 "$LOG_FILE" || true
+      return 1
+    fi
+    echo "$uv_supervisor_pid" > "$PID_FILE"
+    echo "dev" > "$MODE_FILE"
+    echo "clawdawgui started in dev mode (pid $uv_supervisor_pid; listener $pid) on http://$HOST:$PORT"
+  else
+    echo "failed to start clawdawgui dev mode (no listener on $HOST:$PORT)"
+    tail -n 80 "$LOG_FILE" || true
+    return 1
+  fi
+}
+
+start_dev_reload() {
+  if is_running; then
+    local m
+    m="$(mode)"
+    if [[ "$m" == "dev-reload" ]]; then
+      echo "clawdawgui already running (pid $(cat "$PID_FILE")) in dev-reload mode"
+      return 0
+    fi
+    stop || true
+  fi
+  cleanup_stale_dashboard_watchers
+  clear_stale_port_holders
+  "$ROOT/ops/scripts/ui/bootstrap_dashboard.sh" >>"$LOG_FILE" 2>&1
+  echo "mode=dev-reload (nondeterministic)" | tee -a "$LOG_FILE"
+  cd "$ROOT/ui/dashboard"
+  nohup setsid env PNPM_STORE_DIR="$HOME/.local/share/pnpm/store/v10" pnpm run watch >>"$WATCH_LOG_FILE" 2>&1 </dev/null &
   echo "$!" > "$WATCH_PID_FILE"
   cd "$ROOT"
   nohup "$PY" -m uvicorn ui.dashboard.app:app --host "$HOST" --port "$PORT" --reload >>"$LOG_FILE" 2>&1 </dev/null &
@@ -163,12 +251,22 @@ start_dev() {
   uv_supervisor_pid="$!"
   sleep 0.2
   if pid="$(wait_for_listener)"; then
-    # In reload mode, keep supervisor PID for deterministic lifecycle control.
+    local code_root code_css code_js
+    code_root="$(curl --max-time 3 --connect-timeout 1 -sS -o /dev/null -w '%{http_code}' "http://$HOST:$PORT/" 2>/dev/null || printf '000')"
+    code_css="$(curl --max-time 3 --connect-timeout 1 -sS -o /dev/null -w '%{http_code}' "http://$HOST:$PORT/static/app.bundle.css" 2>/dev/null || printf '000')"
+    code_js="$(curl --max-time 3 --connect-timeout 1 -sS -o /dev/null -w '%{http_code}' "http://$HOST:$PORT/static/dashboard.bundle.js" 2>/dev/null || printf '000')"
+    echo "proof(dev-reload): root=$code_root css=$code_css js=$code_js" | tee -a "$LOG_FILE"
     echo "$uv_supervisor_pid" > "$PID_FILE"
-    echo "dev" > "$MODE_FILE"
-    echo "clawdawgui started in dev mode (pid $uv_supervisor_pid; listeners $pid) on http://$HOST:$PORT"
+    echo "dev-reload" > "$MODE_FILE"
+    echo "clawdawgui started in dev-reload mode (pid $uv_supervisor_pid; listener $pid) on http://$HOST:$PORT"
   else
-    echo "failed to start clawdawgui dev mode (no listener on $HOST:$PORT)"
+    echo "failed to start clawdawgui dev-reload mode (no listener on $HOST:$PORT)"
+    kill "$uv_supervisor_pid" 2>/dev/null || true
+    if [[ -f "$WATCH_PID_FILE" ]]; then
+      stop_watch_group
+    fi
+    clear_stale_port_holders || true
+    rm -f "$PID_FILE" "$WATCH_PID_FILE" "$MODE_FILE"
     tail -n 80 "$LOG_FILE" || true
     return 1
   fi
@@ -191,13 +289,7 @@ stop() {
   fi
 
   if is_watch_running; then
-    local wpid
-    wpid="$(cat "$WATCH_PID_FILE")"
-    kill "$wpid" 2>/dev/null || true
-    sleep 1
-    if kill -0 "$wpid" 2>/dev/null; then
-      kill -9 "$wpid" 2>/dev/null || true
-    fi
+    stop_watch_group
     echo "clawdawgui watcher stopped"
   fi
   rm -f "$WATCH_PID_FILE" "$MODE_FILE"
@@ -241,6 +333,7 @@ logs() {
 case "${1:-}" in
   start) start ;;
   dev) start_dev ;;
+  dev-reload) start_dev_reload ;;
   prod)
     stop || true
     start
@@ -249,8 +342,13 @@ case "${1:-}" in
   restart)
     m="$(mode)"
     stop || true
-    if [[ "$m" == "dev" ]]; then
-      start_dev
+    if [[ "$m" == "dev" ]] || [[ "$m" == "dev-reload" ]]; then
+      # preserve reload flavor if you implement it, else treat as dev
+      if [[ "$m" == "dev-reload" ]]; then
+        start_dev_reload
+      else
+        start_dev
+      fi
     else
       start
     fi
@@ -258,7 +356,7 @@ case "${1:-}" in
   status) status ;;
   logs) logs ;;
   *)
-    echo "usage: $0 {start|dev|prod|stop|restart|status|logs}"
+    echo "Usage: $0 {start|dev|dev-reload|prod|stop|restart|status|logs}"
     exit 2
     ;;
 esac
