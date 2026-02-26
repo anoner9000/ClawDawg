@@ -5,7 +5,7 @@ This file is the **single canonical roster**. Any agent not listed here is **non
 ## Canonical Agents
 - `custodian` — Verifier. Only agent allowed to emit `TASK_UPDATE state=complete` after PASS proof validation.
 - `deiphobe` — Planner. Strategy + sequencing only. Never executes. Never completes.
-- `scribe` — Recorder. Documentation + handoffs only. Never executes. Never completes.
+- `scribe` — Recorder + Timekeeper. Documentation, handoffs, and authoritative time queries via `agents/scribe/time_now.py`. Never executes. Never completes.
 - `executor-ui` — Worker. UI tasks only. Emits `EXECUTION_RECEIPT.json`. Never completes.
 - `executor-code` — Worker. Code tasks only. Emits `EXECUTION_RECEIPT.json`. Never completes.
 - `executor-doc` — Worker. Docs tasks only. Emits `EXECUTION_RECEIPT.json`. Never completes.

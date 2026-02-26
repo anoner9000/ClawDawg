@@ -28,6 +28,29 @@ if [ -f "$HOME/.openclaw/workspace/.env" ]; then
   source "$HOME/.openclaw/workspace/.env"
 fi
 
+# Run reminder pulse on every scheduler tick (Scribe owns scheduling semantics).
+# Keep this non-blocking so reminder delivery failures do not stall the heartbeat loop.
+# Determine workspace root (prefer git, fallback to default path)
+WORKSPACE_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "$WORKSPACE_ROOT" ]; then
+  WORKSPACE_ROOT="$HOME/.openclaw/workspace"
+fi
+
+# Run reminder pulse on every scheduler tick (Scribe owns scheduling semantics).
+# Keep this non-blocking so reminder delivery failures do not stall the heartbeat loop.
+REMINDER_PULSE="$WORKSPACE_ROOT/ops/scripts/cron/reminder_pulse.sh"
+if [ -x "$REMINDER_PULSE" ]; then
+  if ! "$REMINDER_PULSE" >> "$LOG" 2>&1; then
+    echo "WARN: reminder pulse failed (continuing heartbeat loop)." | tee -a "$LOG"
+  fi
+else
+  MARKER="${LOG}.reminder_pulse_missing_once"
+  if [ ! -f "$MARKER" ]; then
+    echo "INFO: reminder pulse script not found/executable: $REMINDER_PULSE" >> "$LOG"
+    : > "$MARKER" 2>/dev/null || true
+  fi
+fi
+
 DRY_RUN=false
 if [ "${1:-}" = "--dry-run" ]; then
   DRY_RUN=true
