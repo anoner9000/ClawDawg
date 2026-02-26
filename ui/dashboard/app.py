@@ -1592,16 +1592,72 @@ def chat_thread_partial(request: Request, agent: str):
 
 
 @app.get("/partials/task-drawer", response_class=HTMLResponse)
-def task_drawer_partial(request: Request, task_id: str):
+def task_drawer_partial(request: Request, task_id: str = ""):
     task_id = (task_id or "").strip()
+    if not task_id:
+        return templates.TemplateResponse(
+            "partials/task_drawer.html",
+            {
+                "request": request,
+                "task_id": "",
+                "drawer_state": "empty",
+                "drawer_error": "",
+                "drawer_error_code": "",
+                "drawer_error_hint": "",
+                "drawer": {"state": "n/a", "bus_events": "n/a", "timed_out": False, "truncated": False, "cli_error": False},
+                "latest_human": [],
+            },
+        )
     if not _is_valid_task_id(task_id):
-        return HTMLResponse("<div class='warn'>Invalid task id.</div>", status_code=400)
+        return templates.TemplateResponse(
+            "partials/task_drawer.html",
+            {
+                "request": request,
+                "task_id": task_id,
+                "drawer_state": "error",
+                "drawer_error": "Invalid task id.",
+                "drawer_error_code": "bad_request",
+                "drawer_error_hint": "Use a task id from the queue table.",
+                "drawer": {"state": "n/a", "bus_events": "n/a", "timed_out": False, "truncated": False, "cli_error": True},
+                "latest_human": [],
+            },
+            status_code=400,
+        )
     task_dir = STATUS_TASKS_DIR / task_id
     if not task_dir.exists() or not task_dir.is_dir():
-        return HTMLResponse("<div class='warn'>Task not found.</div>", status_code=404)
+        return templates.TemplateResponse(
+            "partials/task_drawer.html",
+            {
+                "request": request,
+                "task_id": task_id,
+                "drawer_state": "error",
+                "drawer_error": "Task not found.",
+                "drawer_error_code": "not_found",
+                "drawer_error_hint": "Task status directory is missing for this task id.",
+                "drawer": {"state": "n/a", "bus_events": "n/a", "timed_out": False, "truncated": False, "cli_error": True},
+                "latest_human": [],
+            },
+            status_code=404,
+        )
 
-    res = run_query_status("--task-id", task_id)
-    parsed = parse_task_output(task_id, res.stdout)
+    try:
+        res = run_query_status("--task-id", task_id)
+        parsed = parse_task_output(task_id, res.stdout)
+    except Exception:
+        return templates.TemplateResponse(
+            "partials/task_drawer.html",
+            {
+                "request": request,
+                "task_id": task_id,
+                "drawer_state": "error",
+                "drawer_error": "Failed to load task details.",
+                "drawer_error_code": "exception",
+                "drawer_error_hint": "Server hit an exception while reading task details.",
+                "drawer": {"state": "n/a", "bus_events": "n/a", "timed_out": False, "truncated": False, "cli_error": True},
+                "latest_human": [],
+            },
+            status_code=500,
+        )
     latest_human = []
     for item in parsed.latest_by_agent[:6]:
         row = _humanize_agent_update(item)
@@ -1617,11 +1673,28 @@ def task_drawer_partial(request: Request, task_id: str):
         "truncated": bool(res.truncated),
         "cli_error": bool((not res.ok) and (not res.timed_out)),
     }
+    drawer_state = "error" if (drawer["timed_out"] or drawer["cli_error"]) else "ready"
+    drawer_error_code = ""
+    drawer_error = ""
+    drawer_error_hint = ""
+    if drawer_state == "error":
+        if drawer["timed_out"]:
+            drawer_error_code = "timed_out"
+            drawer_error = "Timed out while loading task details."
+            drawer_error_hint = "Try again; query_status may be slow."
+        else:
+            drawer_error_code = "cli_error"
+            drawer_error = "CLI failed while loading task details."
+            drawer_error_hint = "Inspect query_status logs for this task."
     return templates.TemplateResponse(
         "partials/task_drawer.html",
         {
             "request": request,
             "task_id": task_id,
+            "drawer_state": drawer_state,
+            "drawer_error": drawer_error,
+            "drawer_error_code": drawer_error_code,
+            "drawer_error_hint": drawer_error_hint,
             "drawer": drawer,
             "latest_human": latest_human,
         },

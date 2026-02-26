@@ -1,11 +1,30 @@
-<table>
+<table data-testid="partial-task-table" data-state="{{ 'ready' if tasks else 'empty' }}">
   <thead>
     <tr><th>task_id</th><th>state</th><th>bus_events</th><th>latest_by_agent</th><th>flags</th></tr>
   </thead>
   <tbody>
   {% for t in tasks %}
-    <tr>
-      <td><a href="/tasks/{{ t.task_id }}">{{ t.task_id }}</a></td>
+    <tr
+      hx-get="/partials/task-drawer?task_id={{ t.task_id }}"
+      hx-target="#task-drawer-mount"
+      hx-swap="innerHTML"
+      hx-push-url="false"
+    >
+      <td>
+        <a href="/tasks/{{ t.task_id }}">{{ t.task_id }}</a>
+        <button
+          type="button"
+          class="open-task-drawer"
+          data-task-id="{{ t.task_id }}"
+          hx-trigger="click consume"
+          hx-get="/partials/task-drawer?task_id={{ t.task_id }}"
+          hx-target="#task-drawer-mount"
+          hx-swap="innerHTML"
+          hx-push-url="false"
+        >
+          Inspect
+        </button>
+      </td>
       <td>{{ t.parsed.state }}</td>
       <td>{{ t.parsed.bus_events if t.parsed.bus_events is not none else 'n/a' }}</td>
       <td>{{ t.parsed.latest_by_agent | join('; ') }}</td>

@@ -1,4 +1,4 @@
-<ul>
+<ul data-testid="partial-receipts-list" data-state="{{ 'ready' if receipts else 'empty' }}">
 {% for r in receipts %}
   <li>
     <a href="/tasks/{{ r.task_id }}">{{ r.task_id }}</a> — {{ r.name }}

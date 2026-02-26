@@ -1,5 +1,32 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Agents</h2>
-<div id="agent-cards" hx-get="/partials/agent-cards" hx-trigger="load, every {{ poll_agents_s }}s" hx-swap="innerHTML"></div>
+<div class="stack" data-testid="page-agents" data-state="ready">
+  <h2>Agents</h2>
+  <section class="panel-section" data-testid="section-roster">
+    <div id="agent-cards" hx-get="/partials/agent-cards" hx-trigger="load, every {{ poll_agents_s }}s" hx-swap="innerHTML"></div>
+  </section>
+
+  <section class="panel-section" data-testid="section-queue">
+    <h3>Tasks</h3>
+    <div id="task-table" hx-get="/partials/task-table" hx-trigger="load, every {{ poll_tasks_s }}s" hx-swap="innerHTML"></div>
+    <div id="task-drawer-mount" data-testid="task-drawer-mount">
+      <p class="muted">Select a task row to inspect details.</p>
+    </div>
+  </section>
+
+  <section class="panel-section" data-testid="section-receipts">
+    <h3>Receipts</h3>
+    <div id="receipts-list" hx-get="/partials/receipts-list" hx-trigger="load, every {{ poll_tasks_s }}s" hx-swap="innerHTML"></div>
+  </section>
+
+  <div id="task-drawer-shell" class="task-drawer-shell hidden">
+    <div class="task-drawer-backdrop" data-close-drawer="1"></div>
+    <aside id="task-drawer" class="task-drawer">
+      <button type="button" class="task-drawer-close" data-close-drawer="1">Close</button>
+      <div id="task-drawer-content">
+        <p class="muted">Select a task row to inspect details.</p>
+      </div>
+    </aside>
+  </div>
+</div>
 {% endblock %}

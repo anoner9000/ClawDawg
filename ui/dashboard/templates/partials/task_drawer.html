@@ -1,7 +1,30 @@
-<section class="task-drawer-panel">
-  <h3>Task {{ task_id }}</h3>
-  <p><strong>State:</strong> {{ drawer.state }}</p>
-  <p><strong>Bus events:</strong> {{ drawer.bus_events }}</p>
+<section class="task-drawer-panel" data-testid="partial-task-drawer" data-state="{{ drawer_state|default('empty') }}">
+  {% if drawer_state == "empty" %}
+  <h3>Task details</h3>
+  <p class="muted">No task selected.</p>
+  {% elif drawer_state == "error" %}
+  <h3>Task {{ task_id if task_id else "details" }}</h3>
+  <p class="warn"
+     data-testid="task-drawer-error"
+     data-error-code="{{ drawer_error_code|default('unknown') }}">
+    {{ drawer_error if drawer_error else "Failed to load task details." }}
+  </p>
+  {% if drawer_error_hint %}
+    <p class="muted" data-testid="task-drawer-error-hint">{{ drawer_error_hint }}</p>
+  {% endif %}
+  {% else %}
+  <h3 data-testid="task-drawer-title">Task {{ task_id }}</h3>
+  <p data-testid="task-drawer-state"><strong>State:</strong> {{ drawer.state|default("unknown") }}</p>
+  <p data-testid="task-drawer-bus-events"><strong>Bus events:</strong> {{ drawer.bus_events|default(0) }}</p>
+  {% set flags = [] %}
+  {% if drawer.timed_out %}{% set _ = flags.append("timed_out") %}{% endif %}
+  {% if drawer.truncated %}{% set _ = flags.append("truncated") %}{% endif %}
+  {% if drawer.cli_error %}{% set _ = flags.append("cli_error") %}{% endif %}
+  {% if flags %}
+  <p class="warn" data-testid="task-drawer-flags" data-flags="{{ flags|join(',') }}">
+    Warning: {{ flags|join(', ') }}
+  </p>
+  {% endif %}
   {% if drawer.timed_out %}<p class="warn">CLI timed out.</p>{% endif %}
   {% if drawer.truncated %}<p class="warn">CLI output truncated.</p>{% endif %}
   {% if drawer.cli_error %}<p class="warn">CLI returned an error.</p>{% endif %}
@@ -9,9 +32,13 @@
   <h4>Latest by Agent</h4>
   <ul>
     {% for row in latest_human %}
-    <li><strong>{{ row.agent }}</strong>: {{ row.message }}</li>
+    <li>
+      <strong>{{ row.agent }}</strong>:
+      {{ row.message[:240] }}{% if row.message and (row.message|length > 240) %}…{% endif %}
+    </li>
     {% else %}
     <li>(none)</li>
     {% endfor %}
   </ul>
+  {% endif %}
 </section>

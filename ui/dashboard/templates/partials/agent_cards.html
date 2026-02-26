@@ -1,4 +1,4 @@
-<div class="grid">
+<div class="grid" data-testid="partial-agent-cards" data-state="{{ 'ready' if agent_cards else 'empty' }}">
 {% for c in agent_cards %}
   <article class="card {{ 'flag' if c.flagged else '' }}">
     <h3><a href="/agents/{{ c.agent }}">{{ c.agent }}</a></h3>
