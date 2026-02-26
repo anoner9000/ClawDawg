@@ -10,11 +10,44 @@ CRED_DIR="${CRED_DIR:-$RUNTIME_DIR/credentials}"
 
 TOKEN_FILE="$CRED_DIR/telegram_bot_token"
 CHAT_FILE="$CRED_DIR/telegram_chat_id"
+OPENCLAW_CFG="${OPENCLAW_CONFIG_FILE:-$HOME/.openclaw/openclaw.json}"
 
 if [[ "${DEBUG:-0}" -eq 1 ]]; then
   echo "DEBUG: CRED_DIR=$CRED_DIR" >&2
   echo "DEBUG: TOKEN_FILE=$TOKEN_FILE exists=$([[ -f "$TOKEN_FILE" ]] && echo yes || echo no)" >&2
   echo "DEBUG: CHAT_FILE=$CHAT_FILE exists=$([[ -f "$CHAT_FILE" ]] && echo yes || echo no)" >&2
+fi
+
+# Prefer env vars; if missing, read defaults from openclaw.json.
+if [[ -z "${TELEGRAM_BOT_TOKEN:-}" || -z "${TELEGRAM_CHAT_ID:-}" ]]; then
+  if [[ -f "$OPENCLAW_CFG" ]]; then
+    _OC_TOKEN="$(python3 - "$OPENCLAW_CFG" <<'PYC' 2>/dev/null || true
+import json
+import sys
+from pathlib import Path
+p = Path(sys.argv[1])
+cfg = json.loads(p.read_text(encoding="utf-8"))
+tg = cfg.get("channels", {}).get("telegram", {}) or {}
+tok = tg.get("botToken") or ""
+allow = tg.get("allowFrom") or []
+chat = allow[0] if isinstance(allow, list) and allow else ""
+print(tok)
+print(chat)
+PYC
+)"
+    if [[ -n "$_OC_TOKEN" ]]; then
+      _TOK="$(printf '%s\n' "$_OC_TOKEN" | sed -n '1p')"
+      _CHAT="$(printf '%s\n' "$_OC_TOKEN" | sed -n '2p')"
+      if [[ -z "${TELEGRAM_BOT_TOKEN:-}" && -n "$_TOK" ]]; then
+        TELEGRAM_BOT_TOKEN="$_TOK"
+        export TELEGRAM_BOT_TOKEN
+      fi
+      if [[ -z "${TELEGRAM_CHAT_ID:-}" && -n "$_CHAT" ]]; then
+        TELEGRAM_CHAT_ID="$_CHAT"
+        export TELEGRAM_CHAT_ID
+      fi
+    fi
+  fi
 fi
 
 # Load creds from files if env is not set
