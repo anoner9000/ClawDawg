@@ -51,3 +51,5 @@ ops/scripts/cron/*.bak.*
 
 # runtime task artifacts
 tasks/
+# reminder receipts (runtime state)
+memory/reminders.jsonl

@@ -32,6 +32,11 @@ jobs:
           set -euo pipefail
           python3 ops/scripts/agents/agent_boundary_audit.py
 
+      - name: Reminder authority audit (Scribe-only scheduling)
+        run: |
+          set -euo pipefail
+          python3 ops/scripts/agents/reminder_authority_audit.py
+
       - name: Runtime emission hard-block present
         run: |
           set -euo pipefail
