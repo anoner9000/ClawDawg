@@ -28,8 +28,6 @@ if [ -f "$HOME/.openclaw/workspace/.env" ]; then
   source "$HOME/.openclaw/workspace/.env"
 fi
 
-# Run reminder pulse on every scheduler tick (Scribe owns scheduling semantics).
-# Keep this non-blocking so reminder delivery failures do not stall the heartbeat loop.
 # Determine workspace root (prefer git, fallback to default path)
 WORKSPACE_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [ -z "$WORKSPACE_ROOT" ]; then
