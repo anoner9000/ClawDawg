@@ -53,3 +53,4 @@ ops/scripts/cron/*.bak.*
 tasks/
 # reminder receipts (runtime state)
 memory/reminders.jsonl
+hydration/
